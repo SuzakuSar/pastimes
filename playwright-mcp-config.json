@@ -1,0 +1,11 @@
+{
+  "browser": "chrome",
+  "headless": false,
+  "host": "localhost",
+  "port": 3000,
+  "viewport-size": "1280, 720",
+  "allowed-origins": "http://localhost:5000",
+  "output-dir": "./playwright-output",
+  "save-session": true,
+  "save-trace": true
+} 
