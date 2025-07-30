@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- External tracking scripts removed for clean deployment -->
+    
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/space.css') }}"/>
+    
+    <!-- Page Title -->
+    <title>{% block title %}SUMMERLOCKIN{% endblock %}</title>
+    
+    <!-- Global Space Theme Styles -->
+    <style>
+        /* Base space theme that applies to all pages */
+        :root {
+            --space-bg-primary: #090a0f;
+            --space-bg-secondary: #1b2735;
+            --nebula-purple: rgba(138, 43, 226, 0.3);
+            --nebula-blue: rgba(0, 191, 255, 0.3);
+            --nebula-pink: rgba(255, 20, 147, 0.3);
+            --star-white: rgba(255, 255, 255, 0.9);
+            --glow-color: rgba(138, 43, 226, 0.6);
+            --nav-height: 65px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: radial-gradient(ellipse at bottom, var(--space-bg-secondary) 0%, var(--space-bg-primary) 100%);
+            min-height: 100vh;
+            color: var(--star-white);
+            font-family: 'Times New Roman', Times, serif;
+            overflow-x: hidden;
+            padding-top: var(--nav-height);
+        }
+        
+        /* Universal glowing text effect for headers */
+        h1, h2, h3 {
+            font-weight: 300;
+            text-shadow: 
+                0 0 10px rgba(255,255,255,0.5),
+                0 0 20px rgba(255,255,255,0.3),
+                0 0 30px var(--glow-color);
+            letter-spacing: 0.05em;
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-align: center;
+            margin: 2rem 0;
+            animation: titleFloat 6s ease-in-out infinite;
+        }
+        
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* ============= NAVIGATION STYLES ============= */
+        
+        .space-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--nav-height);
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 35, 0.95) 0%, 
+                rgba(25, 25, 55, 0.95) 50%, 
+                rgba(35, 25, 65, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+            /* Force consistent font for entire navigation */
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        
+        /* Force font isolation for all navigation children */
+        .space-nav * {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .nav-container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            gap: 1rem;
+            text-align: left;
+            margin: 0;
+            float: none;
+            clear: none;
+            box-sizing: border-box;
+        }
+        
+        /* Brand/Logo */
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            color: rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(138, 43, 226, 0.15);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .nav-brand:hover {
+            background: rgba(138, 43, 226, 0.25);
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.8);
+        }
+        
+        .nav-brand-icon {
+            font-size: 1.2rem;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollable Links Container */
+        .nav-links-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-links-scroll {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .nav-links-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Fade indicators */
+        .scroll-fade {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        
+        .scroll-fade-left {
+            left: 0;
+            background: linear-gradient(to right, rgba(25, 25, 55, 0.95), transparent);
+        }
+        
+        .scroll-fade-right {
+            right: 0;
+            background: linear-gradient(to left, rgba(25, 25, 55, 0.95), transparent);
+        }
+        
+        /* Navigation Links */
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background: rgba(138, 43, 226, 0.3);
+            border-color: rgba(138, 43, 226, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active {
+            background: rgba(138, 43, 226, 0.4);
+            color: white;
+            border-color: rgba(138, 43, 226, 0.6);
+        }
+        
+        .nav-link span {
+            margin-right: 0.3rem;
+            font-size: 0.8rem;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        /* Dropdown */
+        .nav-dropdown {
+            position: relative;
+            flex-shrink: 0;
+            text-align: left;
+            display: block;
+            margin: 0;
+            float: none;
+            clear: none;
+        }
+        
+        .nav-dropdown-btn {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: normal;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            padding: 0.6rem 0.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dropdown-btn:hover,
+        .nav-dropdown-btn.active {
+            background: rgba(138, 43, 226, 0.4);
+            border-color: rgba(138, 43, 226, 0.6);
+        }
+        
+        /* Dropdown Menu - Font Isolation + Position Isolation */
+        .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            left: auto;
+            width: 300px;
+            background: linear-gradient(135deg, 
+                rgba(20, 20, 45, 0.96) 0%, 
+                rgba(30, 30, 60, 0.96) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            max-height: 400px;
+            /* Force consistent font family for entire dropdown */
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            /* Prevent centering inheritance */
+            text-align: left;
+            display: block;
+            margin: 0;
+            float: none;
+            clear: none;
+        }
+        
+        .nav-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* Force font isolation for all dropdown children */
+        .nav-dropdown-menu * {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: inherit;
+            font-style: inherit;
+            text-transform: inherit;
+            letter-spacing: inherit;
+            text-align: inherit;
+        }
+        
+        /* Search in dropdown */
+        .nav-search-container {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+            display: block;
+        }
+        
+        .nav-search-input {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: normal;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            text-align: left;
+            display: block;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        
+        .nav-search-input:focus {
+            outline: none;
+            border-color: rgba(138, 43, 226, 0.6);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+        
+        .nav-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            text-align: left;
+        }
+        
+        /* Dropdown links */
+        .nav-dropdown-links {
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+            text-align: left;
+            display: block;
+        }
+        
+        .nav-dropdown-links::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .nav-dropdown-links::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-dropdown-links::-webkit-scrollbar-thumb {
+            background: rgba(138, 43, 226, 0.5);
+            border-radius: 2px;
+        }
+        
+        .nav-dropdown-link {
+            display: block;
+            padding: 0.7rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-style: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            text-align: left;
+            width: 100%;
+            margin: 0;
+            float: none;
+            clear: none;
+            box-sizing: border-box;
+        }
+        
+        .nav-dropdown-link:hover {
+            background: rgba(138, 43, 226, 0.2);
+            color: white;
+            padding-left: 1.5rem;
+        }
+        
+        .nav-dropdown-link.active {
+            background: rgba(138, 43, 226, 0.3);
+            color: white;
+            border-left: 3px solid rgba(138, 43, 226, 0.8);
+        }
+        
+        .nav-dropdown-link span {
+            margin-right: 0.5rem;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            display: inline;
+            text-align: left;
+        }
+        
+        .nav-no-results {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: normal;
+            display: block;
+            margin: 0;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 0.5rem;
+                justify-content: space-between;
+                text-align: left;
+            }
+            
+            .nav-brand {
+                font-size: 1rem;
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .nav-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+            
+            .nav-dropdown-menu {
+                width: 280px;
+                right: 0;
+                left: auto;
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-dropdown-menu {
+                width: calc(100vw - 20px);
+                right: 10px;
+                left: auto;
+                text-align: left;
+            }
+        }
+        
+        /* Global content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+            min-height: calc(100vh - var(--nav-height));
+        }
+        
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Focus styles */
+        .space-nav a:focus,
+        .space-nav button:focus {
+            outline: 2px solid rgba(138, 43, 226, 0.8);
+            outline-offset: 2px;
+        }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Universal Space Navigation -->
+    <nav class="space-nav" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <!-- Brand/Logo -->
+            <a href="{{ url_for('home.index') }}" class="nav-brand">
+                <span class="nav-brand-icon">✦</span>
+                <span>SUMMERLOCKIN</span>
+            </a>
+            
+            <!-- Scrollable Navigation Links -->
+            <div class="nav-links-wrapper">
+                <div class="scroll-fade scroll-fade-left" id="fadeLeft"></div>
+                <div class="nav-links-scroll" id="navLinksScroll">
+                    <a href="{{ url_for('home.index') }}" class="nav-link {{ 'active' if request.endpoint == 'home.index' else '' }}">
+                        <span>🌌</span>Home
+                    </a>
+                    <a href="{{ url_for('time_predict.index') }}" class="nav-link {{ 'active' if request.endpoint == 'time_predict.index' else '' }}">
+                        <span>🕒</span>Time Predict
+                    </a>
+                    <a href="{{ url_for('dino_runner.index') }}" class="nav-link {{ 'active' if request.endpoint == 'dino_runner.index' else '' }}">
+                        <span>🦕</span>Dino Runner
+                    </a>
+                    <a href="{{ url_for('leaderboard.index') }}" class="nav-link {{ 'active' if request.endpoint == 'leaderboard.index' else '' }}">
+                        <span>🏆</span>Leaderboards
+                    </a>
+                </div>
+                <div class="scroll-fade scroll-fade-right" id="fadeRight"></div>
+            </div>
+            
+            <!-- Dropdown Menu -->
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn" id="navDropdownBtn" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <div class="nav-dropdown-menu" id="navDropdownMenu">
+                    <div class="nav-search-container">
+                        <input 
+                            type="text" 
+                            class="nav-search-input" 
+                            id="navSearchInput"
+                            placeholder="Search apps..."
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="nav-dropdown-links" id="navDropdownLinks">
+                        <a href="{{ url_for('home.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'home.index' else '' }}" data-search="home main dashboard games collection">
+                            <span>🌌</span>Home
+                        </a>
+                        <a href="{{ url_for('time_predict.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'time_predict.index' else '' }}" data-search="time predict timing challenge 10 seconds">
+                            <span>🕒</span>Time Predict Challenge
+                        </a>
+                        <a href="{{ url_for('dino_runner.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'dino_runner.index' else '' }}" data-search="dinosaur runner game jump chrome endless">
+                            <span>🦕</span>Cosmic Dino Runner
+                        </a>
+                        <a href="{{ url_for('leaderboard.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'leaderboard.index' else '' }}" data-search="leaderboard scores rankings high scores">
+                            <span>🏆</span>Leaderboards
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Page Header -->
+    <h1>{% block header %}{% endblock %}</h1>
+    
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        {% block body %}{% endblock %}
+    </div>
+    
+    <!-- Global Scripts -->
+    <script>
+        // Simple Navigation Manager
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinksScroll = document.getElementById('navLinksScroll');
+            const fadeLeft = document.getElementById('fadeLeft');
+            const fadeRight = document.getElementById('fadeRight');
+            const dropdownBtn = document.getElementById('navDropdownBtn');
+            const dropdownMenu = document.getElementById('navDropdownMenu');
+            const searchInput = document.getElementById('navSearchInput');
+            const dropdownLinks = document.getElementById('navDropdownLinks');
+            
+            // Update scroll indicators
+            function updateScrollIndicators() {
+                const scrollLeft = navLinksScroll.scrollLeft;
+                const scrollWidth = navLinksScroll.scrollWidth;
+                const clientWidth = navLinksScroll.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                
+                fadeLeft.style.opacity = scrollLeft > 10 ? '1' : '0';
+                fadeRight.style.opacity = scrollLeft < maxScroll - 10 ? '1' : '0';
+            }
+            
+            // Dropdown toggle
+            function toggleDropdown() {
+                const isOpen = dropdownMenu.classList.contains('active');
+                
+                if (isOpen) {
+                    dropdownMenu.classList.remove('active');
+                    dropdownBtn.classList.remove('active');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                } else {
+                    dropdownMenu.classList.add('active');
+                    dropdownBtn.classList.add('active');
+                    dropdownBtn.setAttribute('aria-expanded', 'true');
+                    setTimeout(() => searchInput.focus(), 100);
+                }
+            }
+            
+            // Search functionality
+            function handleSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const links = dropdownLinks.querySelectorAll('.nav-dropdown-link');
+                let visibleCount = 0;
+                
+                links.forEach(link => {
+                    const searchData = link.getAttribute('data-search') || '';
+                    const linkText = link.textContent.toLowerCase();
+                    const isMatch = searchData.includes(searchTerm) || linkText.includes(searchTerm);
+                    
+                    link.style.display = isMatch ? 'block' : 'none';
+                    if (isMatch) visibleCount++;
+                });
+                
+                // Show no results message
+                let noResultsEl = document.getElementById('navNoResults');
+                if (visibleCount === 0 && searchTerm) {
+                    if (!noResultsEl) {
+                        noResultsEl = document.createElement('div');
+                        noResultsEl.id = 'navNoResults';
+                        noResultsEl.className = 'nav-no-results';
+                        dropdownLinks.appendChild(noResultsEl);
+                    }
+                    noResultsEl.textContent = `No apps found for "${searchTerm}"`;
+                    noResultsEl.style.display = 'block';
+                } else if (noResultsEl) {
+                    noResultsEl.style.display = 'none';
+                }
+            }
+            
+            // Event listeners
+            navLinksScroll.addEventListener('scroll', updateScrollIndicators);
+            window.addEventListener('resize', updateScrollIndicators);
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
+                    dropdownMenu.classList.remove('active');
+                    dropdownBtn.classList.remove('active');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            
+            searchInput.addEventListener('input', handleSearch);
+            dropdownMenu.addEventListener('click', (e) => e.stopPropagation());
+            
+            // Close dropdown on link click
+            dropdownLinks.querySelectorAll('.nav-dropdown-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    dropdownMenu.classList.remove('active');
+                    dropdownBtn.classList.remove('active');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+            
+            // Initialize
+            updateScrollIndicators();
+        });
+    </script>
+</body>
+</html>

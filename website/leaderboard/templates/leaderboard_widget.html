@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ leaderboard.game_name }} Leaderboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(35, 25, 65, 0.95));
+            color: white;
+            font-size: 12px;
+        }
+        
+        .widget-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .widget-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFD700;
+            font-size: 14px;
+        }
+        
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .score-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .rank {
+            font-weight: bold;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+        
+        .username {
+            flex: 1;
+            margin: 0 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #4CAF50;
+            white-space: nowrap;
+        }
+        
+        .empty-widget {
+            text-align: center;
+            opacity: 0.7;
+            padding: 20px;
+        }
+        
+        .view-full {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .view-full a {
+            color: #FFD700;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .view-full a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-title">🏆 {{ leaderboard.game_name }} Top {{ leaderboard.scores|length }}</div>
+        
+        {% if leaderboard.scores %}
+            {% for score in leaderboard.scores %}
+            <div class="score-entry">
+                <div class="rank rank-{{ score.rank if score.rank <= 3 else 'other' }}">
+                    {% if score.rank == 1 %}🥇
+                    {% elif score.rank == 2 %}🥈
+                    {% elif score.rank == 3 %}🥉
+                    {% else %}{{ score.rank }}
+                    {% endif %}
+                </div>
+                <div class="username">{{ score.username }}</div>
+                <div class="score">{{ score.score | format_score(leaderboard.score_type) }}</div>
+            </div>
+            {% endfor %}
+            
+            <div class="view-full">
+                <a href="{{ url_for('leaderboard.view_game_leaderboard', game_name=leaderboard.game_name) }}" target="_parent">
+                    View Full Leaderboard →
+                </a>
+            </div>
+        {% else %}
+            <div class="empty-widget">
+                <div>No scores yet!</div>
+                <div style="margin-top: 5px; font-size: 10px;">Be the first to score!</div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

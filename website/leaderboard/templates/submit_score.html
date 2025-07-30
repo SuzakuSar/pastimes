@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Score - SUMMERLOCKIN{% endblock %}
+{% block header %}🎯 Submit Your Score{% endblock %}
+
+{% block head %}
+<style>
+    .submit-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 40px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .score-display {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255,215,0,0.2);
+        border-radius: 15px;
+        border: 1px solid rgba(255,215,0,0.3);
+    }
+    
+    .game-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        margin-bottom: 10px;
+    }
+    
+    .score-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 15px rgba(255,255,255,0.5);
+    }
+    
+    .score-type {
+        opacity: 0.8;
+        margin-top: 5px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1.1rem;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: rgba(138, 43, 226, 0.6);
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+    }
+    
+    .form-group input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    }
+    
+    .skip-btn {
+        width: 100%;
+        padding: 10px;
+        background: transparent;
+        color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+    
+    .skip-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+    
+    .username-rules {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        margin-top: 5px;
+        line-height: 1.4;
+    }
+    
+    .flash-messages {
+        margin-bottom: 20px;
+    }
+    
+    .flash-message {
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .flash-error {
+        background: rgba(244, 67, 54, 0.2);
+        border: 1px solid rgba(244, 67, 54, 0.5);
+        color: #ffcdd2;
+    }
+    
+    .character-count {
+        text-align: right;
+        font-size: 0.8rem;
+        opacity: 0.6;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="submit-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="score-display">
+        <div class="game-name">{{ pending_score.game_name }}</div>
+        <div class="score-value">{{ pending_score.score | format_score(pending_score.score_type) }}</div>
+        <div class="score-type">{{ pending_score.score_type }}</div>
+    </div>
+    
+    <form method="POST" id="scoreForm">
+        <div class="form-group">
+            <label for="username">Enter your username to save this score:</label>
+            <input type="text" 
+                   id="username" 
+                   name="username" 
+                   placeholder="Your username" 
+                   maxlength="20" 
+                   required
+                   autocomplete="off">
+            <div class="character-count">
+                <span id="charCount">0</span>/20 characters
+            </div>
+            <div class="username-rules">
+                • 20 characters maximum<br>
+                • Any letters, numbers, or symbols allowed
+            </div>
+        </div>
+        
+        <button type="submit" class="submit-btn">🏆 Submit Score</button>
+    </form>
+    
+    <a href="{{ url_for('home.index') }}" class="skip-btn">Skip and go back to games</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('username');
+    const charCount = document.getElementById('charCount');
+    
+    usernameInput.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = length;
+        
+        // Change color based on length
+        if (length > 15) {
+            charCount.style.color = '#ff9800';
+        } else {
+            charCount.style.color = 'inherit';
+        }
+    });
+    
+    // Focus on username input
+    usernameInput.focus();
+    
+    // Prevent form submission if username is empty
+    document.getElementById('scoreForm').addEventListener('submit', function(e) {
+        const username = usernameInput.value.trim();
+        if (!username) {
+            e.preventDefault();
+            alert('Please enter a username!');
+            usernameInput.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

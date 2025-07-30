@@ -1,0 +1,392 @@
+/*
+ * Global Space Theme CSS for SUMMERLOCKIN Project
+ * Contains reusable space-themed styles and effects
+ * Place this file in: website/static/css/space.css
+ */
+
+/* ========================================
+   CSS Variables for Space Theme
+   ======================================== */
+:root {
+    /* Color Palette */
+    --space-black: #090a0f;
+    --space-dark-blue: #1b2735;
+    --space-purple: #8a2be2;
+    --space-indigo: #4b0082;
+    --nebula-pink: #ff1493;
+    --nebula-blue: #00bfff;
+    --star-white: #ffffff;
+    --star-warm: #fff5c8;
+    --star-cool: #c8dcff;
+    
+    /* Opacity Values */
+    --glow-opacity: 0.6;
+    --nebula-opacity: 0.3;
+    --star-opacity: 0.9;
+    
+    /* Animation Speeds */
+    --fast-twinkle: 2s;
+    --normal-twinkle: 4s;
+    --slow-twinkle: 6s;
+    --nebula-drift: 30s;
+    
+    /* Sizes */
+    --star-small: 2px;
+    --star-medium: 5px;
+    --star-large: 8px;
+    
+    /* Z-index Layers */
+    --z-space-bg: -1000;
+    --z-nebula: -900;
+    --z-stars-far: -800;
+    --z-constellation: -700;
+    --z-effects: -600;
+    --z-content: 10;
+    --z-nav: 1000;
+}
+
+/* ========================================
+   Glowing Text Effects
+   ======================================== */
+.glow-text {
+    text-shadow: 
+        0 0 10px rgba(255,255,255,0.5),
+        0 0 20px rgba(255,255,255,0.3),
+        0 0 30px var(--space-purple, rgba(138,43,226,0.6));
+    letter-spacing: 0.05em;
+}
+
+.glow-text-intense {
+    text-shadow: 
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 15px #fff,
+        0 0 20px var(--space-purple),
+        0 0 35px var(--space-purple),
+        0 0 40px var(--space-purple),
+        0 0 50px var(--space-purple),
+        0 0 75px var(--space-purple);
+}
+
+.neon-text {
+    animation: neonFlicker 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonFlicker {
+    0%, 100% {
+        text-shadow: 
+            0 0 7px #fff,
+            0 0 10px #fff,
+            0 0 21px #fff,
+            0 0 42px var(--nebula-pink),
+            0 0 82px var(--nebula-pink),
+            0 0 92px var(--nebula-pink);
+    }
+    50% {
+        text-shadow: 
+            0 0 4px #fff,
+            0 0 11px #fff,
+            0 0 19px #fff,
+            0 0 40px var(--nebula-pink),
+            0 0 80px var(--nebula-pink),
+            0 0 90px var(--nebula-pink);
+    }
+}
+
+/* ========================================
+   Space Backgrounds
+   ======================================== */
+.space-bg {
+    background: radial-gradient(ellipse at bottom, 
+        var(--space-dark-blue) 0%, 
+        var(--space-black) 100%);
+    min-height: 100vh;
+}
+
+.space-bg-animated {
+    background: 
+        radial-gradient(ellipse at 20% 80%, 
+            rgba(120, 119, 198, 0.3), 
+            transparent 50%),
+        radial-gradient(ellipse at 80% 20%, 
+            rgba(255, 119, 198, 0.3), 
+            transparent 50%),
+        radial-gradient(ellipse at 40% 40%, 
+            rgba(120, 219, 255, 0.2), 
+            transparent 50%),
+        radial-gradient(ellipse at bottom, 
+            var(--space-dark-blue) 0%, 
+            var(--space-black) 100%);
+    animation: spaceShift 60s ease infinite;
+}
+
+@keyframes spaceShift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%; }
+    25% { background-position: 100% 0%, 0% 100%, 100% 0%, 0% 0%; }
+    50% { background-position: 100% 100%, 0% 0%, 0% 100%, 0% 0%; }
+    75% { background-position: 0% 100%, 100% 0%, 50% 50%, 0% 0%; }
+}
+
+/* ========================================
+   Glassmorphism Effects
+   ======================================== */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-dark {
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 20, 0.8) 0%, 
+        rgba(20, 20, 40, 0.6) 50%, 
+        rgba(40, 20, 60, 0.4) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+.space-btn {
+    background: linear-gradient(135deg, 
+        rgba(138, 43, 226, 0.8), 
+        rgba(75, 0, 130, 0.8));
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Times New Roman', Times, serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.space-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.5s;
+}
+
+.space-btn:hover::before {
+    left: 100%;
+}
+
+.space-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 5px 20px rgba(138, 43, 226, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.space-btn:active {
+    transform: translateY(0);
+}
+
+/* Holographic button variant */
+.space-btn-holo {
+    background: linear-gradient(45deg, 
+        #ff0080, #ff8000, #00ff00, #00ffff, 
+        #0080ff, #8000ff, #ff0080);
+    background-size: 400% 400%;
+    animation: holographicShift 3s ease infinite;
+}
+
+@keyframes holographicShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ========================================
+   Star Effects
+   ======================================== */
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.star-twinkle {
+    animation: twinkle var(--normal-twinkle, 4s) ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { 
+        opacity: 0.3; 
+        transform: scale(1); 
+    }
+    50% { 
+        opacity: 1; 
+        transform: scale(1.2); 
+    }
+}
+
+.star-glow {
+    box-shadow: 
+        0 0 2px rgba(255,255,255,1),
+        0 0 4px rgba(255,255,255,0.8),
+        0 0 8px rgba(255,255,255,0.6),
+        0 0 16px rgba(255,255,255,0.4);
+}
+
+/* ========================================
+   Loading Animations
+   ======================================== */
+.space-loader {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.space-loader div {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--star-white);
+    border-radius: 50%;
+    animation: spaceLoader 1.2s linear infinite;
+}
+
+.space-loader div:nth-child(1) {
+    animation-delay: 0s;
+    top: 37px;
+    left: 66px;
+}
+
+.space-loader div:nth-child(2) {
+    animation-delay: -0.1s;
+    top: 22px;
+    left: 62px;
+}
+
+.space-loader div:nth-child(3) {
+    animation-delay: -0.2s;
+    top: 11px;
+    left: 52px;
+}
+
+@keyframes spaceLoader {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.space-text-center {
+    text-align: center;
+}
+
+.space-mt-1 { margin-top: 0.5rem; }
+.space-mt-2 { margin-top: 1rem; }
+.space-mt-3 { margin-top: 1.5rem; }
+.space-mt-4 { margin-top: 2rem; }
+.space-mt-5 { margin-top: 3rem; }
+
+.space-mb-1 { margin-bottom: 0.5rem; }
+.space-mb-2 { margin-bottom: 1rem; }
+.space-mb-3 { margin-bottom: 1.5rem; }
+.space-mb-4 { margin-bottom: 2rem; }
+.space-mb-5 { margin-bottom: 3rem; }
+
+.space-p-1 { padding: 0.5rem; }
+.space-p-2 { padding: 1rem; }
+.space-p-3 { padding: 1.5rem; }
+.space-p-4 { padding: 2rem; }
+.space-p-5 { padding: 3rem; }
+
+/* ========================================
+   Responsive Utilities
+   ======================================== */
+@media (max-width: 768px) {
+    .space-mobile-text-center {
+        text-align: center;
+    }
+    
+    .space-mobile-p-2 {
+        padding: 1rem;
+    }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .star-twinkle,
+    .neon-text,
+    .space-bg-animated {
+        animation: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .glass-panel,
+    .glass-panel-dark {
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid white;
+    }
+    
+    .space-btn {
+        border: 2px solid white;
+        font-weight: bold;
+    }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+    .space-bg,
+    .space-bg-animated {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .glow-text,
+    .glow-text-intense,
+    .neon-text {
+        text-shadow: none !important;
+    }
+    
+    .star,
+    .space-loader,
+    .constellation-star,
+    .constellation-line,
+    .nebula-container {
+        display: none !important;
+    }
+}

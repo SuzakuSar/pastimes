@@ -1,0 +1,1555 @@
+{% extends 'base.html' %}
+
+{% block title %}Game Collection - SUMMERLOCKIN{% endblock %}
+{% block header %}🚀 COSMIC GAME HUB 🚀{% endblock %}
+
+{% block head %}
+<style>
+    /* ===== ENHANCED SPACE CYBERPUNK THEME ===== */
+    :root {
+        --primary-neon: #00ff88;
+        --secondary-neon: #ff1493;
+        --accent-blue: #1e90ff;
+        --warning-orange: #ff6b35;
+        --space-black: #0a0a0f;
+        --deep-space: #1a1a2e;
+        --nebula-purple: rgba(138, 43, 226, 0.3);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+        background: radial-gradient(ellipse at center, var(--deep-space) 0%, var(--space-black) 100%);
+        color: var(--primary-neon);
+        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* ===== ATMOSPHERIC BACKGROUND EFFECTS ===== */
+    .cosmic-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        overflow: hidden;
+    }
+
+    .star-field {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+            radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+            radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+            radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent);
+        background-repeat: repeat;
+        background-size: 200px 150px;
+        animation: starTwinkle 20s linear infinite;
+    }
+
+    @keyframes starTwinkle {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    .particle-layer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--primary-neon);
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: particleFloat 15s infinite linear;
+    }
+
+    @keyframes particleFloat {
+        0% {
+            transform: translateY(100vh) translateX(0);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.6;
+        }
+        90% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateY(-10vh) translateX(50px);
+            opacity: 0;
+        }
+    }
+
+    .grid-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.1; }
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .hub-container {
+        min-height: 100vh;
+        padding: 1rem 2rem;
+        display: flex;
+        flex-direction: column;
+        max-width: 1400px;
+        width: 100%;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* ===== USER ENGAGEMENT BAR ===== */
+    .engagement-bar {
+        background: linear-gradient(135deg, var(--glass-bg), rgba(0, 255, 136, 0.1));
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 0.5rem 1rem;
+        background: rgba(0, 255, 136, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: rgba(0, 255, 136, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: var(--primary-neon);
+        display: block;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .daily-streak {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(45deg, var(--secondary-neon), var(--warning-orange));
+        border-radius: 20px;
+        font-weight: bold;
+        color: white;
+        animation: streakPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes streakPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    /* ===== ADVANCED SEARCH SECTION ===== */
+    .search-command-center {
+        background: linear-gradient(135deg, var(--glass-bg), rgba(30, 144, 255, 0.1));
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .search-command-center::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(0, 255, 136, 0.05), transparent);
+        animation: searchScan 4s linear infinite;
+    }
+
+    @keyframes searchScan {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .search-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-title {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--primary-neon);
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .search-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .advanced-search-bar {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto 2rem auto;
+        z-index: 2;
+    }
+
+    .search-input-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 15px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1.2rem 3rem 1.2rem 1.5rem;
+        font-size: 1.1rem;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid var(--glass-border);
+        border-radius: 15px;
+        color: var(--primary-neon);
+        font-family: 'Segoe UI', sans-serif;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-neon);
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-neon);
+        font-size: 1.3rem;
+        pointer-events: none;
+        animation: searchIconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes searchIconPulse {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+
+    /* ===== AUTOCOMPLETE DROPDOWN ===== */
+    .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(26, 26, 46, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--primary-neon);
+        border-radius: 0 0 15px 15px;
+        border-top: none;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .autocomplete-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .autocomplete-item {
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.highlighted {
+        background: rgba(0, 255, 136, 0.1);
+        padding-left: 2rem;
+    }
+
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    /* ===== ENHANCED CATEGORY FILTERS ===== */
+    .category-command-panel {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .category-chip {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--glass-border);
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .category-chip::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .category-chip:hover::before {
+        left: 100%;
+    }
+
+    .category-chip:hover {
+        border-color: var(--primary-neon);
+        color: var(--primary-neon);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.2);
+    }
+
+    .category-chip.active {
+        background: linear-gradient(135deg, var(--primary-neon), rgba(0, 255, 136, 0.8));
+        color: var(--space-black);
+        border-color: var(--primary-neon);
+        font-weight: bold;
+    }
+
+    .category-chip .chip-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.2rem 0.6rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        margin-left: 0.5rem;
+    }
+
+    /* ===== VIRAL DISCOVERY FEATURES ===== */
+    .viral-discovery-hub {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .discovery-card {
+        background: linear-gradient(135deg, var(--glass-bg), rgba(255, 20, 147, 0.1));
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .discovery-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 20, 147, 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        animation: cardScan 3s linear infinite;
+    }
+
+    .discovery-card:hover::before {
+        opacity: 1;
+    }
+
+    @keyframes cardScan {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .discovery-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--secondary-neon);
+        box-shadow: 0 15px 40px rgba(255, 20, 147, 0.2);
+    }
+
+    .discovery-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .discovery-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary-neon);
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .discovery-description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+    }
+
+    .discovery-btn {
+        background: linear-gradient(45deg, var(--secondary-neon), var(--warning-orange));
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .discovery-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .discovery-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .discovery-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 20, 147, 0.4);
+    }
+
+    /* ===== ENHANCED GAME GRID ===== */
+    .games-universe {
+        flex: 1;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--glass-bg), rgba(30, 144, 255, 0.05));
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        margin: 1rem 0;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .games-universe::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--primary-neon), transparent);
+        animation: topScan 4s linear infinite;
+    }
+
+    @keyframes topScan {
+        0% { opacity: 0; transform: translateX(-100%); }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: translateX(100%); }
+    }
+
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    /* ===== SOPHISTICATED GAME CARDS - DIRECT NAVIGATION ===== */
+    .game-card {
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(10, 10, 15, 0.8));
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .game-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+        transition: left 0.8s ease;
+    }
+
+    .game-card:hover::before {
+        left: 100%;
+    }
+
+    .game-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border-color: var(--primary-neon);
+        box-shadow: 
+            0 20px 60px rgba(0, 255, 136, 0.2),
+            0 0 30px rgba(0, 255, 136, 0.1);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .game-card:hover .game-icon {
+        transform: scale(1.1) rotate(5deg);
+        text-shadow: 0 0 20px currentColor;
+    }
+
+    .game-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .game-icon {
+        font-size: 3.5rem;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05));
+        border: 2px solid rgba(0, 255, 136, 0.3);
+        border-radius: 15px;
+        transition: all 0.4s ease;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-icon::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        animation: iconShimmer 3s linear infinite;
+    }
+
+    @keyframes iconShimmer {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .game-title {
+        color: var(--primary-neon);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.3;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .game-card:hover .game-title {
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+    }
+
+    .game-description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+        position: relative;
+        z-index: 2;
+    }
+
+    .game-category {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(45deg, var(--secondary-neon), var(--accent-blue));
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+        z-index: 3;
+        animation: categoryPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes categoryPulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    .game-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 2;
+    }
+
+    .play-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-neon);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .play-icon {
+        font-size: 1.2rem;
+        animation: playPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes playPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .difficulty-indicator {
+        display: flex;
+        gap: 2px;
+    }
+
+    .difficulty-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .difficulty-dot.active {
+        background: var(--warning-orange);
+        box-shadow: 0 0 8px var(--warning-orange);
+    }
+
+    /* ===== ACHIEVEMENT SYSTEM ===== */
+    .achievement-notification {
+        position: fixed;
+        top: 100px;
+        right: 2rem;
+        background: linear-gradient(135deg, var(--secondary-neon), var(--warning-orange));
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+        transform: translateX(400px);
+        transition: transform 0.5s ease;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        max-width: 300px;
+    }
+
+    .achievement-notification.show {
+        transform: translateX(0);
+    }
+
+    .achievement-icon {
+        font-size: 2rem;
+        animation: achievementBounce 0.6s ease;
+    }
+
+    @keyframes achievementBounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    /* ===== MOBILE RESPONSIVENESS ===== */
+    @media (max-width: 768px) {
+        .hub-container {
+            padding: 1rem;
+        }
+
+        .engagement-bar {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .user-stats {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .viral-discovery-hub {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .games-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .game-card {
+            min-height: 250px;
+        }
+
+        .category-command-panel {
+            gap: 0.5rem;
+        }
+
+        .category-chip {
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+    .games-grid {
+        will-change: transform;
+    }
+
+    .game-card {
+        will-change: transform;
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Atmospheric Background -->
+<div class="cosmic-background">
+    <div class="star-field"></div>
+    <div class="grid-overlay"></div>
+    <div class="particle-layer" id="particleLayer"></div>
+</div>
+
+<div class="hub-container">
+    <!-- User Engagement Bar -->
+    <div class="engagement-bar">
+        <div class="user-stats">
+            <div class="stat-item">
+                <span class="stat-value" id="gamesPlayed">{{ user_stats.games_played or 0 }}</span>
+                <span class="stat-label">Games Played</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="achievementsUnlocked">{{ user_stats.achievements or 0 }}</span>
+                <span class="stat-label">Achievements</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="totalPlayTime">{{ user_stats.play_time or "0m" }}</span>
+                <span class="stat-label">Play Time</span>
+            </div>
+        </div>
+        <div class="daily-streak">
+            🔥 <span id="streakCount">{{ user_stats.streak or 1 }}</span> Day Streak!
+        </div>
+    </div>
+
+    <!-- Advanced Search Command Center -->
+    <div class="search-command-center">
+        <div class="search-header">
+            <h2 class="search-title">🎮 GAME DISCOVERY TERMINAL</h2>
+            <p class="search-subtitle">Search through {{ total_games }} cosmic adventures</p>
+        </div>
+        
+        <div class="advanced-search-bar">
+            <div class="search-input-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="Search games, genres, or keywords..."
+                    autocomplete="off"
+                    value="{{ search_query }}"
+                >
+                <span class="search-icon">🔍</span>
+                <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Category Filters -->
+        <div class="category-command-panel">
+            <div class="category-chip {{ 'active' if not selected_category else '' }}" 
+                 onclick="filterByCategory('')">
+                All Games <span class="chip-count">{{ total_games }}</span>
+            </div>
+            {% for category in categories %}
+            <div class="category-chip {{ 'active' if selected_category == category else '' }}" 
+                 onclick="filterByCategory('{{ category }}')">
+                {{ category.title() }} <span class="chip-count">{{ category_counts[category] or 0 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Viral Discovery Hub -->
+    <div class="viral-discovery-hub">
+        <div class="discovery-card" onclick="playRandomGame()">
+            <span class="discovery-icon">🎲</span>
+            <h3 class="discovery-title">Quantum Random</h3>
+            <p class="discovery-description">Let the universe choose your next adventure</p>
+            <button class="discovery-btn" id="randomBtn">Launch Random</button>
+        </div>
+        
+        <div class="discovery-card" onclick="playDailyGame()">
+            <span class="discovery-icon">⭐</span>
+            <h3 class="discovery-title">Daily Mission</h3>
+            <p class="discovery-description" id="dailyGameDesc">Today's featured cosmic challenge</p>
+            <button class="discovery-btn">Play Mission</button>
+        </div>
+        
+        <div class="discovery-card" onclick="showAchievements()">
+            <span class="discovery-icon">🏆</span>
+            <h3 class="discovery-title">Achievement Hub</h3>
+            <p class="discovery-description">Track your cosmic accomplishments</p>
+            <button class="discovery-btn">View Progress</button>
+        </div>
+        
+        <div class="discovery-card" onclick="showLeaderboards()">
+            <span class="discovery-icon">📊</span>
+            <h3 class="discovery-title">Galactic Rankings</h3>
+            <p class="discovery-description">Compete across the universe</p>
+            <button class="discovery-btn">View Rankings</button>
+        </div>
+    </div>
+
+    <!-- Enhanced Games Universe with Direct Navigation -->
+    <div class="games-universe">
+        <div class="games-grid" id="gamesGrid">
+            {% if games %}
+                {% for game in games %}
+                <a href="{{ url_for(game.endpoint) }}" 
+                   class="game-card" 
+                   data-game-index="{{ loop.index0 }}" 
+                   data-category="{{ game.category }}"
+                   onclick="trackGameLaunch('{{ game.name }}')">
+                    
+                    <div class="game-category">{{ game.category }}</div>
+                    
+                    <div class="game-header">
+                        <div class="game-icon">{{ game.icon }}</div>
+                        <h3 class="game-title">{{ game.name }}</h3>
+                    </div>
+                    
+                    <p class="game-description">{{ game.description }}</p>
+                    
+                    <div class="game-footer">
+                        <div class="play-indicator">
+                            <span class="play-icon">▶</span>
+                            <span>Ready to Play</span>
+                        </div>
+                        <div class="difficulty-indicator">
+                            {% set difficulty = game.difficulty or 2 %}
+                            {% for i in range(1, 6) %}
+                            <div class="difficulty-dot {{ 'active' if i <= difficulty else '' }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    <div style="text-align: center; padding: 4rem; color: rgba(255,255,255,0.6);">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🌌</div>
+                        <h3 style="color: var(--primary-neon); margin-bottom: 1rem;">No Games Found</h3>
+                        <p>Try adjusting your search or filter criteria.</p>
+                        <button class="discovery-btn" onclick="clearFilters()">Reset Filters</button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Achievement Notification Template -->
+<div class="achievement-notification" id="achievementNotification">
+    <span class="achievement-icon">🏆</span>
+    <div>
+        <div style="font-weight: bold;" id="achievementTitle">Achievement Unlocked!</div>
+        <div style="font-size: 0.9rem;" id="achievementDescription">You've made progress!</div>
+    </div>
+</div>
+
+<script>
+// ===== SIMPLIFIED VIRAL GAME HUB JAVASCRIPT - DIRECT NAVIGATION =====
+
+let searchTimeout;
+let currentCategory = '{{ selected_category }}';
+let userStats = {
+    gamesPlayed: {{ user_stats.games_played or 0 }},
+    achievements: {{ user_stats.achievements or 0 }},
+    streak: {{ user_stats.streak or 1 }},
+    playTime: 0
+};
+
+// Store games data
+window.currentGames = {{ games|tojson if games else [] }};
+
+// Achievement definitions
+const ACHIEVEMENTS = {
+    'first_game': { title: 'First Steps', description: 'Played your first game!', icon: '🎮' },
+    'explorer': { title: 'Space Explorer', description: 'Tried 5 different games', icon: '🚀' },
+    'category_master': { title: 'Category Master', description: 'Played games from 3+ categories', icon: '🌟' },
+    'daily_player': { title: 'Daily Pilot', description: 'Played the daily game', icon: '⭐' },
+    'random_adventurer': { title: 'Quantum Jumper', description: 'Used random game 3 times', icon: '🎲' },
+    'streak_warrior': { title: 'Streak Master', description: 'Maintained a 7-day streak', icon: '🔥' }
+};
+
+// Daily games rotation - only existing games
+const DAILY_GAMES = [
+    'Time Predict Challenge', 'Cosmic Dino Runner'
+];
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCosmicHub();
+    createParticleField();
+    setupAdvancedSearch();
+    setupKeyboardShortcuts();
+    initializeDailyGame();
+    loadUserProgress();
+    
+    console.log('🚀 Cosmic Game Hub initialized successfully!');
+});
+
+function initializeCosmicHub() {
+    // Update user interface elements
+    updateUserStats();
+    
+    // Check for daily login bonus
+    checkDailyBonus();
+}
+
+function createParticleField() {
+    const particleLayer = document.getElementById('particleLayer');
+    
+    // Create floating particles
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        particleLayer.appendChild(particle);
+    }
+}
+
+// ===== ADVANCED SEARCH SYSTEM =====
+function setupAdvancedSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const dropdown = document.getElementById('autocompleteDropdown');
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length >= 2) {
+            searchTimeout = setTimeout(() => {
+                showAutocomplete(query);
+                performSearch(query);
+            }, 300);
+        } else {
+            hideAutocomplete();
+            if (query.length === 0) {
+                performSearch('');
+            }
+        }
+    });
+    
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideAutocomplete();
+            this.blur();
+        }
+    });
+    
+    // Click outside to close
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            hideAutocomplete();
+        }
+    });
+}
+
+function showAutocomplete(query) {
+    const dropdown = document.getElementById('autocompleteDropdown');
+    const suggestions = generateSuggestions(query);
+    
+    if (suggestions.length === 0) {
+        hideAutocomplete();
+        return;
+    }
+    
+    dropdown.innerHTML = suggestions.map(suggestion => `
+        <div class="autocomplete-item" onclick="selectSuggestion('${suggestion.text}')">
+            <span style="font-size: 1.2rem;">${suggestion.icon}</span>
+            <div>
+                <div style="font-weight: 600;">${suggestion.text}</div>
+                <div style="font-size: 0.8rem; opacity: 0.7;">${suggestion.type}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    dropdown.classList.add('active');
+}
+
+function generateSuggestions(query) {
+    const suggestions = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // Game name suggestions
+    window.currentGames.forEach(game => {
+        if (game.name.toLowerCase().includes(lowerQuery)) {
+            suggestions.push({
+                text: game.name,
+                type: 'Game',
+                icon: game.icon
+            });
+        }
+    });
+    
+    // Category suggestions
+    const categories = ['arcade', 'puzzle', 'skill', 'strategy', 'word', 'action'];
+    categories.forEach(category => {
+        if (category.includes(lowerQuery)) {
+            suggestions.push({
+                text: category,
+                type: 'Category',
+                icon: '📁'
+            });
+        }
+    });
+    
+    return suggestions.slice(0, 6);
+}
+
+function selectSuggestion(text) {
+    document.getElementById('searchInput').value = text;
+    hideAutocomplete();
+    performSearch(text);
+}
+
+function hideAutocomplete() {
+    document.getElementById('autocompleteDropdown').classList.remove('active');
+}
+
+// ===== ENHANCED SEARCH AND FILTERING =====
+async function performSearch(query) {
+    const filteredGames = filterGames(query, currentCategory);
+    displayGames(filteredGames);
+}
+
+function filterGames(query, category) {
+    let filtered = window.currentGames;
+    
+    // Filter by category
+    if (category) {
+        filtered = filtered.filter(game => game.category === category);
+    }
+    
+    // Filter by search query
+    if (query) {
+        const lowerQuery = query.toLowerCase();
+        filtered = filtered.filter(game => 
+            game.name.toLowerCase().includes(lowerQuery) ||
+            game.description.toLowerCase().includes(lowerQuery) ||
+            game.category.toLowerCase().includes(lowerQuery) ||
+            (game.tags && game.tags.some(tag => tag.toLowerCase().includes(lowerQuery)))
+        );
+    }
+    
+    return filtered;
+}
+
+function filterByCategory(category) {
+    currentCategory = category;
+    
+    // Update button states
+    document.querySelectorAll('.category-chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const query = document.getElementById('searchInput').value;
+    performSearch(query);
+    
+    // Update URL
+    const url = new URL(window.location);
+    if (category) {
+        url.searchParams.set('category', category);
+    } else {
+        url.searchParams.delete('category');
+    }
+    window.history.pushState({}, '', url);
+}
+
+function displayGames(games) {
+    const grid = document.getElementById('gamesGrid');
+    
+    if (!games || games.length === 0) {
+        showNoResults();
+        return;
+    }
+    
+    const html = games.map((game, index) => {
+        // Generate proper Flask URL based on endpoint
+        let gameUrl = '';
+        if (game.endpoint === 'time_predict.index') {
+            gameUrl = '/timepredict';
+        } else if (game.endpoint === 'dino_runner.index') {
+            gameUrl = '/dino-runner';
+        } else {
+            gameUrl = '#'; // fallback for unknown endpoints
+        }
+        
+        return `
+        <a href="${gameUrl}" 
+           class="game-card" 
+           data-game-index="${index}" 
+           data-category="${game.category}"
+           onclick="trackGameLaunch('${game.name}')">
+            
+            <div class="game-category">${game.category}</div>
+            
+            <div class="game-header">
+                <div class="game-icon">${game.icon}</div>
+                <h3 class="game-title">${game.name}</h3>
+            </div>
+            
+            <p class="game-description">${game.description}</p>
+            
+            <div class="game-footer">
+                <div class="play-indicator">
+                    <span class="play-icon">▶</span>
+                    <span>Ready to Play</span>
+                </div>
+                <div class="difficulty-indicator">
+                    ${generateDifficultyDots(game.difficulty || 2)}
+                </div>
+            </div>
+        </a>
+        `;
+    }).join('');
+    
+    grid.innerHTML = html;
+    
+    // Store current filtered games
+    window.currentFilteredGames = games;
+}
+
+function generateDifficultyDots(difficulty) {
+    let dots = '';
+    for (let i = 1; i <= 5; i++) {
+        dots += `<div class="difficulty-dot ${i <= difficulty ? 'active' : ''}"></div>`;
+    }
+    return dots;
+}
+
+function showNoResults() {
+    const grid = document.getElementById('gamesGrid');
+    grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: rgba(255,255,255,0.6);">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🌌</div>
+            <h3 style="color: var(--primary-neon); margin-bottom: 1rem;">No Games Found</h3>
+            <p>Try adjusting your search or filter criteria.</p>
+            <button class="discovery-btn" onclick="clearFilters()">Reset Filters</button>
+        </div>
+    `;
+}
+
+// ===== VIRAL DISCOVERY FEATURES =====
+function playRandomGame() {
+    const button = document.getElementById('randomBtn');
+    const originalText = button.textContent;
+    
+    button.textContent = 'Scanning...';
+    button.disabled = true;
+    
+    setTimeout(() => {
+        const games = window.currentFilteredGames || window.currentGames;
+        if (games.length === 0) {
+            alert('No games available!');
+            return;
+        }
+        
+        const randomIndex = Math.floor(Math.random() * games.length);
+        const randomGame = games[randomIndex];
+        
+        // Navigate directly to the random game
+        let gameUrl = '';
+        if (randomGame.endpoint === 'time_predict.index') {
+            gameUrl = '/timepredict';
+        } else if (randomGame.endpoint === 'dino_runner.index') {
+            gameUrl = '/dino-runner';
+        } else {
+            gameUrl = '/'; // fallback to home
+        }
+        window.location.href = gameUrl;
+        
+        trackRandomGameUsage();
+        
+        button.textContent = originalText;
+        button.disabled = false;
+    }, 1500);
+}
+
+function initializeDailyGame() {
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    const dailyIndex = dayOfYear % DAILY_GAMES.length;
+    const dailyGame = DAILY_GAMES[dailyIndex];
+    
+    const descElement = document.getElementById('dailyGameDesc');
+    if (descElement) {
+        descElement.textContent = `Today's mission: ${dailyGame}`;
+    }
+    
+    window.currentDailyGame = dailyGame;
+}
+
+function playDailyGame() {
+    const game = window.currentGames.find(g => g.name === window.currentDailyGame);
+    if (game) {
+        // Navigate directly to daily game
+        let gameUrl = '';
+        if (game.endpoint === 'time_predict.index') {
+            gameUrl = '/timepredict';
+        } else if (game.endpoint === 'dino_runner.index') {
+            gameUrl = '/dino-runner';
+        } else {
+            gameUrl = '/'; // fallback to home
+        }
+        window.location.href = gameUrl;
+        
+        // Track daily game achievement
+        unlockAchievement('daily_player');
+    }
+}
+
+function showAchievements() {
+    const unlockedCount = getUserProgress().achievements.length;
+    const totalCount = Object.keys(ACHIEVEMENTS).length;
+    
+    alert(`🏆 Achievements: ${unlockedCount}/${totalCount} unlocked!\n\nKeep playing to unlock more cosmic achievements!`);
+}
+
+function showLeaderboards() {
+    window.open('/leaderboard', '_blank');
+}
+
+// ===== USER PROGRESS AND ACHIEVEMENTS =====
+function loadUserProgress() {
+    const saved = localStorage.getItem('summerlockin_progress');
+    if (saved) {
+        const progress = JSON.parse(saved);
+        userStats = { ...userStats, ...progress };
+        updateUserStats();
+    }
+}
+
+function getUserProgress() {
+    const saved = localStorage.getItem('summerlockin_progress');
+    return saved ? JSON.parse(saved) : {
+        gamesPlayed: new Set(),
+        achievements: [],
+        categoriesPlayed: new Set(),
+        randomGameUses: 0,
+        lastLogin: null,
+        streak: 1
+    };
+}
+
+function updateUserProgress(data) {
+    const progress = getUserProgress();
+    Object.assign(progress, data);
+    localStorage.setItem('summerlockin_progress', JSON.stringify(progress));
+    return progress;
+}
+
+function trackGameLaunch(gameName) {
+    const progress = getUserProgress();
+    progress.gamesPlayed.add(gameName);
+    
+    // Find game category
+    const game = window.currentGames.find(g => g.name === gameName);
+    if (game) {
+        progress.categoriesPlayed.add(game.category);
+    }
+    
+    updateUserProgress(progress);
+    
+    // Check achievements
+    if (progress.gamesPlayed.size === 1) {
+        unlockAchievement('first_game');
+    } else if (progress.gamesPlayed.size >= 5) {
+        unlockAchievement('explorer');
+    }
+    
+    if (progress.categoriesPlayed.size >= 3) {
+        unlockAchievement('category_master');
+    }
+    
+    updateUserStats();
+    trackEvent('game_launched', { game: gameName });
+}
+
+function trackRandomGameUsage() {
+    const progress = getUserProgress();
+    progress.randomGameUses = (progress.randomGameUses || 0) + 1;
+    updateUserProgress(progress);
+    
+    if (progress.randomGameUses >= 3) {
+        unlockAchievement('random_adventurer');
+    }
+    
+    trackEvent('random_game_used');
+}
+
+function unlockAchievement(achievementId) {
+    const progress = getUserProgress();
+    
+    if (!progress.achievements.includes(achievementId)) {
+        progress.achievements.push(achievementId);
+        updateUserProgress(progress);
+        
+        // Show achievement notification
+        showAchievementNotification(achievementId);
+        updateUserStats();
+        
+        trackEvent('achievement_unlocked', { achievement: achievementId });
+    }
+}
+
+function showAchievementNotification(achievementId) {
+    const achievement = ACHIEVEMENTS[achievementId];
+    if (!achievement) return;
+    
+    const notification = document.getElementById('achievementNotification');
+    const titleEl = document.getElementById('achievementTitle');
+    const descEl = document.getElementById('achievementDescription');
+    const iconEl = notification.querySelector('.achievement-icon');
+    
+    titleEl.textContent = achievement.title;
+    descEl.textContent = achievement.description;
+    iconEl.textContent = achievement.icon;
+    
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 4000);
+}
+
+function updateUserStats() {
+    const progress = getUserProgress();
+    
+    document.getElementById('gamesPlayed').textContent = progress.gamesPlayed ? progress.gamesPlayed.size : 0;
+    document.getElementById('achievementsUnlocked').textContent = progress.achievements ? progress.achievements.length : 0;
+    document.getElementById('streakCount').textContent = progress.streak || 1;
+}
+
+function checkDailyBonus() {
+    const progress = getUserProgress();
+    const today = new Date().toDateString();
+    
+    if (progress.lastLogin !== today) {
+        progress.lastLogin = today;
+        
+        // Increment streak or reset
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (progress.lastLogin === yesterday.toDateString()) {
+            progress.streak = (progress.streak || 1) + 1;
+        } else {
+            progress.streak = 1;
+        }
+        
+        updateUserProgress(progress);
+        
+        // Check streak achievements
+        if (progress.streak >= 7) {
+            unlockAchievement('streak_warrior');
+        }
+        
+        updateUserStats();
+    }
+}
+
+// ===== UTILITY FUNCTIONS =====
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    currentCategory = '';
+    
+    document.querySelectorAll('.category-chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    document.querySelector('.category-chip').classList.add('active');
+    
+    performSearch('');
+    hideAutocomplete();
+    
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('category');
+    window.history.pushState({}, '', url);
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Escape - clear search
+        if (e.key === 'Escape') {
+            clearFilters();
+        }
+        
+        // Ctrl/Cmd + K - focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('searchInput').focus();
+        }
+        
+        // R - random game
+        if (e.key === 'r' && !e.target.matches('input, textarea')) {
+            e.preventDefault();
+            playRandomGame();
+        }
+        
+        // D - daily game
+        if (e.key === 'd' && !e.target.matches('input, textarea')) {
+            e.preventDefault();
+            playDailyGame();
+        }
+    });
+}
+
+function trackEvent(eventName, data = {}) {
+    console.log(`📊 Event: ${eventName}`, data);
+    // In production: send to analytics
+}
+
+// Export global functions
+window.filterByCategory = filterByCategory;
+window.clearFilters = clearFilters;
+window.playRandomGame = playRandomGame;
+window.playDailyGame = playDailyGame;
+window.showAchievements = showAchievements;
+window.showLeaderboards = showLeaderboards;
+window.trackGameLaunch = trackGameLaunch;
+
+console.log('🌌 Cosmic Game Hub fully loaded and operational with direct navigation!');
+</script>
+{% endblock %}

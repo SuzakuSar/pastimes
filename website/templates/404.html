@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Lost in Space - 404{% endblock %}
+
+{% block header %}Lost in the Cosmic Void{% endblock %}
+
+{% block head %}
+<style>
+    .error-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .error-code {
+        font-size: clamp(5rem, 15vw, 10rem);
+        font-weight: 100;
+        margin: 0;
+        background: linear-gradient(45deg, 
+            #ff0080, #ff8000, #00ff00, #00ffff, 
+            #0080ff, #8000ff, #ff0080);
+        background-size: 400% 400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: holographicShift 3s ease infinite;
+        text-shadow: 
+            0 0 50px rgba(138, 43, 226, 0.5),
+            0 0 100px rgba(138, 43, 226, 0.3);
+    }
+    
+    .error-message {
+        font-size: 1.5rem;
+        margin: 1rem 0 2rem;
+        opacity: 0.9;
+    }
+    
+    .lost-astronaut {
+        font-size: 5rem;
+        animation: floatInSpace 10s ease-in-out infinite;
+        margin: 2rem 0;
+    }
+    
+    @keyframes floatInSpace {
+        0%, 100% { 
+            transform: translateY(0) rotate(0deg); 
+        }
+        25% { 
+            transform: translateY(-20px) rotate(-5deg); 
+        }
+        50% { 
+            transform: translateY(10px) rotate(5deg); 
+        }
+        75% { 
+            transform: translateY(-10px) rotate(-3deg); 
+        }
+    }
+    
+    .black-hole {
+        width: 200px;
+        height: 200px;
+        margin: 2rem auto;
+        position: relative;
+        animation: blackHoleSpin 20s linear infinite;
+    }
+    
+    .black-hole::before,
+    .black-hole::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .black-hole::before {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, 
+            transparent 30%, 
+            rgba(138, 43, 226, 0.2) 40%, 
+            rgba(138, 43, 226, 0.4) 50%, 
+            rgba(138, 43, 226, 0.6) 60%, 
+            rgba(138, 43, 226, 0.8) 70%);
+        animation: blackHolePulse 2s ease-in-out infinite;
+    }
+    
+    .black-hole::after {
+        width: 60%;
+        height: 60%;
+        background: black;
+        box-shadow: 
+            0 0 50px rgba(138, 43, 226, 0.8),
+            inset 0 0 50px rgba(138, 43, 226, 0.5);
+    }
+    
+    @keyframes blackHoleSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes blackHolePulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+    
+    .navigation-options {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="error-container">
+    <div class="lost-astronaut">👨‍🚀</div>
+    
+    <h1 class="error-code">404</h1>
+    
+    <p class="error-message glow-text">
+        Houston, we have a problem... This page has drifted into a black hole!
+    </p>
+    
+    <div class="black-hole"></div>
+    
+    <div class="glass-panel-dark space-p-4" style="max-width: 600px;">
+        <h2 class="space-mb-3">🌌 Navigation Malfunction Detected</h2>
+        <p class="space-mb-2">
+            The page you're looking for seems to have been sucked into the cosmic void. 
+            Don't worry, our space navigation systems can guide you back to safety!
+        </p>
+        
+        <div class="navigation-options">
+            <a href="{{ url_for('home.index') }}" class="space-btn">
+                <span>🏠</span> Return to Base
+            </a>
+            <button class="space-btn space-btn-holo" onclick="history.back()">
+                <span>↩️</span> Go Back
+            </button>
+        </div>
+    </div>
+    
+    <p class="space-mt-4" style="opacity: 0.6;">
+        Error Code: COSMIC_VOID_404 | Star Date: <span id="stardate"></span>
+    </p>
+</div>
+
+<script>
+// Generate a fun "star date"
+document.getElementById('stardate').textContent = 
+    new Date().getTime().toString().slice(-8) + '.' + 
+    Math.floor(Math.random() * 9);
+
+// Add some floating stars to the background
+function addFloatingStars() {
+    const container = document.querySelector('.error-container');
+    
+    for (let i = 0; i < 20; i++) {
+        const star = document.createElement('div');
+        star.className = 'star star-twinkle';
+        star.style.width = Math.random() * 3 + 'px';
+        star.style.height = star.style.width;
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 5 + 's';
+        star.style.position = 'absolute';
+        star.style.zIndex = '-1';
+        container.appendChild(star);
+    }
+}
+
+addFloatingStars();
+</script>
+{% endblock %}

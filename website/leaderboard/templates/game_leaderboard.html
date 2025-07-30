@@ -1,0 +1,240 @@
+<!-- ===== FILE: website/leaderboard/templates/game_leaderboard.html ===== -->
+{% extends 'base.html' %}
+
+{% block title %}{{ leaderboard.game_name }} Leaderboard - SUMMERLOCKIN{% endblock %}
+{% block header %}🏆 {{ leaderboard.game_name }} Leaderboard{% endblock %}
+
+{% block head %}
+<style>
+    .leaderboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .leaderboard-info {
+        text-align: center;
+        margin-bottom: 30px;
+        background: rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .score-type-info {
+        background: rgba(138, 43, 226, 0.3);
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        margin: 10px;
+        font-weight: bold;
+    }
+    
+    .leaderboard-table {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .leaderboard-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .leaderboard-table th {
+        background: rgba(255,255,255,0.1);
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .rank {
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+        width: 60px;
+    }
+    
+    .rank-1 { color: #FFD700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    .rank-2 { color: #C0C0C0; text-shadow: 0 0 10px rgba(192,192,192,0.5); }
+    .rank-3 { color: #CD7F32; text-shadow: 0 0 10px rgba(205,127,50,0.5); }
+    
+    .username {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .score {
+        font-weight: bold;
+        color: #4CAF50;
+        font-size: 1.1rem;
+    }
+    
+    .date {
+        opacity: 0.7;
+        font-size: 0.9rem;
+    }
+    
+    .podium {
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        margin: 30px 0;
+        gap: 20px;
+    }
+    
+    .podium-place {
+        text-align: center;
+        padding: 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        min-width: 150px;
+    }
+    
+    .podium-1 {
+        background: rgba(255,215,0,0.2);
+        order: 2;
+        height: 120px;
+    }
+    
+    .podium-2 {
+        background: rgba(192,192,192,0.2);
+        order: 1;
+        height: 100px;
+    }
+    
+    .podium-3 {
+        background: rgba(205,127,50,0.2);
+        order: 3;
+        height: 80px;
+    }
+    
+    .trophy {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .action-buttons {
+        text-align: center;
+        margin: 30px 0;
+    }
+    
+    .btn {
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .empty-leaderboard {
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="leaderboard-container">
+    <div class="leaderboard-info">
+        <p>Ranking by <span class="score-type-info">{{ leaderboard.score_type }}</span></p>
+        <p style="opacity: 0.8;">
+            {{ leaderboard.total_submissions }} total submissions • 
+            {{ "Higher is better" if leaderboard.higher_is_better else "Lower is better" }}
+        </p>
+    </div>
+    
+    {% if leaderboard.scores %}
+        <!-- Top 3 Podium -->
+        {% if leaderboard.scores|length >= 3 %}
+        <div class="podium">
+            <div class="podium-place podium-2">
+                <div class="trophy">🥈</div>
+                <div class="username">{{ leaderboard.scores[1].username }}</div>
+                <div class="score">{{ leaderboard.scores[1].score | format_score(leaderboard.score_type) }}</div>
+            </div>
+            
+            <div class="podium-place podium-1">
+                <div class="trophy">🥇</div>
+                <div class="username">{{ leaderboard.scores[0].username }}</div>
+                <div class="score">{{ leaderboard.scores[0].score | format_score(leaderboard.score_type) }}</div>
+            </div>
+            
+            <div class="podium-place podium-3">
+                <div class="trophy">🥉</div>
+                <div class="username">{{ leaderboard.scores[2].username }}</div>
+                <div class="score">{{ leaderboard.scores[2].score | format_score(leaderboard.score_type) }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Full Leaderboard Table -->
+        <div class="leaderboard-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in leaderboard.scores %}
+                    <tr>
+                        <td class="rank rank-{{ score.rank if score.rank <= 3 else 'other' }}">
+                            {% if score.rank == 1 %}🥇
+                            {% elif score.rank == 2 %}🥈
+                            {% elif score.rank == 3 %}🥉
+                            {% else %}{{ score.rank }}
+                            {% endif %}
+                        </td>
+                        <td class="username">{{ score.username }}</td>
+                        <td class="score">{{ score.score | format_score(leaderboard.score_type) }}</td>
+                        <td class="date">{{ score.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-leaderboard">
+            <h2>🎯 No Scores Yet</h2>
+            <p>Be the first to submit a score for {{ leaderboard.game_name }}!</p>
+        </div>
+    {% endif %}
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('leaderboard.index') }}" class="btn btn-primary">🏆 All Leaderboards</a>
+        <a href="{{ url_for('home.index') }}" class="btn btn-secondary">🎮 Back to Games</a>
+    </div>
+</div>
+{% endblock %}
