@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
-{% block header %}⏱️ TIME PREDICT CHALLENGE ⏱️{% endblock %}
+{% block header %}⚡ REACT TIME CHALLENGE ⚡{% endblock %}
 
 {% block head %}
 <style>
-    /* All your existing CSS styles remain the same */
     body {
         background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
         color: #00ff88;
@@ -41,69 +40,6 @@
         to { text-shadow: 0 0 15px #00ff88, 0 0 30px #00ff88, 0 0 40px #00ff88; }
     }
 
-    .mode-selection {
-        margin: 2rem 0;
-        padding: 1.5rem;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-        border: 2px solid #00ff88;
-    }
-
-    .mode-selection h3 {
-        color: #ffffff;
-        margin-top: 0;
-        margin-bottom: 1rem;
-    }
-
-    .mode-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
-
-    .mode-button {
-        background: linear-gradient(45deg, #333, #666);
-        color: #ffffff;
-        border: 2px solid #666;
-        padding: 1rem 2rem;
-        font-size: 1rem;
-        font-weight: bold;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        min-width: 150px;
-    }
-
-    .mode-button:hover {
-        border-color: #00ff88;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
-    }
-
-    .mode-button.active {
-        background: linear-gradient(45deg, #00ff88, #00cc66);
-        color: #000;
-        border-color: #00ff88;
-        box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
-    }
-
-    .mode-description {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        color: #cccccc;
-        font-size: 0.9rem;
-        min-height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
     .instructions {
         background: rgba(0, 0, 0, 0.3);
         padding: 1.5rem;
@@ -129,11 +65,12 @@
 
     .game-area {
         margin: 2rem 0;
-        min-height: 300px;
+        min-height: 400px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        position: relative;
     }
 
     .start-button {
@@ -185,11 +122,99 @@
         50% { transform: scale(1.1); }
     }
 
-    .timer-display {
-        font-size: 2rem;
+    .waiting-message {
+        font-size: 1.8rem;
         color: #ffd93d;
         text-shadow: 0 0 10px #ffd93d;
-        margin: 1rem 0;
+        margin: 2rem 0;
+        animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+    }
+
+    /* Reaction Indicator Styles */
+    .reaction-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        z-index: 100;
+    }
+
+    .flash-indicator {
+        width: 300px;
+        height: 300px;
+        background: #ff0066;
+        border-radius: 50%;
+        box-shadow: 
+            0 0 100px #ff0066,
+            0 0 200px #ff0066,
+            0 0 300px #ff0066;
+        opacity: 1;
+    }
+
+    .word-indicator {
+        font-size: 5rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-shadow: 
+            0 0 30px #ff0066,
+            0 0 60px #ff0066,
+            0 0 90px #ff0066;
+        padding: 2rem;
+        background: #ff0066;
+        border: 5px solid #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 0 50px #ff0066;
+    }
+
+    .shape-indicator {
+        width: 200px;
+        height: 200px;
+        background: #ff0066;
+        border-radius: 0;
+        box-shadow: 
+            0 0 100px #ff0066,
+            0 0 200px #ff0066;
+        position: relative;
+        transform: rotate(45deg);
+    }
+
+    .shape-indicator::before {
+        content: '!';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 4rem;
+        color: #ffffff;
+        font-weight: bold;
+        text-shadow: 0 0 20px #ffffff;
+    }
+
+    .reaction-hint {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 255, 136, 0.9);
+        color: #000;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        z-index: 1000;
+        animation: hint-pulse 0.5s ease-in-out infinite alternate;
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+    }
+
+    @keyframes hint-pulse {
+        from { transform: translateX(-50%) scale(1); }
+        to { transform: translateX(-50%) scale(1.05); }
     }
 
     .results {
@@ -244,21 +269,6 @@
         font-size: 0.9rem;
     }
 
-    .spacebar-hint {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        color: #ffd93d;
-        font-size: 1.1rem;
-        animation: blink 1.5s ease-in-out infinite;
-    }
-
-    @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0.3; }
-    }
-
     .reset-button {
         background: #ff6b6b;
         color: white;
@@ -274,16 +284,6 @@
         background: #ff5252;
     }
 
-    .current-mode {
-        color: #00ff88;
-        font-weight: bold;
-        margin-top: 1rem;
-        padding: 0.5rem;
-        background: rgba(0, 255, 136, 0.1);
-        border-radius: 5px;
-    }
-
-    /* Leaderboard buttons */
     .leaderboard-section {
         margin: 2rem 0;
         padding: 1rem;
@@ -311,6 +311,23 @@
         box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
     }
 
+    .early-warning {
+        background: rgba(255, 107, 107, 0.9);
+        color: #fff;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
     @media (max-width: 600px) {
         .game-container {
             margin: 1rem;
@@ -325,13 +342,24 @@
             flex-direction: column;
         }
         
-        .mode-buttons {
-            flex-direction: column;
-            align-items: center;
+        .flash-indicator {
+            width: 150px;
+            height: 150px;
         }
         
-        .mode-button {
-            min-width: 200px;
+        .word-indicator {
+            font-size: 3rem;
+            padding: 1.5rem;
+        }
+        
+        .shape-indicator {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .reaction-hint {
+            font-size: 1rem;
+            padding: 0.8rem 1.5rem;
         }
     }
 </style>
@@ -339,24 +367,17 @@
 
 {% block body %}
 <div class="game-container">
-    <div class="challenge-title">TIME PREDICT CHALLENGE</div>
-    
-    <!-- Game Description -->
-    <div class="mode-selection">
-        <h3>🧠 PREDICT MODE</h3>
-        <div class="mode-description">
-            Pure timing intuition! No visible timer. Hit 10.000s within 0.1s tolerance.
-        </div>
-    </div>
+    <div class="challenge-title">REACT TIME CHALLENGE</div>
     
     <div class="instructions">
-        <h3>🎯 MISSION OBJECTIVE</h3>
+        <h3>⚡ MISSION OBJECTIVE</h3>
         <ul>
             <li>Click "START GAME" to begin the challenge</li>
-            <li>Wait for the countdown, then the timer starts</li>
-            <li>Press the <strong>SPACEBAR</strong> when you think exactly <strong>10.000 seconds</strong> have passed</li>
-            <li><strong>No visible timer!</strong> Use your intuition to hit the perfect timing</li>
-            <li>Win by getting within <strong>0.1 seconds</strong> of 10.000s</li>
+            <li>Wait for the <strong>random visual indicator</strong> to appear (3-8 seconds)</li>
+            <li>React as <strong>QUICKLY</strong> as possible when you see it!</li>
+            <li>Press <strong>SPACEBAR</strong> or <strong>TAP ANYWHERE</strong> to react</li>
+            <li>Goal: React within <strong>0.15 seconds</strong> for a perfect score!</li>
+            <li><strong>WARNING:</strong> Don't react too early or you'll fail!</li>
         </ul>
     </div>
 
@@ -368,7 +389,7 @@
         </div>
         <div class="stat-item">
             <div class="stat-value" id="best-score">--</div>
-            <div class="stat-label">Best Score</div>
+            <div class="stat-label">Best Time</div>
         </div>
         <div class="stat-item">
             <div class="stat-value" id="win-rate">0%</div>
@@ -378,15 +399,24 @@
 
     <!-- Main Game Area -->
     <div class="game-area">
-        <div class="game-status" id="game-status">Ready to test your timing?</div>
-        <div class="timer-display" id="timer-display" style="display: none;"></div>
+        <div class="game-status" id="game-status">Ready to test your reflexes?</div>
         
         <button class="start-button" id="start-button" onclick="startGame()">
             START GAME
         </button>
         
-        <div id="spacebar-hint" class="spacebar-hint" style="display: none;">
-            Press SPACEBAR when you think 10 seconds have passed!
+        <div id="waiting-message" class="waiting-message" style="display: none;">
+            Wait for the indicator... Stay focused!
+        </div>
+        
+        <!-- Reaction Indicators -->
+        <div id="reaction-indicator" class="reaction-indicator">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+        
+        <!-- Reaction Hint -->
+        <div id="reaction-hint" class="reaction-hint" style="display: none;">
+            REACT NOW! Press SPACEBAR or TAP!
         </div>
         
         <!-- Results Display -->
@@ -394,13 +424,18 @@
             <div id="result-message"></div>
             <div id="result-details"></div>
         </div>
+        
+        <!-- Early Warning -->
+        <div id="early-warning" class="early-warning" style="display: none;">
+            TOO EARLY! Wait for the indicator before reacting!
+        </div>
     </div>
 
     <!-- Leaderboard Section -->
     <div class="leaderboard-section">
         <h3>🏆 LEADERBOARD</h3>
-        <a href="{{ url_for('time_predict.view_leaderboard') }}" class="leaderboard-button">
-            🧠 Time Predict Leaderboard
+        <a href="{{ url_for('react_time.view_leaderboard') }}" class="leaderboard-button">
+            ⚡ React Time Leaderboard
         </a>
     </div>
 
@@ -410,14 +445,11 @@
 </div>
 
 <script>
-// ===== COMPLETE ENHANCED TIME PREDICT JAVASCRIPT =====
-
 // Enhanced error logging function
 function logError(context, error, additionalInfo = {}) {
-    console.error(`[Time Predict Error - ${context}]:`, error);
+    console.error(`[React Time Error - ${context}]:`, error);
     console.error('Additional info:', additionalInfo);
     
-    // Try to show user-friendly error
     try {
         const gameStatus = document.getElementById('game-status');
         if (gameStatus) {
@@ -429,21 +461,20 @@ function logError(context, error, additionalInfo = {}) {
     }
 }
 
-// Enhanced mobile detection
+// Mobile detection
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
            || window.innerWidth <= 768
            || 'ontouchstart' in window;
 }
 
-// Enhanced fetch function with retries and better error handling
+// Enhanced fetch function with retries
 async function safeFetch(url, options = {}, retries = 2) {
     for (let attempt = 1; attempt <= retries + 1; attempt++) {
         try {
-            // Add timeout to prevent hanging requests
             const timeoutId = setTimeout(() => {
                 throw new Error('Request timeout');
-            }, 10000); // 10 second timeout
+            }, 10000);
             
             const response = await fetch(url, {
                 ...options,
@@ -466,85 +497,48 @@ async function safeFetch(url, options = {}, retries = 2) {
             logError(`Fetch attempt ${attempt}`, error, { url, options });
             
             if (attempt <= retries) {
-                // Wait before retry (exponential backoff)
                 await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                 continue;
             }
             
-            // Final attempt failed
             throw new Error(`Network error after ${retries + 1} attempts: ${error.message}`);
         }
     }
 }
 
-// Global game state with better initialization
+// Global game state
 let gameState = {
     gameActive: false,
-    startTime: null,
-    timerInterval: null,
-    countdownTimeout: null,
-    isInitialized: false
+    waitingForIndicator: false,
+    indicatorCheckInterval: null,
+    reactionAllowed: false
 };
 
-// Enhanced compatibility check
-function checkBrowserCompatibility() {
-    const issues = [];
-    
-    // Check fetch API
-    if (typeof fetch === 'undefined') {
-        issues.push('Fetch API not supported');
-    }
-    
-    // Check performance.now()
-    if (typeof performance === 'undefined' || typeof performance.now !== 'function') {
-        issues.push('Performance.now() not supported');
-    }
-    
-    // Check JSON support
-    if (typeof JSON === 'undefined') {
-        issues.push('JSON not supported');
-    }
-    
-    // Check addEventListener
-    if (typeof document.addEventListener !== 'function') {
-        issues.push('Event listeners not supported');
-    }
-    
-    return issues;
-}
-
-// Enhanced event handling for both mobile and desktop
+// Initialize event listeners
 function initializeEventListeners() {
     try {
-        // Remove any existing listeners to prevent duplicates
         document.removeEventListener('keydown', handleKeyDown);
-        document.removeEventListener('keyup', handleKeyUp);
         document.removeEventListener('touchstart', handleTouchStart);
         document.removeEventListener('click', handleClick);
         
-        // Add keyboard listeners (desktop)
         document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('keyup', handleKeyUp);
-        
-        // Add touch/click listeners (mobile + desktop)
         document.addEventListener('touchstart', handleTouchStart, { passive: true });
         document.addEventListener('click', handleClick);
         
-        console.log('Event listeners initialized for mobile and desktop');
+        console.log('Event listeners initialized');
         
     } catch (error) {
         logError('Event listener initialization', error);
-        throw error;
     }
 }
 
-// Original keyboard handler
+// Keyboard handler
 function handleKeyDown(event) {
     try {
         if (event.code === 'Space' || event.key === ' ' || event.keyCode === 32) {
             event.preventDefault();
             if (gameState.gameActive) {
-                stopGame();
+                react();
             }
         }
     } catch (error) {
@@ -552,30 +546,14 @@ function handleKeyDown(event) {
     }
 }
 
-// Fallback keyboard handler
-function handleKeyUp(event) {
-    try {
-        // Fallback for older browsers that might not support keydown properly
-        if ((event.key === ' ' || event.keyCode === 32) && gameState.gameActive) {
-            event.preventDefault();
-            stopGame();
-        }
-    } catch (error) {
-        logError('Keyup handler', error, { event });
-    }
-}
-
-// NEW: Touch handler for mobile
+// Touch handler for mobile
 function handleTouchStart(event) {
     try {
-        // Only respond if game is active and user taps the game area
         if (gameState.gameActive) {
             const target = event.target;
-            
-            // Allow taps on the game container or spacebar hint
-            if (target.closest('.game-container') || target.closest('.spacebar-hint')) {
+            if (target.closest('.game-container')) {
                 event.preventDefault();
-                stopGame();
+                react();
             }
         }
     } catch (error) {
@@ -583,22 +561,19 @@ function handleTouchStart(event) {
     }
 }
 
-// NEW: Click handler for broader compatibility
+// Click handler
 function handleClick(event) {
     try {
-        // Only respond if game is active
         if (gameState.gameActive) {
             const target = event.target;
             
-            // Don't interfere with UI buttons
-            if (target.closest('button') || target.closest('a') || target.closest('.mode-button')) {
+            if (target.closest('button') || target.closest('a')) {
                 return;
             }
             
-            // Allow clicks on game area
             if (target.closest('.game-container')) {
                 event.preventDefault();
-                stopGame();
+                react();
             }
         }
     } catch (error) {
@@ -606,104 +581,10 @@ function handleClick(event) {
     }
 }
 
-// Enhanced UI updates for mobile
-function updateUIForDevice() {
-    try {
-        const isMobile = isMobileDevice();
-        const spacebarHint = document.getElementById('spacebar-hint');
-        
-        if (spacebarHint) {
-            if (isMobile) {
-                spacebarHint.innerHTML = '📱 TAP ANYWHERE when you think 10 seconds have passed!';
-                spacebarHint.style.fontSize = '1.2rem';
-                spacebarHint.style.cursor = 'pointer';
-                spacebarHint.style.background = 'rgba(0, 255, 136, 0.1)';
-                spacebarHint.style.border = '2px dashed #00ff88';
-            } else {
-                spacebarHint.innerHTML = '⌨️ Press SPACEBAR when you think 10 seconds have passed!';
-            }
-        }
-        
-        // Update instructions for mobile
-        const instructions = document.querySelector('.instructions ul');
-        if (instructions && isMobile) {
-            const items = instructions.querySelectorAll('li');
-            items.forEach(item => {
-                if (item.textContent.includes('SPACEBAR')) {
-                    item.innerHTML = item.innerHTML.replace(
-                        'Press the <strong>SPACEBAR</strong>',
-                        '<strong>TAP ANYWHERE ON SCREEN</strong>'
-                    );
-                }
-            });
-        }
-        
-        console.log(`UI updated for ${isMobile ? 'mobile' : 'desktop'} device`);
-        
-    } catch (error) {
-        logError('UI device update', error);
-    }
-}
-
-// Add mobile-specific CSS improvements
-function addMobileStyles() {
-    if (!isMobileDevice()) return;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        /* Mobile-specific improvements */
-        .game-container {
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: rgba(0, 255, 136, 0.2);
-        }
-        
-        .spacebar-hint {
-            padding: 1.5rem !important;
-            background: rgba(0, 255, 136, 0.1) !important;
-            border: 2px dashed #00ff88 !important;
-            cursor: pointer !important;
-            touch-action: manipulation !important;
-        }
-        
-        .spacebar-hint:active {
-            background: rgba(0, 255, 136, 0.2) !important;
-            transform: scale(0.98);
-        }
-        
-        /* Make buttons bigger for touch */
-        .mode-button {
-            min-height: 60px !important;
-            font-size: 1.1rem !important;
-        }
-        
-        .start-button {
-            min-height: 60px !important;
-            font-size: 1.3rem !important;
-            padding: 1.2rem 2.5rem !important;
-        }
-        
-        /* Prevent accidental zoom */
-        input, button, select, textarea {
-            font-size: 16px !important;
-        }
-        
-        /* Better tap targets */
-        .leaderboard-button {
-            min-height: 50px !important;
-            padding: 1rem 2rem !important;
-        }
-    `;
-    
-    document.head.appendChild(style);
-}
-
-
-// Enhanced stats loading with better error handling
+// Load and display stats
 async function loadStats() {
     try {
-        const data = await safeFetch('/timepredict/get_stats');
+        const data = await safeFetch('/reacttime/get_stats');
         
         if (data.success && data.stats) {
             updateStatsDisplay(data.stats);
@@ -713,8 +594,6 @@ async function loadStats() {
         
     } catch (error) {
         logError('Stats loading', error);
-        
-        // Show default stats on error
         updateStatsDisplay({
             games_played: 0,
             best_score: null,
@@ -723,13 +602,9 @@ async function loadStats() {
     }
 }
 
-// Enhanced stats display with validation
+// Update stats display
 function updateStatsDisplay(stats) {
     try {
-        if (!stats || typeof stats !== 'object') {
-            throw new Error('Invalid stats object');
-        }
-        
         const gamesPlayedEl = document.getElementById('games-played');
         const bestScoreEl = document.getElementById('best-score');
         const winRateEl = document.getElementById('win-rate');
@@ -738,17 +613,14 @@ function updateStatsDisplay(stats) {
             throw new Error('Stats display elements not found');
         }
         
-        // Update games played
         gamesPlayedEl.textContent = stats.games_played || 0;
         
-        // Update best score
         if (stats.best_score !== null && stats.best_score !== undefined) {
-            bestScoreEl.textContent = Math.abs(stats.best_score).toFixed(3) + 's';
+            bestScoreEl.textContent = (stats.best_score * 1000).toFixed(0) + 'ms';
         } else {
             bestScoreEl.textContent = '--';
         }
         
-        // Update win rate
         const gamesPlayed = stats.games_played || 0;
         const wins = stats.wins || 0;
         const winRate = gamesPlayed > 0 ? ((wins / gamesPlayed) * 100).toFixed(1) : 0;
@@ -759,38 +631,35 @@ function updateStatsDisplay(stats) {
     }
 }
 
-// Enhanced game start with better validation and error handling
+// Start game
 async function startGame() {
     try {
-        // Validate game state
         if (gameState.gameActive) {
             throw new Error('Game already active');
         }
         
-        // Get and validate UI elements
         const startButton = document.getElementById('start-button');
         const gameStatus = document.getElementById('game-status');
-        const timerDisplay = document.getElementById('timer-display');
-        const spacebarHint = document.getElementById('spacebar-hint');
+        const waitingMessage = document.getElementById('waiting-message');
         const results = document.getElementById('results');
+        const earlyWarning = document.getElementById('early-warning');
+        const reactionIndicator = document.getElementById('reaction-indicator');
+        const reactionHint = document.getElementById('reaction-hint');
         
         if (!startButton || !gameStatus) {
             throw new Error('Required UI elements not found');
         }
         
-        // Clear any existing timers/intervals
-        clearInterval(gameState.timerInterval);
-        clearTimeout(gameState.countdownTimeout);
-        
-        // Hide previous results
+        // Clear previous state
+        clearInterval(gameState.indicatorCheckInterval);
         if (results) results.style.display = 'none';
+        if (earlyWarning) earlyWarning.style.display = 'none';
+        if (reactionIndicator) reactionIndicator.style.display = 'none';
+        if (reactionHint) reactionHint.style.display = 'none';
         
         // Disable start button
         startButton.disabled = true;
         startButton.textContent = 'STARTING...';
-        
-        // Hide spacebar hint during countdown
-        if (spacebarHint) spacebarHint.style.display = 'none';
         
         // Start countdown
         let countdown = 3;
@@ -805,7 +674,6 @@ async function startGame() {
                     clearInterval(countdownInterval);
                     gameStatus.innerHTML = '<div class="countdown">GO!</div>';
                     
-                    // Wait a moment then start the actual game
                     setTimeout(() => {
                         actuallyStartGame();
                     }, 500);
@@ -823,36 +691,27 @@ async function startGame() {
     }
 }
 
-// Enhanced actual game start with better error handling
+// Actually start the game
 async function actuallyStartGame() {
     try {
-        const data = await safeFetch('/timepredict/start_game', {
-            method: 'POST',
-            body: JSON.stringify({})
+        const data = await safeFetch('/reacttime/start_game', {
+            method: 'POST'
         });
         
         if (data.success) {
             gameState.gameActive = true;
+            gameState.waitingForIndicator = true;
+            gameState.reactionAllowed = false;
             
-            // Use high-resolution timer if available, fallback to Date
-            if (typeof performance !== 'undefined' && performance.now) {
-                gameState.startTime = performance.now();
-            } else {
-                gameState.startTime = Date.now();
-            }
-            
-            // Update UI
             const gameStatus = document.getElementById('game-status');
-            const spacebarHint = document.getElementById('spacebar-hint');
-            const timerDisplay = document.getElementById('timer-display');
+            const waitingMessage = document.getElementById('waiting-message');
             
-            if (gameStatus) gameStatus.textContent = 'Timer Running...';
-            if (spacebarHint) spacebarHint.style.display = 'block';
+            if (gameStatus) gameStatus.textContent = '';
+            if (waitingMessage) waitingMessage.style.display = 'block';
             
-            // Hide timer display for predict mode
-            if (timerDisplay) {
-                timerDisplay.style.display = 'none';
-            }
+            // Start checking for indicator
+            gameState.indicatorCheckInterval = setInterval(checkIndicator, 100); // Check every 100ms
+            
         } else {
             throw new Error(data.error || 'Server error starting game');
         }
@@ -864,34 +723,117 @@ async function actuallyStartGame() {
     }
 }
 
+// Check if indicator should be shown
+async function checkIndicator() {
+    try {
+        if (!gameState.waitingForIndicator) return;
+        
+        const data = await safeFetch('/reacttime/check_indicator', {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            if (data.show_indicator) {
+                gameState.waitingForIndicator = false;
+                gameState.reactionAllowed = true;
+                showIndicator();
+            }
+        } else {
+            if (data.error !== 'No active game found') {
+                logError('Indicator check', new Error(data.error));
+            }
+        }
+        
+    } catch (error) {
+        // Silently handle network errors during indicator checking
+        console.warn('Indicator check failed:', error.message);
+    }
+}
 
-// Enhanced game stop with comprehensive error handling
-async function stopGame() {
+// Show random visual indicator
+function showIndicator() {
+    try {
+        const waitingMessage = document.getElementById('waiting-message');
+        const reactionIndicator = document.getElementById('reaction-indicator');
+        const reactionHint = document.getElementById('reaction-hint');
+        
+        if (waitingMessage) waitingMessage.style.display = 'none';
+        if (reactionHint) reactionHint.style.display = 'block';
+        
+        // Clear indicator check interval
+        clearInterval(gameState.indicatorCheckInterval);
+        
+        // Choose random indicator type
+        const indicatorTypes = ['flash', 'word', 'shape'];
+        const selectedType = indicatorTypes[Math.floor(Math.random() * indicatorTypes.length)];
+        
+        let indicatorHTML = '';
+        
+        switch (selectedType) {
+            case 'flash':
+                indicatorHTML = '<div class="flash-indicator"></div>';
+                break;
+            case 'word':
+                const words = ['REACT!', 'NOW!', 'GO!', 'CLICK!', 'FAST!'];
+                const selectedWord = words[Math.floor(Math.random() * words.length)];
+                indicatorHTML = `<div class="word-indicator">${selectedWord}</div>`;
+                break;
+            case 'shape':
+                indicatorHTML = '<div class="shape-indicator"></div>';
+                break;
+        }
+        
+        if (reactionIndicator) {
+            reactionIndicator.innerHTML = indicatorHTML;
+            reactionIndicator.style.display = 'block';
+        }
+        
+        console.log(`Indicator shown: ${selectedType}`);
+        
+    } catch (error) {
+        logError('Show indicator', error);
+    }
+}
+
+// React to indicator
+async function react() {
     try {
         if (!gameState.gameActive) {
-            console.warn('Stop game called but game not active');
+            console.warn('React called but game not active');
+            return;
+        }
+        
+        // If waiting for indicator, show early warning
+        if (gameState.waitingForIndicator) {
+            showEarlyWarning();
+            return;
+        }
+        
+        if (!gameState.reactionAllowed) {
+            console.warn('React called but reaction not allowed');
             return;
         }
         
         gameState.gameActive = false;
-        clearInterval(gameState.timerInterval);
+        gameState.reactionAllowed = false;
+        clearInterval(gameState.indicatorCheckInterval);
         
-        // Hide spacebar hint
-        const spacebarHint = document.getElementById('spacebar-hint');
-        if (spacebarHint) spacebarHint.style.display = 'none';
+        // Hide indicator and hint
+        const reactionIndicator = document.getElementById('reaction-indicator');
+        const reactionHint = document.getElementById('reaction-hint');
+        if (reactionIndicator) reactionIndicator.style.display = 'none';
+        if (reactionHint) reactionHint.style.display = 'none';
         
-        const data = await safeFetch('/timepredict/stop_game', {
-            method: 'POST',
-            body: JSON.stringify({})
+        const data = await safeFetch('/reacttime/react', {
+            method: 'POST'
         });
         
         if (data.success) {
             displayResults(data);
             updateStatsDisplay(data.stats);
             
-            // Handle leaderboard redirect with user notification
+            // Handle leaderboard redirect
             if (data.leaderboard_success && data.redirect_url) {
-                // Show results briefly then redirect to leaderboard
                 setTimeout(() => {
                     try {
                         window.location.href = data.redirect_url;
@@ -899,24 +841,52 @@ async function stopGame() {
                         logError('Leaderboard redirect', error);
                         console.log('Manual redirect required:', data.redirect_url);
                     }
-                }, 3000); // Wait 3 seconds to show results
+                }, 3000);
             } else if (!data.leaderboard_success && data.leaderboard_error) {
                 logError('Leaderboard submission', new Error(data.leaderboard_error));
             }
         } else {
-            throw new Error(data.error || 'Server error stopping game');
+            if (data.early_reaction) {
+                showEarlyWarning();
+                return;
+            }
+            throw new Error(data.error || 'Server error processing reaction');
         }
         
         resetUI();
         
     } catch (error) {
-        logError('Game stop', error);
-        alert('Error stopping game: ' + error.message);
+        logError('React', error);
         resetUI();
     }
 }
 
-// Enhanced results display with mobile support
+// Show early warning
+function showEarlyWarning() {
+    try {
+        const earlyWarning = document.getElementById('early-warning');
+        const waitingMessage = document.getElementById('waiting-message');
+        
+        if (earlyWarning) {
+            earlyWarning.style.display = 'block';
+            setTimeout(() => {
+                earlyWarning.style.display = 'none';
+                if (waitingMessage) waitingMessage.style.display = 'block';
+            }, 2000);
+        }
+        
+        // Reset game state to allow another attempt
+        gameState.gameActive = false;
+        gameState.waitingForIndicator = false;
+        clearInterval(gameState.indicatorCheckInterval);
+        resetUI();
+        
+    } catch (error) {
+        logError('Early warning', error);
+    }
+}
+
+// Display results
 function displayResults(data) {
     try {
         if (!data || typeof data !== 'object') {
@@ -931,12 +901,12 @@ function displayResults(data) {
             throw new Error('Results display elements not found');
         }
         
-        // Create result message with mobile-friendly text
+        // Create result message
         let message = '';
         if (data.is_winner) {
-            message = `<div class="winner">🎉 PERFECT TIMING! 🎉<br>You nailed it!</div>`;
+            message = `<div class="winner">🎉 ${data.timing_message} 🎉</div>`;
         } else {
-            message = `<div class="loser">So close! Try again!</div>`;
+            message = `<div class="loser">${data.timing_message}</div>`;
         }
         
         // Add device-specific encouragement
@@ -954,13 +924,11 @@ function displayResults(data) {
         
         resultMessage.innerHTML = message;
         
-        // Create detailed results with mobile-friendly formatting
+        // Create detailed results
         const details = `
-            <p><strong>Mode:</strong> ${(data.mode || 'unknown').toUpperCase()}</p>
-            <p><strong>Your Time:</strong> ${data.elapsed_time || 'N/A'}s</p>
-            <p><strong>Target Time:</strong> ${data.target_time || 10.0}s</p>
-            <p><strong>Difference:</strong> ${data.timing_message || 'N/A'}</p>
-            <p><strong>Win Threshold:</strong> ±${data.win_threshold || 'N/A'}s</p>
+            <p><strong>Your Reaction Time:</strong> ${(data.response_time * 1000).toFixed(0)}ms</p>
+            <p><strong>Win Threshold:</strong> ≤${(data.win_threshold * 1000).toFixed(0)}ms</p>
+            <p><strong>Result:</strong> ${data.is_winner ? 'SUCCESS!' : 'Keep practicing!'}</p>
         `;
         
         resultDetails.innerHTML = details;
@@ -978,23 +946,21 @@ function displayResults(data) {
     }
 }
 
-// Enhanced UI reset with comprehensive cleanup
+// Reset UI
 function resetUI() {
     try {
-        // Clear all timers and intervals
-        clearInterval(gameState.timerInterval);
-        clearTimeout(gameState.countdownTimeout);
+        clearInterval(gameState.indicatorCheckInterval);
         
-        // Reset game state
         gameState.gameActive = false;
-        gameState.startTime = null;
-        gameState.timerInterval = null;
-        gameState.countdownTimeout = null;
+        gameState.waitingForIndicator = false;
+        gameState.reactionAllowed = false;
+        gameState.indicatorCheckInterval = null;
         
-        // Reset UI elements
         const startButton = document.getElementById('start-button');
         const gameStatus = document.getElementById('game-status');
-        const timerDisplay = document.getElementById('timer-display');
+        const waitingMessage = document.getElementById('waiting-message');
+        const reactionIndicator = document.getElementById('reaction-indicator');
+        const reactionHint = document.getElementById('reaction-hint');
         
         if (startButton) {
             startButton.disabled = false;
@@ -1002,33 +968,31 @@ function resetUI() {
         }
         
         if (gameStatus) {
-            gameStatus.textContent = 'Ready to test your timing?';
-            gameStatus.style.color = ''; // Reset color
+            gameStatus.textContent = 'Ready to test your reflexes?';
+            gameStatus.style.color = '';
         }
         
-        if (timerDisplay) {
-            timerDisplay.style.display = 'none';
-        }
+        if (waitingMessage) waitingMessage.style.display = 'none';
+        if (reactionIndicator) reactionIndicator.style.display = 'none';
+        if (reactionHint) reactionHint.style.display = 'none';
         
     } catch (error) {
         logError('UI reset', error);
     }
 }
 
-// Enhanced stats reset with validation
+// Reset stats
 async function resetStats() {
     try {
         if (!confirm('Are you sure you want to reset all statistics?')) {
             return;
         }
         
-        const data = await safeFetch('/timepredict/reset_stats', {
-            method: 'POST',
-            body: JSON.stringify({})
+        const data = await safeFetch('/reacttime/reset_stats', {
+            method: 'POST'
         });
         
         if (data.success) {
-            // Update display
             updateStatsDisplay({
                 games_played: 0,
                 best_score: null,
@@ -1049,43 +1013,26 @@ async function resetStats() {
     }
 }
 
-// Enhanced game initialization with mobile support
+// Initialize game
 function initializeGame() {
     try {
-        // Check browser compatibility first
-        const compatibilityIssues = checkBrowserCompatibility();
-        if (compatibilityIssues.length > 0) {
-            console.warn('Browser compatibility issues detected:', compatibilityIssues);
-        }
-        
-        // Initialize event listeners for both mobile and desktop
         initializeEventListeners();
-        
-        // Update UI based on device type
-        updateUIForDevice();
-        
-        // Load initial stats
         loadStats();
         
-        // Mark as initialized
-        gameState.isInitialized = true;
-        
-        const deviceType = isMobileDevice() ? 'mobile' : 'desktop';
-        console.log(`Time Predict game initialized successfully for ${deviceType}`);
+        console.log('React Time game initialized successfully');
         
         // Show device-specific welcome message
         const gameStatus = document.getElementById('game-status');
         if (gameStatus && isMobileDevice()) {
-            gameStatus.innerHTML = '📱 Mobile Ready! Tap anywhere to stop the timer.';
+            gameStatus.innerHTML = '📱 Mobile Ready! Tap anywhere to react.';
             setTimeout(() => {
-                gameStatus.textContent = 'Ready to test your timing?';
+                gameStatus.textContent = 'Ready to test your reflexes?';
             }, 3000);
         }
         
     } catch (error) {
         logError('Game initialization', error);
         
-        // Try to show error to user
         const gameStatus = document.getElementById('game-status');
         if (gameStatus) {
             gameStatus.innerHTML = '❌ Game initialization failed. Please refresh the page.';
@@ -1094,49 +1041,26 @@ function initializeGame() {
     }
 }
 
-// Enhanced page load handler with mobile detection
+// Page load handler
 function handlePageLoad() {
     try {
-        // Add mobile styles immediately
-        addMobileStyles();
-        
-        // Initialize based on DOM state
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeGame);
         } else {
             initializeGame();
         }
         
-        // Fallback initialization
         window.addEventListener('load', () => {
-            if (!gameState.isInitialized) {
-                console.log('Using fallback initialization');
-                setTimeout(initializeGame, 100);
-            }
-        });
-        
-        // Log device info for debugging
-        console.log('Device info:', {
-            userAgent: navigator.userAgent,
-            screenWidth: window.innerWidth,
-            isMobile: isMobileDevice(),
-            touchSupport: 'ontouchstart' in window
+            setTimeout(initializeGame, 100);
         });
         
     } catch (error) {
         logError('Page load handler', error);
-        
-        // Emergency fallback
-        setTimeout(() => {
-            if (!gameState.isInitialized) {
-                console.log('Using emergency initialization');
-                initializeGame();
-            }
-        }, 1000);
+        setTimeout(initializeGame, 1000);
     }
 }
 
-// Global error handler for uncaught errors
+// Global error handlers
 window.addEventListener('error', function(event) {
     logError('Uncaught error', event.error, {
         message: event.message,
@@ -1146,17 +1070,16 @@ window.addEventListener('error', function(event) {
     });
 });
 
-// Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', function(event) {
     logError('Unhandled promise rejection', event.reason);
 });
 
-// Initialize the game when page loads
+// Initialize
 handlePageLoad();
 
-// Export functions for global access (attach to window for compatibility)
+// Export functions for global access
 window.startGame = startGame;
-window.stopGame = stopGame;
+window.react = react;
 window.resetStats = resetStats;
 </script>
 {% endblock %}

@@ -27,6 +27,15 @@ GAMES_DATA = [
         'difficulty': 4
     },
     {
+        'name': 'React Time Challenge',
+        'description': 'Test your reflexes - react to visual indicators as fast as possible!',
+        'endpoint': 'react_time.index',
+        'icon': '⚡',
+        'category': 'skill',
+        'tags': ['reaction', 'reflexes', 'speed', 'timing', 'fast', 'challenge', 'visual'],
+        'difficulty': 3
+    },
+    {
         'name': 'Cosmic Dino Runner',
         'description': 'Chrome dinosaur game in space - jump over obstacles!',
         'endpoint': 'dino_runner.index',

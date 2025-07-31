@@ -533,7 +533,7 @@ def view_game_leaderboard(game_name):
     # Calculate pagination
     total_pages = (leaderboard_data['total_entries'] + per_page - 1) // per_page
     
-    return render_template('game_leaderboard.html', 
+    return render_template('leaderboard_game.html', 
                          leaderboard=leaderboard_data,
                          current_page=page,
                          total_pages=total_pages)
@@ -612,26 +612,14 @@ def get_all_games_with_leaderboards():
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
+            # First get games with submission counts
             cursor.execute('''
                 SELECT 
                     gc.game_name,
                     gc.score_type,
                     gc.ranking_method,
-                    COUNT(le.id) as total_submissions,
-                    CASE 
-                        WHEN gc.higher_is_better THEN MAX(le.ranking_score)
-                        ELSE MIN(le.ranking_score)
-                    END as best_ranking_score,
-                    (SELECT original_score FROM leaderboard_entries 
-                     WHERE game_name = gc.game_name 
-                     ORDER BY CASE WHEN gc.higher_is_better THEN ranking_score END DESC,
-                              CASE WHEN NOT gc.higher_is_better THEN ranking_score END ASC
-                     LIMIT 1) as best_original_score,
-                    (SELECT username FROM leaderboard_entries 
-                     WHERE game_name = gc.game_name 
-                     ORDER BY CASE WHEN gc.higher_is_better THEN ranking_score END DESC,
-                              CASE WHEN NOT gc.higher_is_better THEN ranking_score END ASC
-                     LIMIT 1) as best_username
+                    gc.higher_is_better,
+                    COUNT(le.id) as total_submissions
                 FROM game_configs gc
                 LEFT JOIN leaderboard_entries le ON gc.game_name = le.game_name
                 GROUP BY gc.game_name, gc.score_type, gc.ranking_method, gc.higher_is_better
@@ -641,15 +629,37 @@ def get_all_games_with_leaderboards():
             
             games = []
             for row in cursor.fetchall():
+                game_name = row['game_name']
+                
+                # Get the top score for this game
+                if row['higher_is_better']:
+                    cursor.execute('''
+                        SELECT username, original_score 
+                        FROM leaderboard_entries 
+                        WHERE game_name = ? 
+                        ORDER BY ranking_score DESC 
+                        LIMIT 1
+                    ''', (game_name,))
+                else:
+                    cursor.execute('''
+                        SELECT username, original_score 
+                        FROM leaderboard_entries 
+                        WHERE game_name = ? 
+                        ORDER BY ranking_score ASC 
+                        LIMIT 1
+                    ''', (game_name,))
+                
+                top_score_row = cursor.fetchone()
+                
                 games.append({
-                    'name': row['game_name'],
+                    'name': game_name,
                     'score_type': row['score_type'],
                     'ranking_method': row['ranking_method'],
                     'total_submissions': row['total_submissions'],
                     'top_score': {
-                        'username': row['best_username'],
-                        'score': row['best_original_score']  # Show original score
-                    } if row['best_original_score'] is not None else None
+                        'username': top_score_row['username'],
+                        'score': top_score_row['original_score']
+                    } if top_score_row else None
                 })
             
             return games

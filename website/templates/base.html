@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/space.css') }}"/>
     
     <!-- Page Title -->
-    <title>{% block title %}SUMMERLOCKIN{% endblock %}</title>
+    <title>{% block title %}WASTE YOUR TIME!!!{% endblock %}</title>
     
     <!-- Global Space Theme Styles -->
     <style>
@@ -480,6 +480,63 @@
         }
     </style>
     
+    <!-- Ultra-Sneaky Developer Discovery System -->
+    <script>
+        // Hidden developer access function - looks innocent
+        console.log('%c🌌 SummerLockIn System Loaded', 'color: #8A2BE2; font-weight: bold;');
+        
+        // Ultra-secret developer discovery function
+        window.devAccess = function(code) {
+            if (code === 'CLAUDE_CODE_KING') {
+                console.log('%c🔑 Developer Access Granted', 'color: #00ff00; background: #000; padding: 5px;');
+                console.log('%c⚡ Generating session-specific admin key...', 'color: #ffaa00; font-weight: bold;');
+                
+                // Generate session-specific admin key
+                fetch('/dev/generate-admin-key')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('%c🗝️  Session Admin Key Generated!', 'color: #ff6b6b; font-weight: bold; font-size: 14px;');
+                        console.log('%c📍 Admin URL: ' + data.admin_url, 'color: #4ecdc4; font-weight: bold;');
+                        console.log('%c🔐 Session Key: ' + data.admin_key, 'color: #ff6b6b; font-family: monospace;');
+                        console.log('%c💡 This key is ONLY valid for your current session!', 'color: #ffaa00; font-style: italic;');
+                        console.log('%c⚡ Copy the admin URL above or click it to access admin panel 👑', 'color: #ffd700; font-size: 12px; font-weight: bold;');
+                        console.log('%c🚪 Key will be invalidated when you logout or session expires', 'color: #888;');
+                        
+                        // Make the URL clickable in console
+                        console.log('%c🎯 CLICK HERE: ' + window.location.origin + data.admin_url, 'color: #00ff00; font-weight: bold; text-decoration: underline;');
+                    })
+                    .catch(error => {
+                        console.log('%c❌ Error generating admin key:', 'color: #ff4444;', error);
+                    });
+                
+                return '🎯 Session-specific admin key generating...';
+            } else if (code && code.length > 0) {
+                console.log('%c❌ Access Denied - Invalid Code', 'color: #ff4444; background: #330000; padding: 3px;');
+                return '🚫 Unauthorized access attempt logged';
+            } else {
+                console.log('%c💭 Usage: devAccess("YOUR_SECRET_CODE")', 'color: #888;');
+                return '📋 Enter your developer access code';
+            }
+        };
+        
+        // Easter egg for curious developers (but not the real access)
+        window.help = function() {
+            console.log('%c🎮 SummerLockIn - Available Games:', 'color: #8A2BE2; font-weight: bold;');
+            console.log('  🦕 Cosmic Dino Runner');
+            console.log('  ⏱️  Time Predict Challenge'); 
+            console.log('  ⚡ React Time Challenge');
+            console.log('  🏆 Leaderboards');
+            return '🌟 Enjoy the games!';
+        };
+        
+        // Subtle hint for the truly curious (but no real access)
+        if (Math.random() < 0.01) {  // 1% chance
+            setTimeout(() => {
+                console.log('%c🕵️ Psst... developers have special powers here...', 'color: #666; font-style: italic;');
+            }, 5000);
+        }
+    </script>
+    
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -496,18 +553,7 @@
             <div class="nav-links-wrapper">
                 <div class="scroll-fade scroll-fade-left" id="fadeLeft"></div>
                 <div class="nav-links-scroll" id="navLinksScroll">
-                    <a href="{{ url_for('home.index') }}" class="nav-link {{ 'active' if request.endpoint == 'home.index' else '' }}">
-                        <span>🌌</span>Home
-                    </a>
-                    <a href="{{ url_for('time_predict.index') }}" class="nav-link {{ 'active' if request.endpoint == 'time_predict.index' else '' }}">
-                        <span>🕒</span>Time Predict
-                    </a>
-                    <a href="{{ url_for('dino_runner.index') }}" class="nav-link {{ 'active' if request.endpoint == 'dino_runner.index' else '' }}">
-                        <span>🦕</span>Dino Runner
-                    </a>
-                    <a href="{{ url_for('leaderboard.index') }}" class="nav-link {{ 'active' if request.endpoint == 'leaderboard.index' else '' }}">
-                        <span>🏆</span>Leaderboards
-                    </a>
+                    <!-- Scrollable bar now empty - all apps available via dropdown menu -->
                 </div>
                 <div class="scroll-fade scroll-fade-right" id="fadeRight"></div>
             </div>
@@ -529,15 +575,19 @@
                         >
                     </div>
                     <div class="nav-dropdown-links" id="navDropdownLinks">
+                        <!-- Home link -->
                         <a href="{{ url_for('home.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'home.index' else '' }}" data-search="home main dashboard games collection">
                             <span>🌌</span>Home
                         </a>
-                        <a href="{{ url_for('time_predict.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'time_predict.index' else '' }}" data-search="time predict timing challenge 10 seconds">
-                            <span>🕒</span>Time Predict Challenge
+                        
+                        <!-- Dynamic game links -->
+                        {% for game in navigation_games %}
+                        <a href="{{ url_for(game.endpoint) }}" class="nav-dropdown-link {{ 'active' if request.endpoint == game.endpoint else '' }}" data-search="{{ game.search_terms }}">
+                            <span>{{ game.icon }}</span>{{ game.name }}
                         </a>
-                        <a href="{{ url_for('dino_runner.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'dino_runner.index' else '' }}" data-search="dinosaur runner game jump chrome endless">
-                            <span>🦕</span>Cosmic Dino Runner
-                        </a>
+                        {% endfor %}
+                        
+                        <!-- Leaderboard link -->
                         <a href="{{ url_for('leaderboard.index') }}" class="nav-dropdown-link {{ 'active' if request.endpoint == 'leaderboard.index' else '' }}" data-search="leaderboard scores rankings high scores">
                             <span>🏆</span>Leaderboards
                         </a>

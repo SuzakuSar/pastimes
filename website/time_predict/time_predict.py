@@ -62,76 +62,44 @@ def safe_session_set(key, value):
         logger.error(f"Session set error for key '{key}': {str(e)}")
         return False
 
-def get_session_keys(mode):
+def get_session_keys():
     """
-    Generate session keys for a specific mode to keep statistics separate.
-    
-    Args:
-        mode (str): Either 'predict' or 'react'
+    Generate session keys for time predict game.
     
     Returns:
-        dict: Dictionary containing session key names for the mode
+        dict: Dictionary containing session key names
     """
-    if not isinstance(mode, str) or mode not in ['predict', 'react']:
-        logger.warning(f"Invalid mode for session keys: {mode}")
-        mode = 'predict'  # Default fallback
-    
-    prefix = f'time_predict_{mode}'
     return {
-        'start_time': f'{prefix}_start_time',
-        'game_active': f'{prefix}_game_active',
-        'best_score': f'{prefix}_best_score',
-        'games_played': f'{prefix}_games_played',
-        'wins': f'{prefix}_wins'
+        'start_time': 'time_predict_start_time',
+        'game_active': 'time_predict_game_active',
+        'best_score': 'time_predict_best_score',
+        'games_played': 'time_predict_games_played',
+        'wins': 'time_predict_wins'
     }
 
-def get_win_threshold(mode):
+def get_win_threshold():
     """
-    Get the win threshold for a specific mode.
-    
-    Args:
-        mode (str): Either 'predict' or 'react'
+    Get the win threshold for time predict game.
     
     Returns:
         float: Win threshold in seconds
     """
-    thresholds = {
-        'predict': 0.1,  # 0.1 seconds tolerance for predict mode
-        'react': 0.05    # 0.05 seconds tolerance for react mode
-    }
-    return thresholds.get(mode, 0.05)
+    return 0.1  # 0.1 seconds tolerance for predict mode
 
-def get_game_name(mode):
+def get_game_name():
     """
-    Get the leaderboard game name for a specific mode.
-    
-    Args:
-        mode (str): Either 'predict' or 'react'
+    Get the leaderboard game name for time predict game.
     
     Returns:
         str: Game name for leaderboard
     """
-    names = {
-        'predict': 'Time Predict - Predict Mode',
-        'react': 'Time Predict - React Mode'
-    }
-    return names.get(mode, 'Time Predict')
+    return 'Time Predict'
 
-def validate_mode(mode):
-    """Validate and sanitize mode parameter"""
-    if not mode or not isinstance(mode, str):
-        return 'predict', "Mode parameter missing or invalid, defaulting to 'predict'"
-    
-    mode = mode.lower().strip()
-    if mode not in ['predict', 'react']:
-        return 'predict', f"Invalid mode '{mode}', defaulting to 'predict'"
-    
-    return mode, None
 
-def initialize_session_for_mode(mode):
-    """Initialize session variables for a specific mode"""
+def initialize_session():
+    """Initialize session variables for time predict game"""
     try:
-        keys = get_session_keys(mode)
+        keys = get_session_keys()
         
         # Always reset active game state
         safe_session_set(keys['start_time'], None)
@@ -145,11 +113,11 @@ def initialize_session_for_mode(mode):
         if keys['wins'] not in session:
             safe_session_set(keys['wins'], 0)
         
-        logger.info(f"Session initialized for mode: {mode}")
+        logger.info("Time predict session initialized")
         return True
         
     except Exception as e:
-        logger.error(f"Failed to initialize session for mode {mode}: {str(e)}")
+        logger.error(f"Failed to initialize session: {str(e)}")
         return False
 
 @time_predict.route('/')
@@ -161,9 +129,8 @@ def index():
     try:
         log_request_info('index')
         
-        # Initialize session variables for both modes
-        for mode in ['predict', 'react']:
-            initialize_session_for_mode(mode)
+        # Initialize session variables
+        initialize_session()
         
         # Log leaderboard status for debugging
         logger.info(f"Leaderboard available: {LEADERBOARD_AVAILABLE}")
@@ -192,15 +159,9 @@ def get_stats():
     API endpoint to get statistics for a specific mode.
     """
     try:
-        log_request_info('get_stats', {'query_params': dict(request.args)})
+        log_request_info('get_stats')
         
-        mode = request.args.get('mode', 'predict')
-        mode, validation_warning = validate_mode(mode)
-        
-        if validation_warning:
-            logger.warning(validation_warning)
-        
-        keys = get_session_keys(mode)
+        keys = get_session_keys()
         
         stats = {
             'games_played': safe_session_get(keys['games_played'], 0),
@@ -219,12 +180,11 @@ def get_stats():
             logger.warning(f"Invalid best_score type: {type(stats['best_score'])}")
             stats['best_score'] = None
         
-        logger.info(f"Stats retrieved for mode {mode}: {stats}")
+        logger.info(f"Stats retrieved: {stats}")
         
         return jsonify({
             'success': True,
             'stats': stats,
-            'mode': mode,
             'leaderboard_available': LEADERBOARD_AVAILABLE
         })
         
@@ -247,22 +207,14 @@ def start_game():
     try:
         log_request_info('start_game')
         
-        # Get and validate request data
-        data = request.get_json() or {}
-        mode = data.get('mode', 'predict')
-        mode, validation_warning = validate_mode(mode)
-        
-        if validation_warning:
-            logger.warning(validation_warning)
-        
-        keys = get_session_keys(mode)
+        keys = get_session_keys()
         
         # Check if game is already active
         if safe_session_get(keys['game_active'], False):
-            logger.warning(f"Attempted to start game while already active for mode: {mode}")
+            logger.warning("Attempted to start game while already active")
             return jsonify({
                 'success': False,
-                'error': f'Game already active for {mode} mode'
+                'error': 'Game already active'
             }), 400
         
         # Record the precise start time using high-resolution timer
@@ -275,13 +227,12 @@ def start_game():
         if not safe_session_set(keys['game_active'], True):
             raise Exception("Failed to set game_active in session")
         
-        logger.info(f"Game started for mode {mode} at {start_time}")
+        logger.info(f"Game started at {start_time}")
         
         return jsonify({
             'success': True,
             'start_time': start_time,
-            'mode': mode,
-            'message': f'Game started in {mode} mode! Press SPACE when you think 10 seconds have passed.',
+            'message': 'Game started! Press SPACE when you think 10 seconds have passed.',
             'leaderboard_available': LEADERBOARD_AVAILABLE
         })
         
@@ -291,10 +242,7 @@ def start_game():
         
         # Try to clean up session state on error
         try:
-            data = request.get_json() or {}
-            mode = data.get('mode', 'predict')
-            mode, _ = validate_mode(mode)
-            keys = get_session_keys(mode)
+            keys = get_session_keys()
             safe_session_set(keys['game_active'], False)
             safe_session_set(keys['start_time'], None)
         except:
@@ -315,22 +263,14 @@ def stop_game():
     try:
         log_request_info('stop_game')
         
-        # Get and validate request data
-        data = request.get_json() or {}
-        mode = data.get('mode', 'predict')
-        mode, validation_warning = validate_mode(mode)
-        
-        if validation_warning:
-            logger.warning(validation_warning)
-        
-        keys = get_session_keys(mode)
+        keys = get_session_keys()
         
         # Validate game state
         if not safe_session_get(keys['game_active'], False):
-            logger.warning(f"Attempted to stop inactive game for mode: {mode}")
+            logger.warning("Attempted to stop inactive game")
             return jsonify({
                 'success': False,
-                'error': f'No active {mode} game found'
+                'error': 'No active game found'
             }), 400
         
         # Get the score calculated by game logic (server-side)
@@ -338,7 +278,7 @@ def stop_game():
         start_time = safe_session_get(keys['start_time'])
         
         if start_time is None:
-            logger.error(f"Start time not found for mode: {mode}")
+            logger.error("Start time not found")
             return jsonify({
                 'success': False,
                 'error': 'Start time not found - game state corrupted'
@@ -361,10 +301,10 @@ def stop_game():
         if elapsed_time < 0 or elapsed_time > 300:  # Sanity check: 0-300 seconds
             logger.warning(f"Suspicious elapsed time: {elapsed_time} seconds")
             
-        logger.info(f"Game finished - Mode: {mode}, Elapsed: {elapsed_time:.3f}s, Difference: {difference:.3f}s")
+        logger.info(f"Game finished - Elapsed: {elapsed_time:.3f}s, Difference: {difference:.3f}s")
         
-        # Get win threshold for this mode
-        win_threshold = get_win_threshold(mode)
+        # Get win threshold
+        win_threshold = get_win_threshold()
         is_winner = abs(difference) <= win_threshold
         
         # Update local session statistics for this mode
@@ -393,7 +333,7 @@ def stop_game():
         
         if LEADERBOARD_AVAILABLE:
             try:
-                game_name = get_game_name(mode)
+                game_name = get_game_name()
                 logger.info(f"Submitting to leaderboard: {game_name}, score: {elapsed_time}, target: {target_time}")
                 
                 result = submit_score_closest_to_target(
@@ -442,7 +382,6 @@ def stop_game():
             'is_winner': is_winner,
             'timing_message': timing_message,
             'win_threshold': win_threshold,
-            'mode': mode,
             'stats': stats,
             'leaderboard_success': leaderboard_success,
             'redirect_url': redirect_url,
@@ -460,10 +399,7 @@ def stop_game():
         
         # Try to clean up session state on error
         try:
-            data = request.get_json() or {}
-            mode = data.get('mode', 'predict')
-            mode, _ = validate_mode(mode)
-            keys = get_session_keys(mode)
+            keys = get_session_keys()
             safe_session_set(keys['game_active'], False)
             safe_session_set(keys['start_time'], None)
         except:
@@ -483,29 +419,20 @@ def reset_stats():
     try:
         log_request_info('reset_stats')
         
-        # Get and validate request data
-        data = request.get_json() or {}
-        mode = data.get('mode', 'predict')
-        mode, validation_warning = validate_mode(mode)
+        keys = get_session_keys()
         
-        if validation_warning:
-            logger.warning(validation_warning)
-        
-        keys = get_session_keys(mode)
-        
-        # Reset all statistics for this mode
+        # Reset all statistics
         safe_session_set(keys['best_score'], None)
         safe_session_set(keys['games_played'], 0)
         safe_session_set(keys['wins'], 0)
         safe_session_set(keys['game_active'], False)
         safe_session_set(keys['start_time'], None)
         
-        logger.info(f"Statistics reset for mode: {mode}")
+        logger.info("Statistics reset")
         
         return jsonify({
             'success': True,
-            'message': f'{mode.capitalize()} mode statistics reset successfully',
-            'mode': mode,
+            'message': 'Statistics reset successfully',
             'leaderboard_available': LEADERBOARD_AVAILABLE
         })
         
@@ -519,55 +446,13 @@ def reset_stats():
             'leaderboard_available': LEADERBOARD_AVAILABLE
         }), 500
 
-@time_predict.route('/get_all_stats')
-def get_all_stats():
-    """
-    API endpoint to get statistics for both modes.
-    Useful for debugging or showing combined statistics.
-    """
-    try:
-        log_request_info('get_all_stats')
-        
-        all_stats = {}
-        
-        for mode in ['predict', 'react']:
-            keys = get_session_keys(mode)
-            all_stats[mode] = {
-                'games_played': safe_session_get(keys['games_played'], 0),
-                'best_score': safe_session_get(keys['best_score']),
-                'wins': safe_session_get(keys['wins'], 0),
-                'win_threshold': get_win_threshold(mode),
-                'game_active': safe_session_get(keys['game_active'], False)
-            }
-        
-        return jsonify({
-            'success': True,
-            'stats': all_stats,
-            'leaderboard_available': LEADERBOARD_AVAILABLE,
-            'leaderboard_error': LEADERBOARD_ERROR
-        })
-        
-    except Exception as e:
-        logger.error(f"Error in get_all_stats: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        
-        return jsonify({
-            'success': False,
-            'error': f"Failed to retrieve all stats: {str(e)}",
-            'leaderboard_available': LEADERBOARD_AVAILABLE
-        }), 500
 
 # Enhanced leaderboard view routes with comprehensive error handling
-@time_predict.route('/leaderboard/<mode>')
-def view_mode_leaderboard(mode):
-    """View leaderboard for specific mode"""
+@time_predict.route('/leaderboard')
+def view_leaderboard():
+    """View leaderboard for time predict"""
     try:
-        log_request_info('view_mode_leaderboard', {'mode': mode})
-        
-        mode, validation_warning = validate_mode(mode)
-        if validation_warning:
-            logger.warning(validation_warning)
-            flash(validation_warning, 'warning')
+        log_request_info('view_leaderboard')
         
         if not LEADERBOARD_AVAILABLE:
             error_msg = f'Leaderboard system not available: {LEADERBOARD_ERROR}'
@@ -576,7 +461,7 @@ def view_mode_leaderboard(mode):
             return redirect(url_for('time_predict.index'))
         
         try:
-            game_name = get_game_name(mode)
+            game_name = get_game_name()
             logger.info(f"Redirecting to leaderboard for game: {game_name}")
             return redirect(url_for('leaderboard.view_game_leaderboard', game_name=game_name))
         except Exception as e:
@@ -587,7 +472,7 @@ def view_mode_leaderboard(mode):
             return redirect(url_for('time_predict.index'))
             
     except Exception as e:
-        logger.error(f"Error in view_mode_leaderboard: {str(e)}")
+        logger.error(f"Error in view_leaderboard: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         flash(f'Unexpected error accessing leaderboard: {str(e)}', 'error')
         return redirect(url_for('time_predict.index'))

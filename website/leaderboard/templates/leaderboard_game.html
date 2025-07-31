@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ leaderboard.game_name }} Leaderboard{% endblock %}
+{% block header %}🏆 {{ leaderboard.game_name }} Leaderboard{% endblock %}
+
+{% block head %}
+<style>
+    .leaderboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .leaderboard-table {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+        margin: 20px 0;
+    }
+    
+    .leaderboard-header {
+        background: rgba(138, 43, 226, 0.3);
+        padding: 15px 20px;
+        display: grid;
+        grid-template-columns: 60px 1fr 120px 150px;
+        gap: 15px;
+        font-weight: bold;
+        color: #FFD700;
+    }
+    
+    .leaderboard-row {
+        padding: 15px 20px;
+        display: grid;
+        grid-template-columns: 60px 1fr 120px 150px;
+        gap: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        transition: background 0.2s ease;
+    }
+    
+    .leaderboard-row:hover {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .leaderboard-row:last-child {
+        border-bottom: none;
+    }
+    
+    .rank {
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .rank-1 { color: #FFD700; }
+    .rank-2 { color: #C0C0C0; }
+    .rank-3 { color: #CD7F32; }
+    
+    .username {
+        font-weight: bold;
+    }
+    
+    .score {
+        text-align: right;
+        font-weight: bold;
+        color: #4CAF50;
+    }
+    
+    .timestamp {
+        text-align: right;
+        opacity: 0.7;
+        font-size: 0.9rem;
+    }
+    
+    .game-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .score-type-badge {
+        background: rgba(138, 43, 226, 0.3);
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin: 0 5px;
+    }
+    
+    .no-scores {
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .back-btn {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin: 20px 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .leaderboard-header,
+        .leaderboard-row {
+            grid-template-columns: 50px 1fr 80px;
+            gap: 10px;
+        }
+        
+        .timestamp {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="leaderboard-container">
+    <div class="game-info">
+        <h2>{{ leaderboard.game_name }}</h2>
+        <span class="score-type-badge">{{ leaderboard.score_type }}</span>
+        <p>Total Players: {{ leaderboard.total_entries }}</p>
+    </div>
+    
+    {% if leaderboard.scores %}
+        <div class="leaderboard-table">
+            <div class="leaderboard-header">
+                <div>Rank</div>
+                <div>Player</div>
+                <div>Score</div>
+                <div class="timestamp">Date</div>
+            </div>
+            
+            {% for entry in leaderboard.scores %}
+            <div class="leaderboard-row">
+                <div class="rank rank-{{ loop.index if loop.index <= 3 else 'other' }}">
+                    {% if loop.index == 1 %}🥇
+                    {% elif loop.index == 2 %}🥈
+                    {% elif loop.index == 3 %}🥉
+                    {% else %}#{{ loop.index }}
+                    {% endif %}
+                </div>
+                <div class="username">{{ entry.username }}</div>
+                <div class="score">{{ entry.score | format_score(leaderboard.score_type, leaderboard.ranking_method, leaderboard.target_value) }}</div>
+                <div class="timestamp">{{ entry.date }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-scores">
+            <h3>🎮 No Scores Yet</h3>
+            <p>Be the first to submit a score for {{ leaderboard.game_name }}!</p>
+        </div>
+    {% endif %}
+    
+    <div style="text-align: center;">
+        <a href="{{ url_for('leaderboard.index') }}" class="back-btn">🏆 All Leaderboards</a>
+        <a href="{{ url_for('home.index') }}" class="back-btn">🎮 Back to Games</a>
+    </div>
+</div>
+{% endblock %}

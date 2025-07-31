@@ -1210,6 +1210,8 @@ function displayGames(games) {
         let gameUrl = '';
         if (game.endpoint === 'time_predict.index') {
             gameUrl = '/timepredict';
+        } else if (game.endpoint === 'react_time.index') {
+            gameUrl = '/reacttime';
         } else if (game.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
         } else {
@@ -1293,6 +1295,8 @@ function playRandomGame() {
         let gameUrl = '';
         if (randomGame.endpoint === 'time_predict.index') {
             gameUrl = '/timepredict';
+        } else if (randomGame.endpoint === 'react_time.index') {
+            gameUrl = '/reacttime';
         } else if (randomGame.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
         } else {
@@ -1328,6 +1332,8 @@ function playDailyGame() {
         let gameUrl = '';
         if (game.endpoint === 'time_predict.index') {
             gameUrl = '/timepredict';
+        } else if (game.endpoint === 'react_time.index') {
+            gameUrl = '/reacttime';
         } else if (game.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
         } else {

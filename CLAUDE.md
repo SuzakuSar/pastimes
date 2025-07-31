@@ -28,6 +28,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Flask web application called "SummerLockIn" that hosts a collection of mini-games and interactive experiences. The app uses a modular blueprint-based architecture with comprehensive leaderboard integration.
 
+**Navigation Design**: The top scrollable navigation bar is intentionally kept empty. All games are accessible via the dropdown menu only, creating a cleaner interface focused on the home page game discovery experience.
+
 ### Core Structure
 - **`app.py`**: Main entry point that creates the Flask app and handles request logging
 - **`website/__init__.py`**: App factory with `create_app()` function that registers all game blueprints
@@ -50,6 +52,23 @@ from .game_name.game_name import game_name
 app.register_blueprint(game_name, url_prefix='/gameurl')
 ```
 
+### Timing Games Architecture
+
+The timing challenge has been split into two separate applications:
+
+1. **Time Predict Challenge** (`/timepredict`)
+   - Pure timing intuition without visual feedback
+   - Target: Hit exactly 10.000 seconds
+   - Win tolerance: ±0.1 seconds
+   - Uses `submit_score_closest_to_target()` for leaderboard
+
+2. **React Time Challenge** (`/reacttime`) 
+   - Visual reaction speed test
+   - Random indicators appear after 3-8 seconds
+   - Three indicator types: flash, word, and shape (all sudden, no animations)
+   - Win tolerance: ±0.15 seconds from indicator appearance
+   - Uses `submit_score_lower_better()` for leaderboard (faster is better)
+
 ### Key Components
 
 **Enhanced Leaderboard System** (`website/leaderboard/leaderboard.py`):
@@ -65,10 +84,11 @@ app.register_blueprint(game_name, url_prefix='/gameurl')
 - Comprehensive request debugging information
 
 **Template System**:
-- Base template in `website/templates/base.html`
-- Context processor injects `request` object for navigation
+- Base template in `website/templates/base.html` with dynamic navigation
+- Context processor injects `request` object and `navigation_games` for auto-updating menus
 - Custom 404 error page with space theme
 - Template inheritance using block system
+- Dynamic game detection across all templates and interfaces
 
 ### Database Schema
 SQLite database with comprehensive design:
@@ -102,11 +122,19 @@ def finish_game():
 ```
 
 ### Current Games
-The app currently has 4 active games:
-- **Test Home** - Game collection homepage with discovery interface
-- **Leaderboard** - Comprehensive scoring system with multiple ranking methods
-- **Time Predict** - Precision timing challenge with accuracy-based scoring
-- **Dino Runner** - Endless runner game with obstacle mechanics and score tracking
+The app currently has 4 active components:
+- **Home** - Game collection homepage with discovery interface
+- **Time Predict Challenge** - Pure timing intuition game (hit exactly 10.000s within 0.1s tolerance)
+- **React Time Challenge** - Visual reaction speed test with random indicators (react within 0.15s)
+- **Cosmic Dino Runner** - Enhanced endless runner with variable jumps, ducking, air obstacles, and mobile controls
+- **Leaderboard System** - Comprehensive scoring system supporting all games
+
+### Admin Management System
+- **Ultra-Secure Access**: Session-based authentication with cryptographically secure random keys
+- **Complete Database Manager**: Full CRUD interface for leaderboard entries
+- **Smart Entry Creation**: Intelligent defaults and validation for custom scores
+- **Dynamic Game Detection**: Admin interfaces automatically update with new games
+- **Discovery System**: Hidden access via developer console (`devAccess('CLAUDE_CODE_KING')`)
 
 ### Adding New Games
 To add a new game to the platform:
@@ -115,9 +143,37 @@ To add a new game to the platform:
 3. Create templates extending base template system
 4. Add leaderboard integration using appropriate submission method
 5. Register blueprint in `website/__init__.py`
-6. Update homepage game listing if needed
+6. **Add to GAMES_DATA in `website/home/home.py`** - this automatically updates all dropdowns
 
 The modular architecture ensures new games integrate seamlessly with existing infrastructure while maintaining consistent patterns and leaderboard integration.
+
+### Dynamic Game Management System
+The platform features a dynamic game detection and management system:
+
+**Automatic Dropdown Updates**: All navigation menus and admin interfaces automatically populate from:
+- Games defined in `website/home/home.py` GAMES_DATA
+- Existing games in the leaderboard database
+- Registered Flask blueprints
+
+**Smart Auto-Selection**: Admin interfaces intelligently suggest ranking methods and score types based on game names:
+- Games with "dino" or "runner" → Higher is Better + Points
+- Games with "predict" and "time" → Closest to Target + Seconds
+- Games with "react" and "time" → Lower is Better + Milliseconds
+
+**Zero Maintenance**: Adding a game to GAMES_DATA automatically updates:
+- Navigation dropdown menu
+- Admin database management dropdowns
+- Custom score creation forms
+- All search and filtering systems
+
+### Navigation and User Experience
+
+- **Base Template (`base.html`)**: Top scrollable navigation bar is empty by design
+- **Dynamic Dropdown Menu**: Automatically populated from GAMES_DATA - no manual updates needed
+- **Game Discovery**: Primarily through the home page interface
+- **Search**: Enhanced to differentiate between Time Predict and React Time games
+- **Mobile Support**: All games include touch/tap controls alongside keyboard controls
+- **Auto-Updating**: Navigation automatically reflects new games added to the platform
 
 ## Documentation Management
 

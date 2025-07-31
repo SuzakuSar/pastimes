@@ -302,8 +302,16 @@
         <!-- Instructions -->
         <div class="game-instructions">
             <div class="instruction-text">
-                Press <span class="key-hint">SPACEBAR</span> or <span class="key-hint">↑</span> to make the dinosaur jump!<br>
-                Avoid the obstacles and survive as long as possible in this cosmic adventure!
+                Press <span class="key-hint">SPACEBAR</span> or <span class="key-hint">↑</span> to jump (hold for higher jumps)!<br>
+                Press <span class="key-hint">↓</span> or <span class="key-hint">S</span> to duck under air obstacles!<br>
+                <strong>Mobile:</strong> Tap upper half to jump, lower half to duck!
+            </div>
+        </div>
+        
+        <!-- Leaderboard Widget -->
+        <div class="game-leaderboard" id="leaderboardContainer" style="margin-top: 1rem;">
+            <div class="loading-indicator" style="display: block;">
+                <div class="loading-dots">Loading leaderboard</div>
             </div>
         </div>
         
@@ -322,9 +330,11 @@ const game = {
     isRunning: false,
     isPaused: false,
     score: 0,
-    speed: 8,
-    gravity: 0.5,
-    jumpForce: -14,
+    speed: 7, // Reduced for better progression
+    gravity: 0.8, // Increased from 0.5
+    baseJumpForce: -12, // Base jump force
+    jumpExtensionForce: -0.8, // Additional force while held
+    maxJumpTime: 200, // Max jump extension time in ms
     
     // Game objects
     dino: {
@@ -334,11 +344,26 @@ const game = {
         height: 40,
         velocityY: 0,
         isJumping: false,
+        isDucking: false,
+        normalHeight: 40,
+        duckHeight: 20,
         color: '#4CAF50'
+    },
+    
+    // Input tracking
+    keys: {
+        jump: false,
+        duck: false,
+        jumpStartTime: 0,
+        isJumpHeld: false
     },
     
     obstacles: [],
     clouds: [],
+    
+    // Object pools for performance
+    obstaclePool: [],
+    cloudPool: [],
     
     // Timing
     lastTime: 0,
@@ -347,7 +372,7 @@ const game = {
     
     // Constants
     GROUND_Y: 240,
-    OBSTACLE_SPAWN_TIME: 120, // frames
+    OBSTACLE_SPAWN_TIME: 90, // Reduced from 120 for more obstacles
     CLOUD_SPAWN_TIME: 200
 };
 
@@ -360,7 +385,8 @@ function initGame() {
     resizeCanvas();
     
     // Event listeners
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
     window.addEventListener('resize', resizeCanvas);
     
     // Initialize game objects
@@ -383,10 +409,22 @@ function resizeCanvas() {
 
 function resetGameState() {
     game.score = 0;
-    game.speed = 8;
+    game.speed = 7; // Reduced for better progression
     game.dino.y = game.GROUND_Y - game.dino.height;
     game.dino.velocityY = 0;
     game.dino.isJumping = false;
+    game.dino.isDucking = false;
+    game.dino.height = game.dino.normalHeight;
+    
+    // Reset input tracking
+    game.keys.jump = false;
+    game.keys.duck = false;
+    game.keys.jumpStartTime = 0;
+    game.keys.isJumpHeld = false;
+    
+    // Return pooled objects
+    game.obstaclePool.push(...game.obstacles);
+    game.cloudPool.push(...game.clouds);
     game.obstacles = [];
     game.clouds = [];
     game.obstacleTimer = 0;
@@ -439,7 +477,7 @@ function gameLoop() {
 function update() {
     // Update score and speed
     game.score += 1;
-    game.speed = 2 + Math.floor(game.score / 500) * 0.5;
+    game.speed = 7 + Math.floor(game.score / 500) * 0.6; // Gradual progression
     
     updateScoreDisplay();
     
@@ -459,6 +497,29 @@ function update() {
 }
 
 function updateDinosaur() {
+    // Handle ducking
+    if (game.keys.duck && !game.dino.isJumping) {
+        if (!game.dino.isDucking) {
+            game.dino.isDucking = true;
+            game.dino.height = game.dino.duckHeight;
+            game.dino.y = game.GROUND_Y - game.dino.height;
+        }
+    } else {
+        if (game.dino.isDucking) {
+            game.dino.isDucking = false;
+            game.dino.height = game.dino.normalHeight;
+            game.dino.y = game.GROUND_Y - game.dino.height;
+        }
+    }
+    
+    // Handle jump extension while held and ascending (with 100ms delay)
+    if (game.keys.isJumpHeld && game.dino.isJumping && game.dino.velocityY < 0) {
+        const jumpTime = Date.now() - game.keys.jumpStartTime;
+        if (jumpTime > 100 && jumpTime < game.maxJumpTime) { // 100ms delay before extension
+            game.dino.velocityY += game.jumpExtensionForce;
+        }
+    }
+    
     // Apply gravity
     game.dino.velocityY += game.gravity;
     game.dino.y += game.dino.velocityY;
@@ -480,11 +541,16 @@ function updateObstacles() {
         game.obstacleTimer = 0;
     }
     
-    // Update existing obstacles
-    game.obstacles = game.obstacles.filter(obstacle => {
+    // Update existing obstacles and return expired ones to pool
+    for (let i = game.obstacles.length - 1; i >= 0; i--) {
+        const obstacle = game.obstacles[i];
         obstacle.x -= game.speed;
-        return obstacle.x > -obstacle.width;
-    });
+        
+        if (obstacle.x < -obstacle.width) {
+            game.obstacles.splice(i, 1);
+            game.obstaclePool.push(obstacle);
+        }
+    }
 }
 
 function updateClouds() {
@@ -496,27 +562,46 @@ function updateClouds() {
         game.cloudTimer = 0;
     }
     
-    // Update existing clouds
-    game.clouds = game.clouds.filter(cloud => {
+    // Update existing clouds and return expired ones to pool
+    for (let i = game.clouds.length - 1; i >= 0; i--) {
+        const cloud = game.clouds[i];
         cloud.x -= game.speed * 0.3; // Clouds move slower
-        return cloud.x > -cloud.width;
-    });
+        
+        if (cloud.x < -cloud.width) {
+            game.clouds.splice(i, 1);
+            game.cloudPool.push(cloud);
+        }
+    }
 }
 
 function spawnObstacle() {
-    const types = ['cactus', 'rock', 'crystal'];
+    const groundTypes = ['cactus', 'rock', 'crystal'];
+    const airTypes = ['bird', 'drone', 'asteroid'];
+    
+    // 70% ground obstacles, 30% air obstacles
+    const isAirObstacle = Math.random() < 0.3;
+    const types = isAirObstacle ? airTypes : groundTypes;
     const type = types[Math.floor(Math.random() * types.length)];
     
-    let obstacle = {
-        x: game.canvas.width,
-        type: type,
-        width: 20 + Math.random() * 20,
-        height: 30 + Math.random() * 20
-    };
+    // Get obstacle from pool or create new one
+    let obstacle = game.obstaclePool.pop() || {};
     
-    obstacle.y = game.GROUND_Y - obstacle.height;
+    obstacle.x = game.canvas.width;
+    obstacle.type = type;
+    obstacle.isAir = isAirObstacle;
+    obstacle.width = 20 + Math.random() * 20;
+    obstacle.height = 30 + Math.random() * 20;
     
-    // Set color based on type
+    if (isAirObstacle) {
+        // Air obstacles positioned for ducking
+        obstacle.y = game.GROUND_Y - obstacle.height - 40 - Math.random() * 20;
+        obstacle.width = Math.max(obstacle.width, 35); // Minimum width for air obstacles
+    } else {
+        // Ground obstacles
+        obstacle.y = game.GROUND_Y - obstacle.height;
+    }
+    
+    // Set color and properties based on type
     switch(type) {
         case 'cactus':
             obstacle.color = '#2E7D32';
@@ -527,19 +612,30 @@ function spawnObstacle() {
         case 'crystal':
             obstacle.color = '#9C27B0';
             break;
+        case 'bird':
+            obstacle.color = '#FF5722';
+            obstacle.height = Math.max(obstacle.height, 25);
+            break;
+        case 'drone':
+            obstacle.color = '#607D8B';
+            break;
+        case 'asteroid':
+            obstacle.color = '#795548';
+            break;
     }
     
     game.obstacles.push(obstacle);
 }
 
 function spawnCloud() {
-    const cloud = {
-        x: game.canvas.width,
-        y: 20 + Math.random() * 80,
-        width: 40 + Math.random() * 30,
-        height: 20 + Math.random() * 15,
-        color: 'rgba(255, 255, 255, 0.8)'
-    };
+    // Get cloud from pool or create new one
+    let cloud = game.cloudPool.pop() || {};
+    
+    cloud.x = game.canvas.width;
+    cloud.y = 20 + Math.random() * 80;
+    cloud.width = 40 + Math.random() * 30;
+    cloud.height = 20 + Math.random() * 15;
+    cloud.color = 'rgba(255, 255, 255, 0.8)';
     
     game.clouds.push(cloud);
 }
@@ -591,6 +687,12 @@ function render() {
         game.ctx.fillStyle = obstacle.color;
         if (obstacle.type === 'crystal') {
             drawCrystal(obstacle);
+        } else if (obstacle.type === 'bird') {
+            drawBird(obstacle);
+        } else if (obstacle.type === 'drone') {
+            drawDrone(obstacle);
+        } else if (obstacle.type === 'asteroid') {
+            drawAsteroid(obstacle);
         } else {
             game.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         }
@@ -600,26 +702,47 @@ function render() {
 function drawDinosaur() {
     const dino = game.dino;
     
-    // Body
-    game.ctx.fillStyle = dino.color;
-    game.ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
-    
-    // Head
-    game.ctx.fillStyle = '#66BB6A';
-    game.ctx.fillRect(dino.x + 25, dino.y - 15, 20, 20);
-    
-    // Eye
-    game.ctx.fillStyle = '#000';
-    game.ctx.fillRect(dino.x + 35, dino.y - 10, 3, 3);
-    
-    // Legs (simple animation)
-    game.ctx.fillStyle = dino.color;
-    const legOffset = Math.sin(game.score * 0.3) * 2;
-    game.ctx.fillRect(dino.x + 5, dino.y + dino.height, 8, 10 + legOffset);
-    game.ctx.fillRect(dino.x + 25, dino.y + dino.height, 8, 10 - legOffset);
-    
-    // Tail
-    game.ctx.fillRect(dino.x - 10, dino.y + 10, 15, 8);
+    if (dino.isDucking) {
+        // Ducking pose - lower profile
+        game.ctx.fillStyle = dino.color;
+        game.ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+        
+        // Head down
+        game.ctx.fillStyle = '#66BB6A';
+        game.ctx.fillRect(dino.x + 30, dino.y, 20, 15);
+        
+        // Eye
+        game.ctx.fillStyle = '#000';
+        game.ctx.fillRect(dino.x + 40, dino.y + 5, 3, 3);
+        
+        // Extended tail for balance (ensure consistent color)
+        game.ctx.fillStyle = dino.color;
+        game.ctx.fillRect(dino.x - 15, dino.y + 5, 20, 10);
+    } else {
+        // Normal pose
+        game.ctx.fillStyle = dino.color;
+        game.ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+        
+        // Head
+        game.ctx.fillStyle = '#66BB6A';
+        game.ctx.fillRect(dino.x + 25, dino.y - 15, 20, 20);
+        
+        // Eye
+        game.ctx.fillStyle = '#000';
+        game.ctx.fillRect(dino.x + 35, dino.y - 10, 3, 3);
+        
+        // Legs (simple animation)
+        if (!dino.isJumping) {
+            game.ctx.fillStyle = dino.color;
+            const legOffset = Math.sin(game.score * 0.3) * 2;
+            game.ctx.fillRect(dino.x + 5, dino.y + dino.height, 8, 10 + legOffset);
+            game.ctx.fillRect(dino.x + 25, dino.y + dino.height, 8, 10 - legOffset);
+        }
+        
+        // Tail (ensure consistent color)
+        game.ctx.fillStyle = dino.color;
+        game.ctx.fillRect(dino.x - 10, dino.y + 10, 15, 8);
+    }
 }
 
 function drawCloud(x, y, width, height) {
@@ -653,19 +776,131 @@ function drawCrystal(obstacle) {
     ctx.shadowBlur = 0;
 }
 
-function jump() {
-    if (!game.dino.isJumping && game.dino.y >= game.GROUND_Y - game.dino.height) {
-        game.dino.velocityY = game.jumpForce;
-        game.dino.isJumping = true;
+function drawBird(obstacle) {
+    const ctx = game.ctx;
+    const x = obstacle.x;
+    const y = obstacle.y;
+    const w = obstacle.width;
+    const h = obstacle.height;
+    
+    // Bird body
+    ctx.fillStyle = obstacle.color;
+    ctx.fillRect(x + w/3, y + h/3, w/3, h/3);
+    
+    // Wings (animated)
+    const wingFlap = Math.sin(game.score * 0.5) * 5;
+    ctx.fillRect(x, y + h/4 + wingFlap, w/2, h/6);
+    ctx.fillRect(x + w/2, y + h/4 - wingFlap, w/2, h/6);
+    
+    // Beak
+    ctx.fillStyle = '#FFA000';
+    ctx.fillRect(x + w - 5, y + h/2 - 2, 8, 4);
+}
+
+function drawDrone(obstacle) {
+    const ctx = game.ctx;
+    const x = obstacle.x;
+    const y = obstacle.y;
+    const w = obstacle.width;
+    const h = obstacle.height;
+    
+    // Drone body
+    ctx.fillStyle = obstacle.color;
+    ctx.fillRect(x + w/4, y + h/3, w/2, h/3);
+    
+    // Propellers
+    ctx.fillStyle = '#37474F';
+    const propSpin = (game.score * 2) % 8;
+    if (propSpin < 4) {
+        // Horizontal propellers
+        ctx.fillRect(x, y + h/2 - 1, w, 2);
+        ctx.fillRect(x + w/2 - 1, y, 2, h);
+    } else {
+        // Diagonal propellers
+        ctx.save();
+        ctx.translate(x + w/2, y + h/2);
+        ctx.rotate(Math.PI/4);
+        ctx.fillRect(-w/2, -1, w, 2);
+        ctx.fillRect(-1, -h/2, 2, h);
+        ctx.restore();
     }
 }
 
-function handleKeyPress(event) {
+function drawAsteroid(obstacle) {
+    const ctx = game.ctx;
+    const x = obstacle.x;
+    const y = obstacle.y;
+    const w = obstacle.width;
+    const h = obstacle.height;
+    
+    // Irregular asteroid shape
+    ctx.fillStyle = obstacle.color;
+    ctx.beginPath();
+    const points = 8;
+    for (let i = 0; i < points; i++) {
+        const angle = (i / points) * Math.PI * 2;
+        const radius = (w + h) / 4 + Math.sin(angle * 3 + game.score * 0.02) * 5;
+        const px = x + w/2 + Math.cos(angle) * radius;
+        const py = y + h/2 + Math.sin(angle) * radius;
+        
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    
+    // Add some surface details
+    ctx.fillStyle = '#5D4037';
+    for (let i = 0; i < 3; i++) {
+        const px = x + Math.random() * w;
+        const py = y + Math.random() * h;
+        ctx.fillRect(px, py, 2, 2);
+    }
+}
+
+function startJump() {
+    if (!game.dino.isJumping && game.dino.y >= game.GROUND_Y - game.dino.height && !game.dino.isDucking) {
+        // Apply immediate base jump force
+        game.dino.velocityY = game.baseJumpForce;
+        game.dino.isJumping = true;
+        
+        // Start tracking jump hold time
+        game.keys.jumpStartTime = Date.now();
+        
+        // Exit ducking state
+        if (game.dino.isDucking) {
+            game.dino.isDucking = false;
+            game.dino.height = game.dino.normalHeight;
+        }
+    }
+}
+
+function handleKeyDown(event) {
     if (!game.isRunning || game.isPaused) return;
     
     if (event.code === 'Space' || event.code === 'ArrowUp') {
         event.preventDefault();
-        jump();
+        if (!game.keys.jump) {
+            game.keys.jump = true;
+            game.keys.isJumpHeld = true;
+            startJump(); // Jump immediately on keydown
+        }
+    } else if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+        event.preventDefault();
+        game.keys.duck = true;
+    }
+}
+
+function handleKeyUp(event) {
+    if (!game.isRunning || game.isPaused) return;
+    
+    if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault();
+        game.keys.jump = false;
+        game.keys.isJumpHeld = false;
+    } else if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+        event.preventDefault();
+        game.keys.duck = false;
     }
 }
 
@@ -681,7 +916,7 @@ async function endGame() {
     document.getElementById('pauseBtn').disabled = true;
     document.getElementById('pauseBtn').textContent = '⏸️ Pause';
     
-    // Save score to server
+    // Save score to server and handle leaderboard submission
     try {
         const response = await fetch('/dino-runner/save-score', {
             method: 'POST',
@@ -698,6 +933,25 @@ async function endGame() {
             document.getElementById('highScore').textContent = data.high_score;
         } else {
             document.getElementById('newRecordText').style.display = 'none';
+        }
+        
+        // Handle leaderboard submission result
+        if (data.leaderboard_result && data.leaderboard_result.success) {
+            if (data.leaderboard_result.redirect_url) {
+                // High score - redirect to username submission after a delay
+                setTimeout(() => {
+                    window.location.href = data.leaderboard_result.redirect_url;
+                }, 2000);
+                
+                // Show additional message for leaderboard qualification
+                const leaderboardMsg = document.createElement('div');
+                leaderboardMsg.style.cssText = 'color: #FFD700; font-size: 0.9rem; margin-top: 0.5rem; text-shadow: 0 0 10px rgba(255,215,0,0.5);';
+                leaderboardMsg.textContent = '🏆 Qualifying for leaderboard! Redirecting...';
+                document.querySelector('.game-over-content').appendChild(leaderboardMsg);
+            } else {
+                // Score submitted but not high enough for top positions
+                loadLeaderboard();
+            }
         }
         
     } catch (error) {
@@ -728,13 +982,101 @@ async function resetHighScore() {
     }
 }
 
+// Load leaderboard
+async function loadLeaderboard() {
+    try {
+        const response = await fetch('/dino-runner/leaderboard');
+        const data = await response.json();
+        
+        if (data.html) {
+            document.getElementById('leaderboardContainer').innerHTML = data.html;
+        } else {
+            document.getElementById('leaderboardContainer').innerHTML = 
+                '<div style="color: rgba(255,255,255,0.6); text-align: center; padding: 1rem;">No leaderboard data available</div>';
+        }
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        document.getElementById('leaderboardContainer').innerHTML = 
+            '<div style="color: rgba(255,100,100,0.8); text-align: center; padding: 1rem;">Error loading leaderboard</div>';
+    }
+}
+
 // Initialize game when page loads
-document.addEventListener('DOMContentLoaded', initGame);
+document.addEventListener('DOMContentLoaded', function() {
+    initGame();
+    loadLeaderboard();
+});
 
 // Add click/touch controls for mobile
-document.getElementById('gameCanvas').addEventListener('click', function() {
+document.getElementById('gameCanvas').addEventListener('click', function(e) {
     if (game.isRunning && !game.isPaused) {
-        jump();
+        const rect = game.canvas.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const canvasHeight = game.canvas.height;
+        
+        // Upper half = jump, lower half = duck
+        if (y < canvasHeight / 2) {
+            if (!game.keys.jump) {
+                game.keys.jump = true;
+                game.keys.isJumpHeld = true;
+                startJump(); // Immediate jump
+                // Auto-release for tap (short jump)
+                setTimeout(() => {
+                    game.keys.jump = false;
+                    game.keys.isJumpHeld = false;
+                }, 50);
+            }
+        } else {
+            // Toggle duck on tap in lower half
+            game.keys.duck = !game.keys.duck;
+        }
+    }
+});
+
+// Touch controls for better mobile experience
+let touchStartTime = 0;
+let isDuckTouch = false;
+let touchJumpActive = false;
+
+document.getElementById('gameCanvas').addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (game.isRunning && !game.isPaused) {
+        const rect = game.canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const y = touch.clientY - rect.top;
+        const canvasHeight = game.canvas.height;
+        
+        if (y < canvasHeight / 2) {
+            // Upper half - start jump immediately
+            if (!game.keys.jump) {
+                game.keys.jump = true;
+                game.keys.isJumpHeld = true;
+                startJump();
+                touchJumpActive = true;
+            }
+            isDuckTouch = false;
+        } else {
+            // Lower half - duck
+            game.keys.duck = true;
+            isDuckTouch = true;
+            touchJumpActive = false;
+        }
+    }
+});
+
+document.getElementById('gameCanvas').addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (game.isRunning && !game.isPaused) {
+        if (touchJumpActive) {
+            // Stop jump extension
+            game.keys.jump = false;
+            game.keys.isJumpHeld = false;
+            touchJumpActive = false;
+        } else if (isDuckTouch) {
+            // Stop ducking
+            game.keys.duck = false;
+            isDuckTouch = false;
+        }
     }
 });
 

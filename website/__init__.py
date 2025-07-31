@@ -22,12 +22,14 @@ def create_app():
     from .home import home
     from .leaderboard.leaderboard import leaderboard
     from .time_predict import time_predict
+    from .react_time.react_time import react_time
     from .dino_runner.dino_runner import dino_runner
 
     # Register blueprints with URL prefixes
     app.register_blueprint(home, url_prefix='/')
     app.register_blueprint(leaderboard, url_prefix='/leaderboard')
     app.register_blueprint(time_predict, url_prefix='/timepredict')
+    app.register_blueprint(react_time, url_prefix='/reacttime')
     app.register_blueprint(dino_runner, url_prefix='/dino-runner')
 
 
@@ -35,12 +37,28 @@ def create_app():
     # from .new_feature import new_feature
     # app.register_blueprint(new_feature, url_prefix='/newfeature')
     
-    # Global context processor to make request available in all templates
+    # Global context processor to make request available in all templates + dynamic games
     @app.context_processor
     def inject_request():
         """Make request object available in all templates for navigation highlighting"""
         from flask import request
-        return dict(request=request)
+        
+        # Get dynamic navigation games
+        try:
+            from .home.home import GAMES_DATA
+            navigation_games = []
+            for game_data in GAMES_DATA:
+                if game_data.get('endpoint'):  # Only include games with valid endpoints
+                    navigation_games.append({
+                        'name': game_data['name'],
+                        'icon': game_data.get('icon', '🎮'),
+                        'endpoint': game_data['endpoint'],
+                        'search_terms': ' '.join(game_data.get('tags', [])) + ' ' + game_data['name'].lower()
+                    })
+        except ImportError:
+            navigation_games = []
+        
+        return dict(request=request, navigation_games=navigation_games)
     
     # Optional: Add custom error pages
     @app.errorhandler(404)

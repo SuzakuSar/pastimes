@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Score - {{ score_data.game_name }}{% endblock %}
+{% block header %}🏆 Submit Your Score{% endblock %}
+
+{% block head %}
+<style>
+    .submit-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .score-summary {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .game-name {
+        font-size: 1.5rem;
+        color: #FFD700;
+        margin-bottom: 15px;
+        text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+    
+    .final-score {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #4CAF50;
+        margin: 20px 0;
+        text-shadow: 0 0 15px rgba(76,175,80,0.5);
+    }
+    
+    .submit-form {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #FFD700;
+        box-shadow: 0 0 15px rgba(255,215,0,0.3);
+    }
+    
+    .form-input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76,175,80,0.4);
+    }
+    
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+    
+    .cancel-btn {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .username-hint {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.7);
+        margin-top: 5px;
+    }
+    
+    .flash-messages {
+        margin-bottom: 20px;
+    }
+    
+    .flash-message {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .flash-success {
+        background: rgba(76,175,80,0.2);
+        border: 1px solid rgba(76,175,80,0.5);
+        color: #81C784;
+    }
+    
+    .flash-error {
+        background: rgba(244,67,54,0.2);
+        border: 1px solid rgba(244,67,54,0.5);
+        color: #EF5350;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="submit-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="score-summary">
+        <div class="game-name">{{ score_data.game_name }}</div>
+        <div class="final-score">{{ score_data.score | format_score(score_data.score_type, score_data.ranking_method, score_data.target_value) }}</div>
+        <p>Great job! Enter your username to save this score to the leaderboard.</p>
+    </div>
+    
+    <form method="POST" class="submit-form">
+        <div class="form-group">
+            <label for="username" class="form-label">🎮 Choose Your Username</label>
+            <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                class="form-input" 
+                placeholder="Enter your username..."
+                maxlength="20"
+                required
+                autocomplete="off"
+            >
+            <div class="username-hint">Maximum 20 characters. Choose wisely - this will be displayed on the leaderboard!</div>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+            🏆 Submit to Leaderboard
+        </button>
+        
+        <a href="{{ url_for('home.index') }}" class="cancel-btn">
+            🏠 Skip & Return Home
+        </a>
+    </form>
+</div>
+
+<script>
+// Auto-focus username input
+document.getElementById('username').focus();
+
+// Form validation
+document.querySelector('.submit-form').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value.trim();
+    if (!username) {
+        e.preventDefault();
+        alert('Please enter a username!');
+        return false;
+    }
+    if (username.length > 20) {
+        e.preventDefault();
+        alert('Username must be 20 characters or less!');
+        return false;
+    }
+});
+</script>
+{% endblock %}
