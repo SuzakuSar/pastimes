@@ -7,8 +7,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Running the Application
 - **Development server**: `python app.py` (runs Flask with debug mode enabled)
 - **Install dependencies**: `pip install -r requirements.txt`
+- **Install dev dependencies**: `pip install -r requirements-dev.txt` (optional enhanced tools)
 - **Virtual environment**: `python -m venv venv` then activate with `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS/Linux)
 - **Database initialization**: `python -c "from website.leaderboard.leaderboard import init_database; init_database()"`
+- **Live reload server**: `python -m flask --app app run --debug --reload` (auto-refresh on changes)
+
+### Development Workflow Enhancement
+- **Format code**: `black .` (auto-format Python code)
+- **Lint code**: `flake8 .` (catch errors and style issues)
+- **Type checking**: `mypy .` (static type analysis)
+- **Sort imports**: `isort .` (organize import statements)
+- **Run all checks**: `pre-commit run --all-files` (comprehensive code quality)
 
 ### Playwright Testing Setup
 - **Install Playwright**: `pip install playwright` (already in requirements.txt)
@@ -45,6 +54,15 @@ website/game_name/
 └── templates/
     └── game_name.html    # Game-specific template
 ```
+
+**IMPORTANT - Template Block Structure:**
+The base template (`website/templates/base.html`) uses these specific Jinja2 blocks:
+- `{% block title %}` - Page title in HTML head
+- `{% block head %}` - Additional head content (CSS, meta tags, etc.)
+- `{% block header %}` - Page header content (appears in h1 tag)
+- `{% block body %}` - Main page content (NOT `{% block content %}`)
+
+**Common Error**: Using `{% block content %}` instead of `{% block body %}` will result in empty pages that only show the base template navigation.
 
 Games are registered in `website/__init__.py` following the pattern:
 ```python
@@ -203,3 +221,163 @@ When implementing new features or making significant changes that the user appro
 - Implement feature → Get user approval/acceptance → Update README.md → Update CLAUDE.md if needed
 - Keep README.md user-focused (what the app does)
 - Keep CLAUDE.md developer-focused (how to work with the code)
+
+## Recommended Development Tools
+
+### Game Development Enhancement
+
+**Frontend Game Frameworks:**
+- **Phaser.js**: Industry-standard 2D game framework with built-in physics, animations, and asset management
+  - Installation: Add `<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>` to templates
+  - Benefits: Simplified sprite management, collision detection, particle effects
+  - Perfect for: Dino runner enhancements, new arcade games
+
+- **p5.js**: Creative coding library, excellent for artistic/experimental games
+  - Installation: `<script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.min.js"></script>`
+  - Benefits: Simple drawing API, built-in math functions, easy animations
+  - Perfect for: Visual effects, generative art games, simple puzzles
+
+### Development Workflow Tools
+
+**Code Quality & Formatting:**
+```bash
+# Enhanced requirements-dev.txt should include:
+black>=23.0.0              # Code formatter
+flake8>=6.0.0              # Linting
+mypy>=1.0.0                # Type checking
+isort>=5.12.0              # Import sorting
+pre-commit>=3.0.0          # Git hooks
+bandit>=1.7.0              # Security linting
+```
+
+**Live Development:**
+- **Flask-SocketIO**: Real-time features (multiplayer games, live leaderboards)
+  - Installation: `pip install flask-socketio`
+  - Benefits: WebSocket support, real-time updates, multiplayer capability
+
+- **Browser-sync**: Auto-refresh during development
+  - Installation: `npm install -g browser-sync`
+  - Usage: `browser-sync start --proxy "localhost:5000" --files "website/static/**/*"`
+
+**CSS Enhancement:**
+- **Sass/SCSS**: Better CSS with variables, nesting, mixins
+  - Installation: `npm install -g sass`
+  - Usage: `sass website/static/css/style.scss website/static/css/style.css --watch`
+  - Benefits: Cleaner stylesheets, reusable components, easier maintenance
+
+### Frontend Build Tools
+
+**Asset Management:**
+- **Webpack**: Bundle and optimize JavaScript/CSS
+  - Installation: `npm install webpack webpack-cli --save-dev`
+  - Benefits: Code splitting, minification, hot reload
+  
+- **Vite**: Faster development server and build tool
+  - Installation: `npm install vite --save-dev`
+  - Benefits: Lightning-fast hot reload, modern ES modules
+
+### Database & Backend Enhancements
+
+**ORM & Database:**
+- **SQLAlchemy**: Object-relational mapping instead of raw SQL
+  - Installation: `pip install flask-sqlalchemy`
+  - Benefits: Type safety, easier migrations, relationship management
+  - Migration: `pip install flask-migrate` for database versioning
+
+**Caching & Performance:**
+- **Redis**: In-memory caching for session storage and leaderboards
+  - Installation: `pip install redis flask-caching`
+  - Benefits: Faster response times, real-time features, session sharing
+
+### Testing & Quality Assurance
+
+**Advanced Testing:**
+- **pytest**: More powerful than unittest
+  - Installation: `pip install pytest pytest-flask pytest-cov`
+  - Benefits: Better test discovery, fixtures, parametrized tests
+
+- **Cypress**: Modern end-to-end testing (alternative to Playwright)
+  - Installation: `npm install cypress --save-dev`
+  - Benefits: Time-travel debugging, real browser testing
+
+### Monitoring & Analytics
+
+**Error Tracking:**
+- **Sentry**: Production error monitoring
+  - Installation: `pip install sentry-sdk[flask]`
+  - Benefits: Real-time error alerts, performance monitoring
+
+**Analytics:**
+- **Google Analytics 4**: User behavior tracking
+- **Hotjar**: Heatmaps and user session recordings
+
+### Development Environment
+
+**Code Editor Extensions:**
+- **Python**: Official Python extension for VS Code
+- **Flask Snippets**: Flask-specific code snippets
+- **Prettier**: Code formatting for HTML/CSS/JS
+- **Live Server**: Local development server with live reload
+
+**Git Workflow:**
+- **Conventional Commits**: Standardized commit messages
+- **Husky**: Git hooks for code quality checks
+- **GitHub Actions**: CI/CD for automated testing and deployment
+
+### Package Management
+
+**Frontend Dependencies:**
+Create `package.json` for managing JavaScript dependencies:
+```json
+{
+  "name": "summerlockIn",
+  "version": "1.0.0",
+  "devDependencies": {
+    "sass": "^1.69.0",
+    "browser-sync": "^2.29.0",
+    "webpack": "^5.88.0",
+    "vite": "^4.4.0"
+  },
+  "dependencies": {
+    "phaser": "^3.80.1"
+  }
+}
+```
+
+### Implementation Priority
+
+**Most Impactful for Current Project:**
+1. **Phaser.js** - Would dramatically improve Dino runner and enable complex new games
+2. **Sass/SCSS** - Cleaner, more maintainable CSS for game styling
+3. **Live reload** - Instant feedback during development
+4. **pytest** - Better testing workflow
+5. **SQLAlchemy** - Type-safe database operations
+
+**Medium Priority:**
+- Flask-SocketIO for real-time multiplayer features
+- Redis for improved performance
+- Code quality tools (black, flake8, mypy)
+
+**Nice to Have:**
+- Webpack/Vite for advanced asset management
+- Sentry for production monitoring
+- Advanced testing with Cypress
+
+### Setup Commands
+
+**Quick Enhanced Setup:**
+```bash
+# Install enhanced development tools
+pip install -r requirements-dev.txt
+
+# Setup frontend build tools (optional)
+npm install
+
+# Initialize pre-commit hooks
+pre-commit install
+
+# Run development server with enhanced features
+python -m flask --app app run --debug --reload
+```
+
+The current Flask + vanilla JavaScript setup is solid for learning and rapid prototyping. These tools would enhance productivity and enable more complex features without overcomplicating the core architecture.

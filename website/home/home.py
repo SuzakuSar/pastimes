@@ -9,6 +9,7 @@ from flask import Blueprint, render_template, jsonify, request, session
 import json
 from collections import defaultdict
 import datetime
+from website.leaderboard.leaderboard import get_leaderboard
 
 # Create blueprint with template folder
 home = Blueprint('home', __name__, template_folder='templates')
@@ -43,6 +44,24 @@ GAMES_DATA = [
         'category': 'arcade',
         'tags': ['dino', 'runner', 'jumping', 'endless', 'chrome', 'obstacles', 'classic'],
         'difficulty': 3
+    },
+    {
+        'name': 'Space Invaders',
+        'description': 'Defend Earth from alien invasion in this classic arcade shooter!',
+        'endpoint': 'space_invaders.index',
+        'icon': '👾',
+        'category': 'arcade',
+        'tags': ['space', 'invaders', 'shooter', 'aliens', 'classic', 'arcade', 'retro'],
+        'difficulty': 4
+    },
+    {
+        'name': 'Test Layout',
+        'description': 'YouTube-inspired gaming hub layout prototype - Phase 1 foundation!',
+        'endpoint': 'test_home.index',
+        'icon': '🧪',
+        'category': 'development',
+        'tags': ['test', 'layout', 'youtube', 'design', 'prototype', 'foundation', 'development'],
+        'difficulty': 1
     },
 ]
 
@@ -124,6 +143,34 @@ def get_daily_game():
     game_index = day_of_year % len(GAMES_DATA)
     return dict(GAMES_DATA[game_index])
 
+def get_game_leaderboard_data(game_name, limit=3):
+    """Get top leaderboard entries for a specific game"""
+    try:
+        leaderboard_data = get_leaderboard(game_name, limit=limit)
+        if leaderboard_data and 'scores' in leaderboard_data:
+            # Return top entries
+            return leaderboard_data['scores'][:limit]
+        return []
+    except Exception as e:
+        print(f"Error fetching leaderboard for {game_name}: {e}")
+        return []
+
+def enhance_games_with_leaderboards(games):
+    """Add leaderboard data to games that have it"""
+    enhanced_games = []
+    for game in games:
+        game_copy = dict(game)
+        # Add leaderboard data if available
+        if game['name'] == 'Space Invaders':
+            game_copy['leaderboard'] = get_game_leaderboard_data('Space Invaders')
+        else:
+            # Check for other games by name matching
+            leaderboard_data = get_game_leaderboard_data(game['name'])
+            if leaderboard_data:
+                game_copy['leaderboard'] = leaderboard_data
+        enhanced_games.append(game_copy)
+    return enhanced_games
+
 # ===== ROUTES =====
 
 @home.route('/')
@@ -144,6 +191,9 @@ def index():
         games = search_games(search_query)
     else:
         games = get_games_by_category(selected_category if selected_category else None)
+    
+    # Enhance games with leaderboard data
+    games = enhance_games_with_leaderboards(games)
     
     # Get user statistics (mock data for now)
     user_stats = get_mock_user_stats()

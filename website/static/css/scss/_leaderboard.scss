@@ -1,0 +1,74 @@
+// Leaderboard-specific styles
+// Enhanced styling for leaderboard components
+
+.leaderboard-section {
+  margin-top: $spacing-2xl;
+}
+
+.leaderboard-container {
+  @include card-style;
+  @include card-dark;
+  max-height: $leaderboard-max-height;
+  overflow-y: auto;
+  
+  .leaderboard-header {
+    @include flex-between;
+    padding: $spacing-large;
+    border-bottom: 1px solid $border-dark;
+    position: sticky;
+    top: 0;
+    background: $background-secondary;
+    z-index: $z-sticky;
+    
+    h3 {
+      margin: 0;
+      color: $accent-color;
+    }
+    
+    .total-entries {
+      font-size: $font-size-sm;
+      color: $text-muted;
+    }
+  }
+}
+
+.leaderboard-entry {
+  @include flex-between;
+  padding: $spacing-medium $spacing-large;
+  border-bottom: 1px solid rgba($border-dark, 0.3);
+  transition: background-color $transition-normal $ease-in-out;
+  
+  &:hover {
+    background: rgba($primary-color, 0.05);
+  }
+  
+  &.current-user {
+    background: rgba($accent-color, 0.1);
+    border-color: $accent-color;
+  }
+  
+  .entry-info {
+    @include flex-center;
+    gap: $spacing-medium;
+    
+    .rank {
+      @include rank-badge($gold-color, $silver-color, $bronze-color);
+    }
+    
+    .username {
+      font-weight: $font-weight-medium;
+      color: $text-light;
+    }
+  }
+  
+  .entry-score {
+    font-family: $font-family-mono;
+    font-weight: $font-weight-bold;
+    color: $accent-color;
+  }
+  
+  .entry-date {
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+}

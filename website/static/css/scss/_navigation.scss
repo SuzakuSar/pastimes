@@ -1,0 +1,203 @@
+// Navigation and header styles
+// Enhanced navigation with dynamic game menu
+
+.main-header {
+  background: rgba($background-dark, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $border-dark;
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  height: $header-height;
+}
+
+.header-container {
+  @include flex-between;
+  height: 100%;
+  padding: 0 $spacing-large;
+  
+  @include responsive(mobile) {
+    padding: 0 $spacing-medium;
+  }
+}
+
+.site-logo {
+  @include flex-center;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  font-family: $font-family-game;
+  color: $text-light;
+  text-decoration: none;
+  @include text-gradient($primary-color, $secondary-color);
+  
+  &:hover {
+    @include neon-text($primary-color);
+  }
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: $spacing-large;
+  
+  @include responsive(mobile) {
+    gap: $spacing-medium;
+  }
+}
+
+// Game dropdown menu
+.games-dropdown {
+  position: relative;
+  
+  .dropdown-trigger {
+    @include nav-link;
+    @include flex-center;
+    gap: $spacing-small;
+    cursor: pointer;
+    padding: $spacing-small $spacing-medium;
+    border-radius: $border-radius;
+    
+    &:hover, &.active {
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
+    
+    .dropdown-icon {
+      transition: transform $transition-normal $ease-in-out;
+    }
+    
+    &.active .dropdown-icon {
+      transform: rotate(180deg);
+    }
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 280px;
+    background: $background-secondary;
+    border: 1px solid $border-dark;
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-xl;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all $transition-normal $ease-in-out;
+    z-index: $z-dropdown;
+    
+    &.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+  
+  .dropdown-header {
+    padding: $spacing-medium $spacing-large;
+    border-bottom: 1px solid $border-dark;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-medium;
+    padding: $spacing-medium $spacing-large;
+    color: $text-light;
+    text-decoration: none;
+    transition: background-color $transition-normal $ease-in-out;
+    
+    &:hover {
+      background: rgba($primary-color, 0.1);
+    }
+    
+    .game-icon {
+      font-size: $font-size-lg;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .game-info {
+      flex: 1;
+      
+      .game-name {
+        font-weight: $font-weight-medium;
+        margin-bottom: 2px;
+      }
+      
+      .game-description {
+        font-size: $font-size-xs;
+        color: $text-muted;
+      }
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      gap: 2px;
+      
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: $text-muted;
+        
+        &.active {
+          background: $accent-color;
+        }
+      }
+    }
+  }
+}
+
+// Mobile navigation
+@include responsive(mobile) {
+  .games-dropdown .dropdown-menu {
+    position: fixed;
+    top: $header-height;
+    left: 0;
+    right: 0;
+    min-width: auto;
+    border-radius: 0;
+    transform: translateY(-100%);
+    
+    &.active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Breadcrumb navigation
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: $spacing-small;
+  margin: $spacing-large 0;
+  font-size: $font-size-sm;
+  
+  .breadcrumb-item {
+    color: $text-muted;
+    
+    &:not(:last-child)::after {
+      content: '/';
+      margin-left: $spacing-small;
+      color: $border-dark;
+    }
+    
+    a {
+      color: $text-muted;
+      
+      &:hover {
+        color: $primary-color;
+      }
+    }
+    
+    &.active {
+      color: $text-light;
+    }
+  }
+}

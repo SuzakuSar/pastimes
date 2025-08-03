@@ -24,6 +24,8 @@ def create_app():
     from .time_predict import time_predict
     from .react_time.react_time import react_time
     from .dino_runner.dino_runner import dino_runner
+    from .space_invaders.space_invaders import space_invaders
+    from .test_home import test_home
 
     # Register blueprints with URL prefixes
     app.register_blueprint(home, url_prefix='/')
@@ -31,6 +33,8 @@ def create_app():
     app.register_blueprint(time_predict, url_prefix='/timepredict')
     app.register_blueprint(react_time, url_prefix='/reacttime')
     app.register_blueprint(dino_runner, url_prefix='/dino-runner')
+    app.register_blueprint(space_invaders, url_prefix='/spaceinvaders')
+    app.register_blueprint(test_home, url_prefix='/test-home')
 
 
     # Add any new blueprints here following the same pattern:

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Canvas Test</title>
+</head>
+<body>
+    <h1>Canvas Test</h1>
+    <canvas id="testCanvas" width="400" height="300" style="border: 1px solid black;"></canvas>
+    
+    <script>
+        console.log('Script started');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            const canvas = document.getElementById('testCanvas');
+            console.log('Canvas:', canvas);
+            
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                console.log('Context:', ctx);
+                
+                if (ctx) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fillRect(10, 10, 100, 50);
+                    
+                    ctx.fillStyle = '#000000';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('Hello Canvas!', 10, 100);
+                    
+                    console.log('Drawing complete');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

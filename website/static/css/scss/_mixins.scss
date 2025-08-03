@@ -1,0 +1,293 @@
+// SummerLockIn Sass Mixins
+// Reusable CSS patterns and utilities
+
+// Responsive breakpoints
+@mixin responsive($size) {
+  @if $size == mobile {
+    @media (max-width: #{$breakpoint-mobile - 1px}) { @content; }
+  }
+  @if $size == tablet {
+    @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) { @content; }
+  }
+  @if $size == desktop {
+    @media (min-width: #{$breakpoint-tablet}) { @content; }
+  }
+  @if $size == wide {
+    @media (min-width: #{$breakpoint-wide}) { @content; }
+  }
+}
+
+// Flexbox utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Button styles
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-medium $spacing-large;
+  border: none;
+  border-radius: $border-radius;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-base;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-normal $ease-in-out;
+  user-select: none;
+  
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-variant($bg-color, $text-color: $text-light) {
+  background-color: $bg-color;
+  color: $text-color;
+  
+  &:hover:not(:disabled) {
+    background-color: darken($bg-color, 10%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($bg-color, 0.4);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+// Card styles
+@mixin card-style {
+  background: $background-light;
+  border-radius: $border-radius-large;
+  box-shadow: $shadow-md;
+  padding: $spacing-large;
+  transition: box-shadow $transition-normal $ease-in-out;
+  
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
+}
+
+@mixin card-dark {
+  background: $background-secondary;
+  color: $text-light;
+  border: 1px solid $border-dark;
+}
+
+// Text utilities
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-gradient($color1, $color2) {
+  background: linear-gradient(45deg, $color1, $color2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Game-specific mixins
+@mixin game-canvas {
+  max-width: $game-canvas-max-width;
+  width: 100%;
+  height: auto;
+  border-radius: $border-radius;
+  box-shadow: $shadow-xl;
+  
+  @include responsive(mobile) {
+    border-radius: $border-radius-sm;
+  }
+}
+
+@mixin game-button {
+  @include button-base;
+  background: linear-gradient(45deg, $primary-color, $secondary-color);
+  color: $text-light;
+  font-family: $font-family-game;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(45deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+    box-shadow: $shadow-neon;
+  }
+}
+
+// Rank badge mixin
+@mixin rank-badge($gold, $silver, $bronze) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $border-radius-full;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  color: $text-light;
+  
+  &.rank-1 { background: $gold; }
+  &.rank-2 { background: $silver; color: $text-dark; }
+  &.rank-3 { background: $bronze; }
+  &.rank-other { 
+    background: $background-secondary; 
+    color: $text-muted;
+  }
+}
+
+// Loading animations
+@mixin loading-pulse {
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+}
+
+@mixin loading-spinner($size: 24px, $color: $primary-color) {
+  width: $size;
+  height: $size;
+  border: 2px solid rgba($color, 0.3);
+  border-top: 2px solid $color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+// Form controls
+@mixin form-input {
+  width: 100%;
+  padding: $spacing-medium;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  transition: border-color $transition-normal $ease-in-out;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+  
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+// Navigation mixins
+@mixin nav-link {
+  display: flex;
+  align-items: center;
+  padding: $spacing-small $spacing-medium;
+  color: $text-muted;
+  text-decoration: none;
+  border-radius: $border-radius;
+  transition: all $transition-normal $ease-in-out;
+  
+  &:hover {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.1);
+  }
+  
+  &.active {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.15);
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Utility mixins
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: ($height / $width) * 100%;
+  }
+  
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Game-specific effects
+@mixin cosmic-glow($color: $cosmic-purple) {
+  box-shadow: 
+    0 0 10px rgba($color, 0.5),
+    0 0 20px rgba($color, 0.3),
+    0 0 30px rgba($color, 0.1);
+}
+
+@mixin neon-text($color: $accent-color) {
+  color: $color;
+  text-shadow: 
+    0 0 5px $color,
+    0 0 10px $color,
+    0 0 15px $color;
+}
+
+// Accessibility
+@mixin focus-visible {
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    transition: none;
+  }
+}

@@ -571,6 +571,11 @@
         color: inherit;
     }
 
+    /* Card with leaderboard expands on hover */
+    .game-card.has-leaderboard:hover {
+        min-height: 420px;
+    }
+
     .game-card::before {
         content: '';
         position: absolute;
@@ -594,6 +599,17 @@
             0 0 30px rgba(0, 255, 136, 0.1);
         text-decoration: none;
         color: inherit;
+    }
+
+    /* Enhanced hover for cards with leaderboards */
+    .game-card.has-leaderboard:hover {
+        transform: translateY(-12px) scale(1.03);
+        border-color: var(--primary-neon);
+        box-shadow: 
+            0 25px 80px rgba(0, 255, 136, 0.3),
+            0 0 40px rgba(0, 255, 136, 0.2),
+            0 0 80px rgba(0, 255, 136, 0.1);
+        z-index: 10;
     }
 
     .game-card:hover .game-icon {
@@ -682,6 +698,29 @@
         animation: categoryPulse 4s ease-in-out infinite;
     }
 
+    /* Leaderboard indicator for cards with leaderboard data */
+    .game-card.has-leaderboard .game-category::after {
+        content: '🏆';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: linear-gradient(45deg, var(--warning-orange), #ffaa00);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        border: 2px solid var(--space-black);
+        animation: leaderboardPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes leaderboardPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
     @keyframes categoryPulse {
         0%, 100% { opacity: 0.8; }
         50% { opacity: 1; }
@@ -732,6 +771,107 @@
     .difficulty-dot.active {
         background: var(--warning-orange);
         box-shadow: 0 0 8px var(--warning-orange);
+    }
+
+    /* ===== LEADERBOARD SECTION ON GAME CARDS ===== */
+    .game-leaderboard {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(0, 255, 136, 0.05);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 10px;
+        position: relative;
+        z-index: 2;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-10px);
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Show leaderboard on card hover */
+    .game-card.has-leaderboard:hover .game-leaderboard {
+        opacity: 1;
+        max-height: 200px;
+        transform: translateY(0);
+    }
+
+    .leaderboard-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary-neon);
+        margin-bottom: 0.8rem;
+        text-align: center;
+        text-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+    }
+
+    .leaderboard-entry {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0.6rem;
+        margin-bottom: 0.3rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    /* Staggered animation for leaderboard entries */
+    .game-card.has-leaderboard:hover .leaderboard-entry {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .game-card.has-leaderboard:hover .leaderboard-entry:nth-child(2) {
+        transition-delay: 0.1s;
+    }
+
+    .game-card.has-leaderboard:hover .leaderboard-entry:nth-child(3) {
+        transition-delay: 0.2s;
+    }
+
+    .game-card.has-leaderboard:hover .leaderboard-entry:nth-child(4) {
+        transition-delay: 0.3s;
+    }
+
+    .leaderboard-entry:last-child {
+        margin-bottom: 0;
+    }
+
+    .leaderboard-entry:hover {
+        background: rgba(0, 255, 136, 0.1);
+        transform: translateX(2px);
+    }
+
+    .leaderboard-rank {
+        font-weight: bold;
+        color: var(--warning-orange);
+        min-width: 20px;
+    }
+
+    .leaderboard-name {
+        flex: 1;
+        text-align: left;
+        margin-left: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+    }
+
+    .leaderboard-score {
+        font-weight: bold;
+        color: var(--primary-neon);
+        text-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+    }
+
+    .no-leaderboard {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        font-style: italic;
+        padding: 0.5rem;
     }
 
     /* ===== ACHIEVEMENT SYSTEM ===== */
@@ -794,7 +934,33 @@
         }
 
         .game-card {
-            min-height: 250px;
+            min-height: 280px;
+        }
+
+        /* Mobile touch - show leaderboard by default on small screens */
+        .game-card.has-leaderboard .game-leaderboard {
+            opacity: 1;
+            max-height: 200px;
+            transform: translateY(0);
+        }
+
+        .game-card.has-leaderboard .leaderboard-entry {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .game-card.has-leaderboard {
+            min-height: 380px;
+        }
+
+        .game-leaderboard {
+            padding: 0.8rem;
+            margin: 0.8rem 0;
+        }
+
+        .leaderboard-entry {
+            padding: 0.3rem 0.4rem;
+            font-size: 0.75rem;
         }
 
         .category-command-panel {
@@ -933,7 +1099,7 @@
             {% if games %}
                 {% for game in games %}
                 <a href="{{ url_for(game.endpoint) }}" 
-                   class="game-card" 
+                   class="game-card{% if game.leaderboard and game.leaderboard|length > 0 %} has-leaderboard{% endif %}" 
                    data-game-index="{{ loop.index0 }}" 
                    data-category="{{ game.category }}"
                    onclick="trackGameLaunch('{{ game.name }}')">
@@ -946,6 +1112,20 @@
                     </div>
                     
                     <p class="game-description">{{ game.description }}</p>
+                    
+                    <!-- Leaderboard Section -->
+                    {% if game.leaderboard and game.leaderboard|length > 0 %}
+                    <div class="game-leaderboard">
+                        <div class="leaderboard-title">🏆 Top Players</div>
+                        {% for entry in game.leaderboard %}
+                        <div class="leaderboard-entry">
+                            <span class="leaderboard-rank">#{{ loop.index }}</span>
+                            <span class="leaderboard-name">{{ entry.username }}</span>
+                            <span class="leaderboard-score">{{ "{:,}".format(entry.score|int) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     
                     <div class="game-footer">
                         <div class="play-indicator">
@@ -1214,13 +1394,15 @@ function displayGames(games) {
             gameUrl = '/reacttime';
         } else if (game.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
+        } else if (game.endpoint === 'space_invaders.index') {
+            gameUrl = '/spaceinvaders';
         } else {
             gameUrl = '#'; // fallback for unknown endpoints
         }
         
         return `
         <a href="${gameUrl}" 
-           class="game-card" 
+           class="game-card${game.leaderboard && game.leaderboard.length > 0 ? ' has-leaderboard' : ''}" 
            data-game-index="${index}" 
            data-category="${game.category}"
            onclick="trackGameLaunch('${game.name}')">
@@ -1233,6 +1415,19 @@ function displayGames(games) {
             </div>
             
             <p class="game-description">${game.description}</p>
+            
+            ${game.leaderboard && game.leaderboard.length > 0 ? `
+            <div class="game-leaderboard">
+                <div class="leaderboard-title">🏆 Top Players</div>
+                ${game.leaderboard.map((entry, index) => `
+                    <div class="leaderboard-entry">
+                        <span class="leaderboard-rank">#${index + 1}</span>
+                        <span class="leaderboard-name">${entry.username}</span>
+                        <span class="leaderboard-score">${entry.score.toLocaleString()}</span>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
             
             <div class="game-footer">
                 <div class="play-indicator">
@@ -1299,6 +1494,8 @@ function playRandomGame() {
             gameUrl = '/reacttime';
         } else if (randomGame.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
+        } else if (randomGame.endpoint === 'space_invaders.index') {
+            gameUrl = '/spaceinvaders';
         } else {
             gameUrl = '/'; // fallback to home
         }
@@ -1336,6 +1533,8 @@ function playDailyGame() {
             gameUrl = '/reacttime';
         } else if (game.endpoint === 'dino_runner.index') {
             gameUrl = '/dino-runner';
+        } else if (game.endpoint === 'space_invaders.index') {
+            gameUrl = '/spaceinvaders';
         } else {
             gameUrl = '/'; // fallback to home
         }

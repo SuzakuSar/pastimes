@@ -1,0 +1,116 @@
+// SummerLockIn Sass Variables
+// Centralized design system for consistent styling
+
+// Brand Colors
+$primary-color: #6366f1;        // Indigo
+$secondary-color: #8b5cf6;      // Purple
+$accent-color: #f59e0b;         // Amber
+$success-color: #10b981;        // Emerald
+$warning-color: #f59e0b;        // Amber
+$error-color: #ef4444;          // Red
+
+// Gradient Colors
+$primary-gradient: ($primary-color, $secondary-color);
+$accent-gradient: ($accent-color, #fbbf24);
+$success-gradient: ($success-color, #34d399);
+
+// Neutral Colors
+$background-light: #ffffff;
+$background-dark: #0f0f23;      // Space theme dark
+$background-secondary: #1e1e3f;
+$text-light: #ffffff;
+$text-dark: #1f2937;
+$text-muted: #6b7280;
+$border-color: #e5e7eb;
+$border-dark: #374151;
+
+// Game-specific Colors
+$dino-green: #22c55e;
+$timer-blue: #3b82f6;
+$reaction-red: #ef4444;
+$cosmic-purple: #8b5cf6;
+
+// Ranking Colors
+$gold-color: #fbbf24;
+$silver-color: #e5e7eb;
+$bronze-color: #d97706;
+
+// Spacing Scale
+$spacing-xs: 0.25rem;    // 4px
+$spacing-sm: 0.5rem;     // 8px
+$spacing-small: 0.75rem; // 12px
+$spacing-medium: 1rem;   // 16px
+$spacing-large: 1.5rem;  // 24px
+$spacing-xl: 2rem;       // 32px
+$spacing-2xl: 3rem;      // 48px
+$spacing-3xl: 4rem;      // 64px
+
+// Typography Scale
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Font Families
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+$font-family-game: 'Orbitron', 'Courier New', monospace; // Futuristic game font
+
+// Border Radius
+$border-radius-sm: 0.25rem;   // 4px
+$border-radius: 0.5rem;       // 8px
+$border-radius-md: 0.75rem;   // 12px
+$border-radius-large: 1rem;   // 16px
+$border-radius-xl: 1.5rem;    // 24px
+$border-radius-full: 9999px;  // Pill shape
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Game-specific Shadows
+$shadow-cosmic: 0 0 20px rgba($cosmic-purple, 0.5);
+$shadow-neon: 0 0 15px rgba($accent-color, 0.6);
+
+// Z-index Scale
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// Breakpoints
+$breakpoint-mobile: 640px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-wide: 1280px;
+
+// Animation Timing
+$transition-fast: 0.15s;
+$transition-normal: 0.3s;
+$transition-slow: 0.5s;
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+// Game Constants
+$game-canvas-max-width: 800px;
+$leaderboard-max-height: 400px;
+$header-height: 64px;
+$sidebar-width: 250px;

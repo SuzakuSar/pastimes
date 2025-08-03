@@ -1,0 +1,211 @@
+// Base styles for SummerLockIn
+// Global resets and fundamental styling
+
+// CSS Reset and base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  
+  @include responsive(mobile) {
+    font-size: 14px;
+  }
+}
+
+body {
+  font-family: $font-family-sans;
+  font-weight: $font-weight-normal;
+  color: $text-dark;
+  background: linear-gradient(135deg, #0f0f23 0%, #1e1e3f 50%, #0f0f23 100%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+  margin-bottom: $spacing-medium;
+  color: $text-light;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+  @include text-gradient($primary-color, $secondary-color);
+  
+  @include responsive(mobile) {
+    font-size: $font-size-3xl;
+  }
+}
+
+h2 {
+  font-size: $font-size-3xl;
+  
+  @include responsive(mobile) {
+    font-size: $font-size-2xl;
+  }
+}
+
+h3 {
+  font-size: $font-size-2xl;
+  
+  @include responsive(mobile) {
+    font-size: $font-size-xl;
+  }
+}
+
+p {
+  margin-bottom: $spacing-medium;
+  color: $text-light;
+  opacity: 0.9;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-normal $ease-in-out;
+  
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+  
+  @include focus-visible;
+}
+
+// Buttons
+.btn {
+  @include button-base;
+  
+  &.btn-primary {
+    @include button-variant($primary-color);
+  }
+  
+  &.btn-secondary {
+    @include button-variant($secondary-color);
+  }
+  
+  &.btn-accent {
+    @include button-variant($accent-color);
+  }
+  
+  &.btn-success {
+    @include button-variant($success-color);
+  }
+  
+  &.btn-game {
+    @include game-button;
+  }
+  
+  &.btn-outline {
+    background: transparent;
+    border: 2px solid $primary-color;
+    color: $primary-color;
+    
+    &:hover:not(:disabled) {
+      background: $primary-color;
+      color: $text-light;
+    }
+  }
+}
+
+// Form elements
+.form-group {
+  margin-bottom: $spacing-large;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: $spacing-small;
+  font-weight: $font-weight-medium;
+  color: $text-light;
+}
+
+.form-input {
+  @include form-input;
+  background: rgba($background-secondary, 0.8);
+  border-color: $border-dark;
+  color: $text-light;
+  
+  &:focus {
+    background: rgba($background-secondary, 0.9);
+  }
+}
+
+// Utility classes
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-large;
+  
+  @include responsive(mobile) {
+    padding: 0 $spacing-medium;
+  }
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+
+.font-bold { font-weight: $font-weight-bold; }
+.font-medium { font-weight: $font-weight-medium; }
+.font-normal { font-weight: $font-weight-normal; }
+
+.hidden { display: none; }
+.sr-only { @include visually-hidden; }
+
+// Spacing utilities
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: $spacing-small; }
+.mb-2 { margin-bottom: $spacing-medium; }
+.mb-3 { margin-bottom: $spacing-large; }
+.mb-4 { margin-bottom: $spacing-xl; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: $spacing-small; }
+.mt-2 { margin-top: $spacing-medium; }
+.mt-3 { margin-top: $spacing-large; }
+.mt-4 { margin-top: $spacing-xl; }
+
+.p-1 { padding: $spacing-small; }
+.p-2 { padding: $spacing-medium; }
+.p-3 { padding: $spacing-large; }
+.p-4 { padding: $spacing-xl; }
+
+// Animation utilities
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Reduced motion support
+@include reduced-motion;

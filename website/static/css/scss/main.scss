@@ -1,0 +1,94 @@
+// Main Sass file for SummerLockIn
+// Enhanced CSS with variables, mixins, and better organization
+
+// Import variables and mixins
+@import 'variables';
+@import 'mixins';
+
+// Import component styles
+@import 'base';
+@import 'games';
+@import 'leaderboard';
+@import 'navigation';
+
+// Example of enhanced CSS capabilities with Sass
+.game-container {
+  @include flex-center;
+  background: linear-gradient($primary-gradient);
+  border-radius: $border-radius-large;
+  padding: $spacing-large;
+  
+  @include responsive(tablet) {
+    padding: $spacing-medium;
+  }
+  
+  @include responsive(mobile) {
+    padding: $spacing-small;
+    flex-direction: column;
+  }
+}
+
+// Game-specific animations
+@keyframes gameIntro {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-intro {
+  animation: gameIntro 0.6s ease-out;
+}
+
+// Enhanced button styles with hover effects
+.btn-game {
+  @include button-base;
+  background: $accent-color;
+  color: $text-light;
+  
+  &:hover {
+    background: darken($accent-color, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($accent-color, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Leaderboard enhanced styling
+.leaderboard-card {
+  @include card-style;
+  background: rgba($background-dark, 0.9);
+  backdrop-filter: blur(10px);
+  
+  .rank-badge {
+    @include rank-badge($gold-color, $silver-color, $bronze-color);
+  }
+}
+
+// Responsive game controls
+.game-controls {
+  display: flex;
+  gap: $spacing-medium;
+  justify-content: center;
+  
+  @include responsive(mobile) {
+    flex-direction: column;
+    gap: $spacing-small;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-primary: #{$background-dark};
+    --text-primary: #{$text-light};
+    --accent-color: #{lighten($accent-color, 15%)};
+  }
+}

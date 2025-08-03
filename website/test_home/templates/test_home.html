@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Test Layout - Gaming Hub{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('test_home.static', filename='css/test_layout.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block header %}YouTube-Inspired Gaming Hub{% endblock %}
+
+{% block body %}
+<div class="gaming-hub-layout">
+    <!-- Persistent Sidebar Navigation -->
+    <aside class="hub-sidebar" id="hubSidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <span class="toggle-icon">☰</span>
+            </button>
+            <div class="sidebar-logo">
+                <span class="logo-icon">🎮</span>
+                <span class="logo-text">Gaming Hub</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" role="navigation">
+            <!-- Primary Navigation -->
+            <div class="nav-section">
+                <ul class="nav-list">
+                    {% for category in categories %}
+                    <li class="nav-item">
+                        <a href="?category={{ category.name }}" 
+                           class="nav-link {{ 'active' if selected_category == category.name else '' }}"
+                           data-category="{{ category.name }}">
+                            <span class="nav-icon">{{ category.icon }}</span>
+                            <span class="nav-text">{{ category.name }}</span>
+                            <span class="nav-count">{{ category.count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- User Section -->
+            <div class="nav-section user-section">
+                <div class="user-info">
+                    <div class="user-avatar">{{ user_stats.avatar }}</div>
+                    <div class="user-details">
+                        <div class="user-name">{{ user_stats.username }}</div>
+                        <div class="user-stats">
+                            <span>{{ user_stats.games_played }} games</span>
+                            <span>{{ user_stats.play_time }} played</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="hub-main" id="hubMain">
+        <!-- Header with Search -->
+        <header class="hub-header">
+            <div class="header-content">
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <input type="text" 
+                               class="search-input" 
+                               id="searchInput"
+                               placeholder="Search games..."
+                               value="{{ search_query }}"
+                               autocomplete="off">
+                        <button class="search-button" type="submit" aria-label="Search">
+                            <span class="search-icon">🔍</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <button class="control-btn" aria-label="Notifications">
+                        <span>🔔</span>
+                    </button>
+                    <button class="control-btn" aria-label="Settings">
+                        <span>⚙️</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero/Featured Section -->
+        <section class="hero-section" aria-labelledby="hero-title">
+            <div class="hero-content">
+                <div class="hero-game">
+                    <div class="hero-thumbnail">
+                        <div class="thumbnail-placeholder">
+                            <span class="thumbnail-icon">🎮</span>
+                        </div>
+                    </div>
+                    <div class="hero-info">
+                        <h2 id="hero-title" class="hero-title">{{ hero_game.name }}</h2>
+                        <p class="hero-description">{{ hero_game.description }}</p>
+                        <div class="hero-meta">
+                            <span class="hero-rating">⭐ {{ hero_game.rating }}</span>
+                            <span class="hero-plays">{{ hero_game.plays }} plays</span>
+                            <span class="hero-category">{{ hero_game.category|title }}</span>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn-primary">Play Now</button>
+                            <button class="btn-secondary">Add to Saved</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Grid Section -->
+        <section class="games-section" aria-labelledby="games-title">
+            <div class="section-header">
+                <h2 id="games-title" class="section-title">
+                    {% if selected_category and selected_category != 'Home' %}
+                        {{ selected_category }} Games
+                    {% elif search_query %}
+                        Search Results for "{{ search_query }}"
+                    {% else %}
+                        All Games
+                    {% endif %}
+                </h2>
+                <div class="section-meta">
+                    <span class="game-count">{{ games|length }} games</span>
+                </div>
+            </div>
+
+            <div class="games-grid" id="gamesGrid">
+                {% for game in games %}
+                <article class="game-card" data-category="{{ game.category }}">
+                    <div class="card-thumbnail">
+                        <div class="thumbnail-placeholder">
+                            <span class="thumbnail-icon">🎮</span>
+                        </div>
+                        {% if game.featured %}
+                        <div class="featured-badge">Featured</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">{{ game.name }}</h3>
+                        <p class="card-description">{{ game.description }}</p>
+                        <div class="card-meta">
+                            <span class="card-rating">⭐ {{ game.rating }}</span>
+                            <span class="card-plays">{{ game.plays }} plays</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-play">Play</button>
+                            <button class="btn-save" aria-label="Save game">💾</button>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% if games|length == 0 %}
+            <div class="empty-state">
+                <div class="empty-icon">🎮</div>
+                <h3 class="empty-title">No games found</h3>
+                <p class="empty-message">
+                    {% if search_query %}
+                        Try a different search term or browse categories.
+                    {% else %}
+                        Check back later for new games!
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+<!-- Include JavaScript -->
+<script src="{{ url_for('test_home.static', filename='js/test_layout.js') }}"></script>
+{% endblock %}

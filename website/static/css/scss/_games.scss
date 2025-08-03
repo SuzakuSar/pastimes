@@ -1,0 +1,366 @@
+// Game-specific styles for SummerLockIn
+// Enhanced styling for individual games and game components
+
+// General game container
+.game-wrapper {
+  @include flex-column-center;
+  min-height: calc(100vh - #{$header-height});
+  padding: $spacing-large 0;
+  
+  @include responsive(mobile) {
+    padding: $spacing-medium 0;
+  }
+}
+
+.game-container {
+  @include card-style;
+  @include card-dark;
+  max-width: $game-canvas-max-width;
+  width: 100%;
+  margin: 0 auto;
+  
+  @include cosmic-glow($cosmic-purple);
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: $spacing-large;
+  
+  h1 {
+    font-family: $font-family-game;
+    @include neon-text($accent-color);
+    margin-bottom: $spacing-small;
+  }
+  
+  .game-description {
+    color: $text-muted;
+    font-size: $font-size-lg;
+  }
+}
+
+// Game canvas
+.game-canvas {
+  @include game-canvas;
+  background: $background-dark;
+  border: 2px solid rgba($primary-color, 0.3);
+  
+  &.active {
+    border-color: $primary-color;
+    @include cosmic-glow($primary-color);
+  }
+}
+
+// Game controls
+.game-controls {
+  @include flex-center;
+  gap: $spacing-medium;
+  margin-top: $spacing-large;
+  
+  @include responsive(mobile) {
+    flex-direction: column;
+    gap: $spacing-small;
+  }
+}
+
+.game-button {
+  @include game-button;
+  min-width: 120px;
+  
+  &.btn-start {
+    @include button-variant($success-color);
+  }
+  
+  &.btn-pause {
+    @include button-variant($warning-color);
+  }
+  
+  &.btn-reset {
+    @include button-variant($error-color);
+  }
+}
+
+// Game stats
+.game-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: $spacing-medium;
+  margin: $spacing-large 0;
+  
+  .stat-item {
+    @include card-style;
+    @include card-dark;
+    text-align: center;
+    padding: $spacing-medium;
+    
+    .stat-value {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $accent-color;
+      font-family: $font-family-mono;
+    }
+    
+    .stat-label {
+      font-size: $font-size-sm;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+// Dino Runner specific styles
+.dino-game {
+  .game-canvas {
+    background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+  }
+  
+  .jump-button {
+    position: fixed;
+    bottom: $spacing-large;
+    right: $spacing-large;
+    width: 80px;
+    height: 80px;
+    border-radius: $border-radius-full;
+    @include button-variant($dino-green);
+    font-size: $font-size-xl;
+    
+    @include responsive(desktop) {
+      display: none; // Hide on desktop (keyboard controls)
+    }
+  }
+  
+  .duck-button {
+    position: fixed;
+    bottom: $spacing-large;
+    left: $spacing-large;
+    width: 80px;
+    height: 80px;
+    border-radius: $border-radius-full;
+    @include button-variant($warning-color);
+    font-size: $font-size-xl;
+    
+    @include responsive(desktop) {
+      display: none; // Hide on desktop (keyboard controls)
+    }
+  }
+}
+
+// Timer games specific styles
+.timer-game {
+  .timer-display {
+    font-family: $font-family-mono;
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    text-align: center;
+    margin: $spacing-xl 0;
+    @include neon-text($timer-blue);
+    
+    @include responsive(mobile) {
+      font-size: $font-size-3xl;
+    }
+  }
+  
+  .timer-controls {
+    @include flex-center;
+    gap: $spacing-large;
+    
+    .timer-button {
+      @include game-button;
+      min-width: 150px;
+      font-size: $font-size-lg;
+    }
+  }
+  
+  .prediction-input {
+    text-align: center;
+    font-size: $font-size-xl;
+    font-family: $font-family-mono;
+    padding: $spacing-large;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}
+
+// React time game specific styles
+.react-game {
+  .reaction-area {
+    @include card-style;
+    @include card-dark;
+    min-height: 300px;
+    @include flex-center;
+    margin: $spacing-large 0;
+    border: 3px solid transparent;
+    transition: all $transition-fast $ease-out;
+    
+    &.waiting {
+      border-color: $warning-color;
+      background: rgba($warning-color, 0.1);
+    }
+    
+    &.ready {
+      border-color: $success-color;
+      background: rgba($success-color, 0.1);
+      @include cosmic-glow($success-color);
+    }
+    
+    &.too-early {
+      border-color: $error-color;
+      background: rgba($error-color, 0.1);
+      animation: shake 0.5s ease-in-out;
+    }
+  }
+  
+  .reaction-indicator {
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    text-align: center;
+    transition: all $transition-normal $ease-in-out;
+    
+    &.flash {
+      color: $reaction-red;
+      @include neon-text($reaction-red);
+      animation: flash 0.1s ease-in-out;
+    }
+    
+    &.word {
+      color: $accent-color;
+      @include neon-text($accent-color);
+    }
+    
+    &.shape {
+      color: $success-color;
+      font-size: 6rem;
+    }
+  }
+}
+
+// Game completion styles
+.game-complete {
+  @include card-style;
+  @include card-dark;
+  text-align: center;
+  margin-top: $spacing-large;
+  
+  .completion-message {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-medium;
+    @include text-gradient($success-color, $accent-color);
+  }
+  
+  .final-score {
+    font-size: $font-size-3xl;
+    font-family: $font-family-mono;
+    color: $accent-color;
+    margin: $spacing-large 0;
+  }
+  
+  .play-again-button {
+    @include game-button;
+    font-size: $font-size-lg;
+    padding: $spacing-large $spacing-2xl;
+  }
+}
+
+// Loading states
+.game-loading {
+  @include flex-center;
+  min-height: 200px;
+  
+  .loading-spinner {
+    @include loading-spinner(48px, $primary-color);
+  }
+  
+  .loading-text {
+    margin-left: $spacing-medium;
+    font-size: $font-size-lg;
+    color: $text-muted;
+  }
+}
+
+// Game instructions
+.game-instructions {
+  @include card-style;
+  @include card-dark;
+  margin-bottom: $spacing-large;
+  
+  .instruction-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-medium;
+    color: $accent-color;
+  }
+  
+  .instruction-list {
+    list-style: none;
+    
+    li {
+      padding: $spacing-small 0;
+      padding-left: $spacing-large;
+      position: relative;
+      color: $text-light;
+      
+      &::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: $primary-color;
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .controls-info {
+    margin-top: $spacing-medium;
+    padding-top: $spacing-medium;
+    border-top: 1px solid $border-dark;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    
+    .control-key {
+      background: rgba($primary-color, 0.2);
+      padding: $spacing-xs $spacing-small;
+      border-radius: $border-radius-sm;
+      font-family: $font-family-mono;
+      color: $primary-color;
+    }
+  }
+}
+
+// Animations for games
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+// Game accessibility
+.game-container {
+  @include focus-visible;
+  
+  &:focus {
+    outline-offset: 4px;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .game-canvas {
+    border-width: 3px;
+  }
+  
+  .game-button {
+    border: 2px solid currentColor;
+  }
+}
