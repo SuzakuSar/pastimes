@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "server": "http://localhost:3000"
+    },
+    "puppeteer": {
+      "server": "http://localhost:3001"
+    }
+  }
+} 

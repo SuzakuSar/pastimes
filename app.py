@@ -127,6 +127,48 @@ def generate_admin_key():
         'message': 'Session-specific admin key generated! Valid only for your current session.'
     })
 
+@app.route('/api/claude-agent')
+def claude_agent_endpoint():
+    """Dedicated endpoint for Claude agent creation - always returns valid JSON"""
+    try:
+        # Generate a secure random key for this session
+        admin_key = secrets.token_urlsafe(32)
+        session['admin_session_key'] = admin_key
+        session.permanent = True
+        
+        # Return a clean JSON response for Claude agent creation
+        return jsonify({
+            'success': True,
+            'agent_config': {
+                'name': 'SummerLockIn Gaming Hub Agent',
+                'description': 'A gaming hub agent for managing games and user interactions',
+                'capabilities': [
+                    'Game management',
+                    'User statistics tracking',
+                    'Leaderboard management',
+                    'Admin panel access'
+                ],
+                'endpoints': {
+                    'admin_panel': f'/admin/summerlockin?admin_key={admin_key}',
+                    'games': '/test_home/',
+                    'leaderboard': '/leaderboard/',
+                    'time_predict': '/time_predict/',
+                    'react_time': '/react_time/',
+                    'space_invaders': '/space_invaders/',
+                    'dino_runner': '/dino_runner/'
+                }
+            },
+            'session_key': admin_key,
+            'message': 'Claude agent configuration generated successfully'
+        })
+    except Exception as e:
+        # Always return valid JSON, even on error
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to generate Claude agent configuration'
+        }), 500
+
 @app.route('/admin/summerlockin')
 @simple_admin_required
 def simple_admin():

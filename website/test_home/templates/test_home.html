@@ -9,20 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 {% endblock %}
 
-{% block header %}YouTube-Inspired Gaming Hub{% endblock %}
+{% block header %}{% endblock %}
 
 {% block body %}
 <div class="gaming-hub-layout">
     <!-- Persistent Sidebar Navigation -->
     <aside class="hub-sidebar" id="hubSidebar">
         <div class="sidebar-header">
-            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                <span class="toggle-icon">☰</span>
-            </button>
             <div class="sidebar-logo">
                 <span class="logo-icon">🎮</span>
                 <span class="logo-text">Gaming Hub</span>
             </div>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+                <span class="collapse-icon">←</span>
+            </button>
         </div>
 
         <nav class="sidebar-nav" role="navigation">
@@ -43,8 +43,8 @@
                 </ul>
             </div>
 
-            <!-- User Section -->
-            <div class="nav-section user-section">
+            <!-- User Section at Bottom -->
+            <div class="user-section">
                 <div class="user-info">
                     <div class="user-avatar">{{ user_stats.avatar }}</div>
                     <div class="user-details">
@@ -59,58 +59,57 @@
         </nav>
     </aside>
 
+    <!-- Sidebar Tab (visible when collapsed) -->
+    <div class="sidebar-tab" id="sidebarTab">
+        <span class="tab-icon">🎮</span>
+    </div>
+
     <!-- Main Content Area -->
     <main class="hub-main" id="hubMain">
-        <!-- Header with Search -->
-        <header class="hub-header">
-            <div class="header-content">
-                <div class="search-container">
-                    <div class="search-wrapper">
-                        <input type="text" 
-                               class="search-input" 
-                               id="searchInput"
-                               placeholder="Search games..."
-                               value="{{ search_query }}"
-                               autocomplete="off">
-                        <button class="search-button" type="submit" aria-label="Search">
-                            <span class="search-icon">🔍</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="header-controls">
-                    <button class="control-btn" aria-label="Notifications">
-                        <span>🔔</span>
-                    </button>
-                    <button class="control-btn" aria-label="Settings">
-                        <span>⚙️</span>
+        <!-- Top Search Bar -->
+        <header class="top-search-header">
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" 
+                           class="search-input" 
+                           id="searchInput"
+                           placeholder="Search games..."
+                           value="{{ search_query }}"
+                           autocomplete="off">
+                    <button class="search-button" type="submit" aria-label="Search">
+                        <span class="search-icon">🔍</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Hero/Featured Section -->
-        <section class="hero-section" aria-labelledby="hero-title">
-            <div class="hero-content">
-                <div class="hero-game">
-                    <div class="hero-thumbnail">
+        <!-- Featured Games Row -->
+        <section class="featured-section" aria-labelledby="featured-title">
+            <div class="section-header">
+                <h2 id="featured-title" class="section-title">Featured Games</h2>
+            </div>
+            <div class="featured-games-row" id="featuredGamesRow">
+                {% for game in games if game.featured %}
+                <article class="featured-game-card" data-category="{{ game.category }}">
+                    <div class="card-thumbnail">
                         <div class="thumbnail-placeholder">
                             <span class="thumbnail-icon">🎮</span>
                         </div>
+                        <div class="featured-badge">Featured</div>
                     </div>
-                    <div class="hero-info">
-                        <h2 id="hero-title" class="hero-title">{{ hero_game.name }}</h2>
-                        <p class="hero-description">{{ hero_game.description }}</p>
-                        <div class="hero-meta">
-                            <span class="hero-rating">⭐ {{ hero_game.rating }}</span>
-                            <span class="hero-plays">{{ hero_game.plays }} plays</span>
-                            <span class="hero-category">{{ hero_game.category|title }}</span>
+                    <div class="card-content">
+                        <h3 class="card-title">{{ game.name }}</h3>
+                        <div class="card-meta">
+                            <span class="card-rating">⭐ {{ game.rating }}</span>
+                            <span class="card-plays">{{ game.plays }} plays</span>
                         </div>
-                        <div class="hero-actions">
-                            <button class="btn-primary">Play Now</button>
-                            <button class="btn-secondary">Add to Saved</button>
+                        <div class="card-actions">
+                            <button class="btn-play">Play</button>
+                            <button class="btn-save" aria-label="Save game">💾</button>
                         </div>
                     </div>
-                </div>
+                </article>
+                {% endfor %}
             </div>
         </section>
 

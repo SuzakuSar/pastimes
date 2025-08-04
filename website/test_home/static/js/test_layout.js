@@ -8,12 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get DOM elements
     const sidebar = document.getElementById('hubSidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarTab = document.getElementById('sidebarTab');
     const searchInput = document.getElementById('searchInput');
     const gamesGrid = document.getElementById('gamesGrid');
     const main = document.getElementById('hubMain');
     
     // State management
     let sidebarOpen = window.innerWidth >= 640; // Open by default on desktop
+    let sidebarCollapsed = false; // Track collapsed state
     let searchTimeout = null;
     
     // ===== SIDEBAR FUNCTIONALITY =====
@@ -23,31 +26,124 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSidebarState();
     }
     
+    function collapseSidebar() {
+        sidebarCollapsed = !sidebarCollapsed;
+        updateSidebarState();
+    }
+    
     function updateSidebarState() {
-        if (sidebarOpen) {
-            sidebar.classList.add('open');
-            sidebarToggle.setAttribute('aria-expanded', 'true');
-        } else {
-            sidebar.classList.remove('open');
-            sidebarToggle.setAttribute('aria-expanded', 'false');
+        const topSearchHeader = document.querySelector('.top-search-header');
+        const featuredSection = document.querySelector('.featured-section');
+        const gamesSection = document.querySelector('.games-section');
+        
+        // Handle mobile toggle (show/hide)
+        if (window.innerWidth < 640) {
+            if (sidebarOpen) {
+                sidebar.classList.add('open');
+                sidebar.classList.remove('hidden');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                sidebar.classList.remove('open');
+                sidebar.classList.add('hidden');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
         }
         
-        // Store preference for session
+        // Handle desktop collapse (completely off-screen)
+        if (window.innerWidth >= 640) {
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                main.classList.add('sidebar-collapsed');
+                if (sidebarTab) {
+                    sidebarTab.classList.add('visible');
+                }
+                if (topSearchHeader) {
+                    topSearchHeader.style.marginLeft = '0';
+                }
+                // Snap content to edge like Crazy Games - minimal wall spacing
+                if (featuredSection) {
+                    featuredSection.style.paddingLeft = 'var(--space-xs)';
+                }
+                if (gamesSection) {
+                    gamesSection.style.paddingLeft = 'var(--space-xs)';
+                }
+                if (sidebarCollapseBtn) {
+                    sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '→';
+                    sidebarCollapseBtn.setAttribute('aria-label', 'Expand sidebar');
+                }
+            } else {
+                sidebar.classList.remove('collapsed');
+                main.classList.remove('sidebar-collapsed');
+                if (sidebarTab) {
+                    sidebarTab.classList.remove('visible');
+                }
+                if (topSearchHeader) {
+                    topSearchHeader.style.marginLeft = 'var(--sidebar-width)';
+                }
+                // Reset content sections to normal spacing
+                if (featuredSection) {
+                    featuredSection.style.paddingLeft = 'var(--space-md)';
+                }
+                if (gamesSection) {
+                    gamesSection.style.paddingLeft = 'var(--space-md)';
+                }
+                if (sidebarCollapseBtn) {
+                    sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '←';
+                    sidebarCollapseBtn.setAttribute('aria-label', 'Collapse sidebar');
+                }
+            }
+        }
+        
+        // Handle complete hide on mobile
+        if (!sidebarOpen && window.innerWidth < 640) {
+            main.classList.add('sidebar-hidden');
+            if (topSearchHeader) {
+                topSearchHeader.style.marginLeft = '0';
+            }
+        } else if (window.innerWidth >= 640 && !sidebarCollapsed) {
+            main.classList.remove('sidebar-hidden');
+        }
+        
+        // Store preferences for session
         sessionStorage.setItem('sidebarOpen', sidebarOpen.toString());
+        sessionStorage.setItem('sidebarCollapsed', sidebarCollapsed.toString());
     }
     
     function initializeSidebar() {
         // Restore sidebar state from session storage
         const savedState = sessionStorage.getItem('sidebarOpen');
+        const savedCollapsedState = sessionStorage.getItem('sidebarCollapsed');
+        
         if (savedState !== null) {
             sidebarOpen = savedState === 'true';
+        }
+        if (savedCollapsedState !== null) {
+            sidebarCollapsed = savedCollapsedState === 'true';
         }
         
         updateSidebarState();
         
-        // Add event listener for toggle button
+        // Add event listener for mobile toggle button
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        
+        // Add event listener for desktop collapse button
+        if (sidebarCollapseBtn) {
+            sidebarCollapseBtn.addEventListener('click', collapseSidebar);
+        }
+        
+        // Add event listener for sidebar tab (to expand when collapsed)
+        if (sidebarTab) {
+            sidebarTab.addEventListener('click', function() {
+                if (sidebarCollapsed) {
+                    collapseSidebar(); // This will expand the sidebar
+                }
+            });
         }
         
         // Close sidebar when clicking outside on mobile
@@ -262,6 +358,31 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        // Keyboard navigation for sidebar collapse
+        if (sidebarCollapseBtn) {
+            sidebarCollapseBtn.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    collapseSidebar();
+                }
+            });
+        }
+        
+        // Keyboard navigation for sidebar tab
+        if (sidebarTab) {
+            sidebarTab.setAttribute('tabindex', '0');
+            sidebarTab.setAttribute('role', 'button');
+            sidebarTab.setAttribute('aria-label', 'Expand sidebar');
+            sidebarTab.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (sidebarCollapsed) {
+                        collapseSidebar();
+                    }
+                }
+            });
+        }
+        
         // Focus management for modal-like behavior on mobile
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape' && window.innerWidth < 640 && sidebarOpen) {
@@ -331,6 +452,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== INITIALIZATION =====
     
     function initialize() {
+        // Fix the stubborn padding issue with !important override
+        const gamingHubLayout = document.querySelector('.gaming-hub-layout');
+        if (gamingHubLayout) {
+            gamingHubLayout.style.setProperty('padding-top', '0px', 'important');
+        }
+        
+        // Adjust featured section to not be covered by search bar
+        const featuredSection = document.querySelector('.featured-section');
+        if (featuredSection) {
+            featuredSection.style.setProperty('padding-top', '70px', 'important');
+        }
+        
         initializeSidebar();
         initializeSearch();
         initializeResponsive();
@@ -352,9 +485,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.hubDebug = {
             toggleSidebar,
+            collapseSidebar,
             handleSearch,
             sidebarOpen: () => sidebarOpen,
-            version: '1.0.0'
+            sidebarCollapsed: () => sidebarCollapsed,
+            version: '1.1.0'
         };
         console.log('Debug helpers available: window.hubDebug');
     }
