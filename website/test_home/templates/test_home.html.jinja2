@@ -1,0 +1,1149 @@
+{% extends "base.html" %}
+
+{% block title %}Test Layout - Gaming Hub{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('test_home.static', filename='css/test_layout.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block body %}
+<div class="gaming-hub-layout">
+    <!-- Persistent Sidebar Navigation -->
+    <aside class="hub-sidebar" id="hubSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🎮</span>
+                <span class="logo-text">Gaming Hub</span>
+            </div>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+                <span class="collapse-icon">←</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav" role="navigation">
+            <!-- Primary Navigation Sections -->
+            <div class="nav-section">
+                <ul class="nav-list">
+                    {% for section in navigation_sections %}
+                    <li class="nav-item">
+                        <a href="#" 
+                           class="nav-link {{ 'active' if selected_category == section.name else '' }}"
+                           data-category="{{ section.name }}"
+                           onclick="switchCategory('{{ section.name }}'); return false;">
+                            <span class="nav-icon">{{ section.icon }}</span>
+                            <span class="nav-text">{{ section.name }}</span>
+                            <span class="nav-count">{{ section.count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Divider -->
+        <div class="sidebar-divider"></div>
+
+        <!-- Game Categories -->
+        <nav class="sidebar-categories" role="navigation">
+            <div class="nav-section">
+                <ul class="nav-list">
+                    {% for category in game_categories %}
+                    <li class="nav-item">
+                        <a href="#" 
+                           class="nav-link {{ 'active' if selected_category == category.name else '' }}"
+                           data-category="{{ category.name }}"
+                           onclick="switchCategory('{{ category.name }}'); return false;">
+                            <span class="nav-icon">{{ category.icon }}</span>
+                            <span class="nav-text">{{ category.name }}</span>
+                            <span class="nav-count">{{ category.count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Sidebar Tab (visible when collapsed) -->
+    <div class="sidebar-tab" id="sidebarTab">
+        <span class="tab-icon">🎮</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="hub-main" id="hubMain">
+        <!-- Top Search Bar -->
+        <header class="top-search-header">
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" 
+                           class="search-input" 
+                           id="searchInput"
+                           placeholder="Search games..."
+                           value="{{ search_query }}"
+                           autocomplete="off">
+                    <button class="search-button" type="submit" aria-label="Search">
+                        <span class="search-icon">🔍</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Home Page Category Rows -->
+        <div id="homeContent" class="content-section" style="display: {{ 'block' if selected_category == 'Home' else 'none' }};">
+            {% for category_row in category_rows %}
+            <section class="category-row horizontal-layout" data-category="{{ category_row.category_name|lower|replace(' ', '-') }}">
+                <div class="section-header">
+                    <h2 class="section-title">{{ category_row.category_name }}</h2>
+                    {% if category_row.options.show_count %}
+                    <div class="section-meta">
+                        <span class="game-count">{{ category_row.count }} games</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="category-games-container {{ category_row.options.card_size }}-cards">
+                    <div class="games-row">
+                        {% for game in category_row.games %}
+                        <article class="game-card" data-category="{{ game.category }}" data-game-name="{{ game.name }}" data-game-endpoint="{{ game.endpoint or '' }}">
+                            <div class="card-thumbnail">
+                                <div class="thumbnail-placeholder" data-game-title="{{ game.name }}">
+                                    <span class="thumbnail-title">{{ game.name }}</span>
+                                </div>
+                                {% if game.featured %}
+                                <div class="featured-badge">Featured</div>
+                                {% endif %}
+                            </div>
+                            <div class="card-overlay">
+                                <div class="card-content">
+                                    <div class="card-meta">
+                                        <span class="card-rating">⭐ {{ game.rating }}</span>
+                                        <span class="card-plays">{{ game.plays }} plays</span>
+                                    </div>
+                                </div>
+                                <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
+                                    <span class="heart-outline">♡</span>
+                                    <span class="heart-filled">♥</span>
+                                </button>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+
+        <!-- Category Grid Section (dynamically populated) -->
+        <div id="categoryContent" class="content-section" style="display: {{ 'none' if selected_category == 'Home' else 'block' }};">
+            <section class="games-section" aria-labelledby="games-title">
+                <div class="section-header">
+                    <h2 id="games-title" class="section-title">
+                        {{ selected_category }} Games
+                    </h2>
+                    <div class="section-meta">
+                        <span id="categoryGameCount" class="game-count">{{ games|length }} games</span>
+                    </div>
+                </div>
+
+                <div class="games-grid" id="gamesGrid">
+                    {% for game in games %}
+                    <article class="game-card" data-category="{{ game.category }}" data-featured="{{ game.featured|lower }}" data-game-name="{{ game.name }}" data-game-description="{{ game.description }}" data-game-endpoint="{{ game.endpoint or '' }}">
+                        <div class="card-thumbnail">
+                            <div class="thumbnail-placeholder" data-game-title="{{ game.name }}">
+                                <span class="thumbnail-title">{{ game.name }}</span>
+                            </div>
+                            {% if game.featured %}
+                            <div class="featured-badge">Featured</div>
+                            {% endif %}
+                        </div>
+                        <div class="card-overlay">
+                            <div class="card-content">
+                                <div class="card-meta">
+                                    <span class="card-rating">⭐ {{ game.rating }}</span>
+                                    <span class="card-plays">{{ game.plays }} plays</span>
+                                </div>
+                            </div>
+                            <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
+                                <span class="heart-outline">♡</span>
+                                <span class="heart-filled">♥</span>
+                            </button>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-icon">🎮</div>
+                    <h3 class="empty-title">No games found</h3>
+                    <p class="empty-message">Check back later for new games!</p>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<!-- Embedded JavaScript -->
+<script>
+/**
+ * YouTube-inspired Gaming Hub Layout JavaScript
+ * Implementation of Phase 1: Layout & Visual Foundation
+ * Handles sidebar toggle, search functionality, and responsive behavior
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const sidebar = document.getElementById('hubSidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarTab = document.getElementById('sidebarTab');
+    const searchInput = document.getElementById('searchInput');
+    const gamesGrid = document.getElementById('gamesGrid');
+    const main = document.getElementById('hubMain');
+    
+    // State management
+    let sidebarOpen = window.innerWidth >= 640; // Open by default on desktop
+    let sidebarCollapsed = false; // Track collapsed state
+    let searchTimeout = null;
+    
+    // ===== SIDEBAR FUNCTIONALITY =====
+    
+    function toggleSidebar() {
+        sidebarOpen = !sidebarOpen;
+        updateSidebarState();
+    }
+    
+    function collapseSidebar() {
+        sidebarCollapsed = !sidebarCollapsed;
+        updateSidebarState();
+    }
+    
+    function updateSidebarState() {
+        const topSearchHeader = document.querySelector('.top-search-header');
+        
+        // Update dynamic spacing based on sidebar state
+        updateDynamicSpacing();
+        const featuredSection = document.querySelector('.featured-section');
+        const gamesSection = document.querySelector('.games-section');
+        
+        // Handle mobile toggle (show/hide)
+        if (window.innerWidth < 640) {
+            if (sidebarOpen) {
+                sidebar.classList.add('open');
+                sidebar.classList.remove('hidden');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                sidebar.classList.remove('open');
+                sidebar.classList.add('hidden');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        }
+        
+        // Handle desktop collapse (completely off-screen)
+        if (window.innerWidth >= 640) {
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                main.classList.add('sidebar-collapsed');
+                if (sidebarTab) {
+                    sidebarTab.classList.add('visible');
+                }
+                if (topSearchHeader) {
+                    topSearchHeader.classList.add('sidebar-collapsed');
+                }
+                // Snap content to edge like Crazy Games - minimal wall spacing
+                if (featuredSection) {
+                    featuredSection.classList.add('sidebar-collapsed');
+                }
+                if (gamesSection) {
+                    gamesSection.classList.add('sidebar-collapsed');
+                }
+                if (sidebarCollapseBtn) {
+                    sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '→';
+                    sidebarCollapseBtn.setAttribute('aria-label', 'Expand sidebar');
+                }
+            } else {
+                sidebar.classList.remove('collapsed');
+                main.classList.remove('sidebar-collapsed');
+                if (sidebarTab) {
+                    sidebarTab.classList.remove('visible');
+                }
+                if (topSearchHeader) {
+                    topSearchHeader.classList.remove('sidebar-collapsed');
+                }
+                // Reset content sections to normal spacing
+                if (featuredSection) {
+                    featuredSection.classList.remove('sidebar-collapsed');
+                }
+                if (gamesSection) {
+                    gamesSection.classList.remove('sidebar-collapsed');
+                }
+                if (sidebarCollapseBtn) {
+                    sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '←';
+                    sidebarCollapseBtn.setAttribute('aria-label', 'Collapse sidebar');
+                }
+            }
+        }
+        
+        // Handle complete hide on mobile
+        if (!sidebarOpen && window.innerWidth < 640) {
+            main.classList.add('sidebar-hidden');
+            if (topSearchHeader) {
+                topSearchHeader.style.marginLeft = '0';
+            }
+        } else if (window.innerWidth >= 640 && !sidebarCollapsed) {
+            main.classList.remove('sidebar-hidden');
+        }
+        
+        // Store preferences for session
+        sessionStorage.setItem('sidebarOpen', sidebarOpen.toString());
+        sessionStorage.setItem('sidebarCollapsed', sidebarCollapsed.toString());
+    }
+    
+    function updateDynamicSpacing() {
+        const root = document.documentElement;
+        
+        // Determine spacing based on sidebar state and screen size
+        let leftMargin, rightMargin;
+        
+        if (window.innerWidth < 640) {
+            // Mobile: minimal margins
+            leftMargin = 'var(--space-sm)';
+            rightMargin = 'var(--space-sm)';
+        } else if (sidebarCollapsed) {
+            // Desktop with collapsed sidebar: minimal edge margins  
+            leftMargin = 'var(--space-sm)';
+            rightMargin = 'var(--space-sm)';
+        } else {
+            // Desktop with expanded sidebar: normal margins
+            leftMargin = 'var(--space-md)';
+            rightMargin = 'var(--space-md)';
+        }
+        
+        // Update CSS custom properties
+        root.style.setProperty('--content-margin-left', leftMargin);
+        root.style.setProperty('--content-margin-right', rightMargin);
+    }
+    
+    function initializeSidebar() {
+        // Restore sidebar state from session storage
+        const savedState = sessionStorage.getItem('sidebarOpen');
+        const savedCollapsedState = sessionStorage.getItem('sidebarCollapsed');
+        
+        if (savedState !== null) {
+            sidebarOpen = savedState === 'true';
+        }
+        if (savedCollapsedState !== null) {
+            sidebarCollapsed = savedCollapsedState === 'true';
+        }
+        
+        updateSidebarState();
+        
+        // Add event listener for mobile toggle button
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        
+        // Add event listener for desktop collapse button
+        if (sidebarCollapseBtn) {
+            sidebarCollapseBtn.addEventListener('click', collapseSidebar);
+        }
+        
+        // Add event listener for sidebar tab (to expand when collapsed)
+        if (sidebarTab) {
+            sidebarTab.addEventListener('click', function() {
+                if (sidebarCollapsed) {
+                    collapseSidebar(); // This will expand the sidebar
+                }
+            });
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth < 640 && 
+                sidebarOpen && 
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target)) {
+                sidebarOpen = false;
+                updateSidebarState();
+            }
+        });
+    }
+    
+    // ===== SEARCH FUNCTIONALITY =====
+    
+    function handleSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        
+        if (query) {
+            // Switch to search mode
+            performSearch(query);
+        } else {
+            // Return to current category
+            if (currentCategory === 'Home') {
+                switchCategory('Home');
+            } else {
+                filterGamesForCategory(currentCategory);
+            }
+        }
+        
+        // Update URL without reloading page
+        const url = new URL(window.location);
+        if (query) {
+            url.searchParams.set('search', query);
+        } else {
+            url.searchParams.delete('search');
+        }
+        window.history.replaceState({}, '', url);
+    }
+    
+    function performSearch(query) {
+        // Filter all games based on search query
+        const filteredGames = allGamesData.filter(game => {
+            return game.name.toLowerCase().includes(query) ||
+                   game.description.toLowerCase().includes(query) ||
+                   game.category.toLowerCase().includes(query);
+        });
+        
+        // Switch to category view to show search results
+        const homeContent = document.getElementById('homeContent');
+        const categoryContent = document.getElementById('categoryContent');
+        homeContent.style.display = 'none';
+        categoryContent.style.display = 'block';
+        
+        // Update navigation to show no active category during search
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // Update the games grid for search results
+        updateGamesGrid(filteredGames, `Search: "${query}"`);
+    }
+    
+    function initializeSearch() {
+        if (searchInput) {
+            // Handle input with debouncing
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(handleSearch, 300);
+            });
+            
+            // Handle search button click
+            const searchButton = document.querySelector('.search-button');
+            if (searchButton) {
+                searchButton.addEventListener('click', handleSearch);
+            }
+            
+            // Handle Enter key
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSearch();
+                }
+            });
+        }
+    }
+    
+    // ===== RESPONSIVE BEHAVIOR =====
+    
+    function handleResize() {
+        const width = window.innerWidth;
+        
+        // Auto-close sidebar on mobile, auto-open on desktop
+        if (width < 640 && sidebarOpen) {
+            sidebarOpen = false;
+            updateSidebarState();
+        } else if (width >= 1024 && !sidebarOpen) {
+            sidebarOpen = true;
+            updateSidebarState();
+        }
+    }
+    
+    function initializeResponsive() {
+        // Add resize listener with debouncing
+        let resizeTimeout = null;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(handleResize, 150);
+        });
+    }
+    
+    // ===== BASIC CARD INTERACTIONS =====
+
+    // Gesture Navigation System from Phase 2
+    class GestureNavigation {
+        constructor() {
+            this.initializeSwipeGestures();
+            this.initializeTouchGestures();
+        }
+
+        initializeSwipeGestures() {
+            let startX, startY, currentX, currentY;
+            
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                currentX = e.touches[0].clientX;
+                currentY = e.touches[0].clientY;
+                
+                // Check if we're swiping on a carousel or games row
+                const carousel = e.target.closest('.featured-games-row, .games-row');
+                if (carousel) {
+                    this.handleCarouselSwipe(carousel, startX, currentX);
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                if (!startX || !currentX) return;
+                
+                const diffX = startX - currentX;
+                const diffY = startY - currentY;
+                
+                // Determine swipe direction
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > 50) { // Minimum swipe distance
+                        if (diffX > 0) {
+                            this.handleSwipeLeft();
+                        } else {
+                            this.handleSwipeRight();
+                        }
+                    }
+                }
+                
+                // Reset values
+                startX = startY = currentX = currentY = null;
+            });
+        }
+
+        initializeTouchGestures() {
+            // Make category game rows swipeable on mobile
+            const gameRows = document.querySelectorAll('.games-row');
+            gameRows.forEach(row => {
+                row.style.cssText += `
+                    -webkit-overflow-scrolling: touch;
+                `;
+                
+                // Add scroll snap to each game card
+                row.querySelectorAll('.game-card').forEach(card => {
+                    card.style.scrollSnapAlign = 'start';
+                });
+                
+                // Add drag-to-scroll for desktop
+                this.initializeDragScroll(row);
+            });
+        }
+
+        initializeDragScroll(element) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            
+            element.addEventListener('mousedown', (e) => {
+                // Only enable drag if not clicking on interactive elements
+                if (e.target.closest('button, a, .game-card')) return;
+                
+                isDown = true;
+                element.style.cursor = 'grabbing';
+                element.style.userSelect = 'none';
+                startX = e.pageX - element.offsetLeft;
+                scrollLeft = element.scrollLeft;
+                e.preventDefault();
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                isDown = false;
+                element.style.cursor = 'grab';
+                element.style.userSelect = '';
+            });
+            
+            element.addEventListener('mouseup', () => {
+                isDown = false;
+                element.style.cursor = 'grab';
+                element.style.userSelect = '';
+            });
+            
+            element.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - element.offsetLeft;
+                const walk = (x - startX) * 2; // Adjust scroll speed
+                element.scrollLeft = scrollLeft - walk;
+            });
+            
+            // Set initial cursor
+            element.style.cursor = 'grab';
+        }
+
+        handleCarouselSwipe(carousel, startX, currentX) {
+            const diff = startX - currentX;
+            const threshold = 100;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    this.nextSlide(carousel);
+                } else {
+                    this.previousSlide(carousel);
+                }
+            }
+        }
+
+        handleSwipeLeft() {
+            // Navigate to next category
+            const activeNav = document.querySelector('.nav-link.active');
+            if (activeNav) {
+                const nextNav = activeNav.parentElement.nextElementSibling?.querySelector('.nav-link');
+                if (nextNav) {
+                    nextNav.click();
+                }
+            }
+        }
+
+        handleSwipeRight() {
+            // Navigate to previous category
+            const activeNav = document.querySelector('.nav-link.active');
+            if (activeNav) {
+                const prevNav = activeNav.parentElement.previousElementSibling?.querySelector('.nav-link');
+                if (prevNav) {
+                    prevNav.click();
+                }
+            }
+        }
+
+        nextSlide(carousel) {
+            carousel.scrollBy({
+                left: 200,
+                behavior: 'smooth'
+            });
+        }
+
+        previousSlide(carousel) {
+            carousel.scrollBy({
+                left: -200,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    
+    function initializeCardInteractions() {
+        // Initialize gesture navigation
+        const gestureNav = new GestureNavigation();
+        
+        const gameCards = document.querySelectorAll('.game-card');
+        
+        gameCards.forEach(card => {
+            // Handle card click with recently played tracking
+            card.addEventListener('click', function(event) {
+                // Don't trigger if clicking on buttons
+                if (event.target.closest('button')) {
+                    return;
+                }
+                
+                const title = this.dataset.gameName || this.querySelector('.thumbnail-title')?.textContent || 'Unknown Game';
+                
+                // Add to recently played
+                fetch('/test-home/api/recently-played', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_name: title
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update recently played count in navigation
+                        const recentNav = document.querySelector('[data-category="Recently Played"] .nav-count');
+                        if (recentNav) {
+                            recentNav.textContent = data.count;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating recently played:', error);
+                });
+                
+                // Navigate to the actual game using endpoint from card data
+                const endpoint = this.dataset.gameEndpoint;
+                if (endpoint) {
+                    // Convert endpoint format: 'time_predict.index' -> '/timepredict'
+                    const path = endpoint.replace('.index', '').replace('_', '');
+                    window.location.href = `/${path}`;
+                } else {
+                    console.log(`Clicked on game: ${title} (no endpoint found)`);
+                }
+            });
+        });
+        
+        // Handle favorite button clicks with cookie storage
+        const favoriteButtons = document.querySelectorAll('.btn-favorite');
+        favoriteButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const card = this.closest('.game-card, .featured-game-card');
+                const title = card.dataset.gameName || card.querySelector('.thumbnail-title')?.textContent || 'Unknown Game';
+                
+                // Toggle favorited state
+                const isFavorited = this.getAttribute('data-favorited') === 'true';
+                const newState = !isFavorited;
+                
+                // Update UI immediately
+                this.setAttribute('data-favorited', newState.toString());
+                
+                // Save to server with cookies
+                fetch('/test-home/api/favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_name: title,
+                        action: 'toggle'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update navigation count
+                        const favoritedNav = document.querySelector('[data-category="Favorited"] .nav-count');
+                        if (favoritedNav) {
+                            favoritedNav.textContent = data.count;
+                        }
+                        
+                        // Show feedback animation
+                        if (newState) {
+                            this.style.transform = 'scale(1.2)';
+                            setTimeout(() => {
+                                this.style.transform = '';
+                            }, 200);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating favorites:', error);
+                    // Revert UI state on error
+                    this.setAttribute('data-favorited', isFavorited.toString());
+                });
+            });
+        });
+    }
+    
+    // ===== NAVIGATION HIGHLIGHTING =====
+    
+    function initializeNavigation() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const currentCategory = new URLSearchParams(window.location.search).get('category') || 'Home';
+        
+        navLinks.forEach(link => {
+            const category = link.dataset.category;
+            if (category === currentCategory) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+    
+    // ===== ACCESSIBILITY ENHANCEMENTS =====
+    
+    function initializeAccessibility() {
+        // Keyboard navigation for sidebar toggle
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleSidebar();
+                }
+            });
+        }
+        
+        // Keyboard navigation for sidebar collapse
+        if (sidebarCollapseBtn) {
+            sidebarCollapseBtn.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    collapseSidebar();
+                }
+            });
+        }
+        
+        // Keyboard navigation for sidebar tab
+        if (sidebarTab) {
+            sidebarTab.setAttribute('tabindex', '0');
+            sidebarTab.setAttribute('role', 'button');
+            sidebarTab.setAttribute('aria-label', 'Expand sidebar');
+            sidebarTab.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (sidebarCollapsed) {
+                        collapseSidebar();
+                    }
+                }
+            });
+        }
+        
+        // Enhanced keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            // Escape key - close sidebar on mobile
+            if (event.key === 'Escape' && window.innerWidth < 640 && sidebarOpen) {
+                sidebarOpen = false;
+                updateSidebarState();
+                if (sidebarToggle) {
+                    sidebarToggle.focus();
+                }
+                return;
+            }
+            
+            // Arrow key navigation (only when not in input fields)
+            if (!event.target.matches('input, textarea, [contenteditable]')) {
+                const navLinks = Array.from(document.querySelectorAll('.nav-link'));
+                const activeIndex = navLinks.findIndex(link => link.classList.contains('active'));
+                
+                if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    const prevIndex = activeIndex > 0 ? activeIndex - 1 : navLinks.length - 1;
+                    const category = navLinks[prevIndex].dataset.category;
+                    switchCategory(category);
+                    navLinks[prevIndex].focus();
+                }
+                
+                if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    const nextIndex = activeIndex < navLinks.length - 1 ? activeIndex + 1 : 0;
+                    const category = navLinks[nextIndex].dataset.category;
+                    switchCategory(category);
+                    navLinks[nextIndex].focus();
+                }
+            }
+        });
+        
+        // Skip link for keyboard users
+        const skipLink = document.createElement('a');
+        skipLink.href = '#main-content';
+        skipLink.textContent = 'Skip to main content';
+        skipLink.className = 'sr-only';
+        skipLink.style.cssText = `
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--accent-primary);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 10000;
+        `;
+        
+        skipLink.addEventListener('focus', function() {
+            this.style.top = '6px';
+        });
+        
+        skipLink.addEventListener('blur', function() {
+            this.style.top = '-40px';
+        });
+        
+        document.body.insertBefore(skipLink, document.body.firstChild);
+        
+        // Add main content ID for skip link
+        if (main) {
+            main.id = 'main-content';
+        }
+    }
+    
+    // ===== PERFORMANCE OPTIMIZATIONS =====
+    
+    function initializePerformance() {
+        // Lazy load images when they come into view
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const placeholder = entry.target;
+                        // Future: Replace with actual image loading
+                        placeholder.style.background = 'linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))';
+                        imageObserver.unobserve(placeholder);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.thumbnail-placeholder').forEach(placeholder => {
+                imageObserver.observe(placeholder);
+            });
+        }
+    }
+    
+    // ===== SCROLL BOUNDARY DETECTION =====
+    
+    function initializeScrollBoundaries() {
+        const gamesGrid = document.getElementById('gamesGrid');
+        if (!gamesGrid) return;
+        
+        function checkScrollBoundaries() {
+            const scrollLeft = gamesGrid.scrollLeft;
+            const scrollWidth = gamesGrid.scrollWidth;
+            const clientWidth = gamesGrid.clientWidth;
+            const maxScroll = scrollWidth - clientWidth;
+            
+            // Prevent scrolling beyond content boundaries
+            if (scrollLeft < 0) {
+                gamesGrid.scrollLeft = 0;
+            } else if (scrollLeft > maxScroll) {
+                gamesGrid.scrollLeft = maxScroll;
+            }
+        }
+        
+        // Add scroll event listener with debouncing
+        let scrollTimeout = null;
+        gamesGrid.addEventListener('scroll', function() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(checkScrollBoundaries, 16); // ~60fps
+        });
+        
+        // Handle wheel events for smoother horizontal scrolling
+        gamesGrid.addEventListener('wheel', function(e) {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                // Horizontal wheel scrolling - let it proceed naturally
+                return;
+            }
+            
+            if (e.deltaY !== 0) {
+                // Convert vertical scroll to horizontal
+                e.preventDefault();
+                const scrollAmount = e.deltaY > 0 ? 200 : -200;
+                gamesGrid.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    }
+    
+    // ===== CLIENT-SIDE CATEGORY SWITCHING =====
+    
+    let allGamesData = [];
+    
+    // Load all games data for client-side filtering
+    fetch('/test-home/api/games')
+        .then(response => response.json())
+        .then(data => {
+            allGamesData = data.games;
+        })
+        .catch(error => {
+            console.log('Failed to load games data:', error);
+            // Fallback to initial data
+            allGamesData = {{ games|tojson }};
+        });
+    let currentCategory = '{{ selected_category }}';
+    
+    function switchCategory(categoryName) {
+        if (currentCategory === categoryName) {
+            return; // Already on this category
+        }
+        
+        currentCategory = categoryName;
+        
+        // Remember last visited category
+        localStorage.setItem('lastVisitedCategory', categoryName);
+        
+        // Update active navigation state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelector(`[data-category="${categoryName}"]`).classList.add('active');
+        
+        // Show/hide content sections
+        const homeContent = document.getElementById('homeContent');
+        const categoryContent = document.getElementById('categoryContent');
+        
+        if (categoryName === 'Home') {
+            homeContent.style.display = 'block';
+            categoryContent.style.display = 'none';
+        } else {
+            homeContent.style.display = 'none';
+            categoryContent.style.display = 'block';
+            
+            // Filter and display games for this category
+            filterGamesForCategory(categoryName);
+        }
+        
+        // Update URL without reload
+        const url = new URL(window.location);
+        url.searchParams.set('category', categoryName);
+        window.history.pushState({category: categoryName}, '', url);
+    }
+    
+    function filterGamesForCategory(categoryName) {
+        let filteredGames = allGamesData;
+        
+        // Apply category filter
+        if (categoryName === 'Featured') {
+            filteredGames = filteredGames.filter(game => game.featured);
+        } else if (categoryName === 'Favorited') {
+            // TODO: Implement favorited games logic
+            filteredGames = filteredGames.filter(game => game.featured); // Placeholder
+        } else if (categoryName === 'Recently Played') {
+            // TODO: Implement recently played logic
+            filteredGames = filteredGames.slice(0, 5); // Placeholder
+        } else if (['Arcade', 'Skill', 'Retro', 'Fantasy', 'Horror'].includes(categoryName)) {
+            filteredGames = filteredGames.filter(game => 
+                game.category.toLowerCase() === categoryName.toLowerCase()
+            );
+        }
+        
+        // Update the games grid
+        updateGamesGrid(filteredGames, categoryName);
+    }
+    
+    function updateGamesGrid(games, categoryName) {
+        const gamesGrid = document.getElementById('gamesGrid');
+        const gameCount = document.getElementById('categoryGameCount');
+        const sectionTitle = document.getElementById('games-title');
+        const emptyState = document.getElementById('emptyState');
+        const gamesSection = document.querySelector('.games-section');
+        
+        // Add subtle loading state
+        gamesSection.classList.add('loading');
+        
+        // Small delay for smooth transition
+        setTimeout(() => {
+            // Update title and count
+            sectionTitle.textContent = `${categoryName} Games`;
+            gameCount.textContent = `${games.length} games`;
+            
+            // Clear existing cards
+            gamesGrid.innerHTML = '';
+            
+            if (games.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                
+                // Create new game cards
+                games.forEach(game => {
+                    const gameCard = createGameCard(game);
+                    gamesGrid.appendChild(gameCard);
+                });
+                
+                // Reinitialize card interactions for new cards
+                initializeCardInteractions();
+            }
+            
+            // Remove loading state
+            gamesSection.classList.remove('loading');
+        }, 50);
+    }
+    
+    function createGameCard(game) {
+        const article = document.createElement('article');
+        article.className = 'game-card';
+        article.setAttribute('data-category', game.category);
+        article.setAttribute('data-featured', game.featured.toString());
+        article.setAttribute('data-game-name', game.name);
+        article.setAttribute('data-game-description', game.description);
+        article.setAttribute('data-game-endpoint', game.endpoint || '');
+        
+        article.innerHTML = `
+            <div class="card-thumbnail">
+                <div class="thumbnail-placeholder" data-game-title="${game.name}">
+                    <span class="thumbnail-title">${game.name}</span>
+                </div>
+                ${game.featured ? '<div class="featured-badge">Featured</div>' : ''}
+            </div>
+            <div class="card-overlay">
+                <div class="card-content">
+                    <div class="card-meta">
+                        <span class="card-rating">⭐ ${game.rating}</span>
+                        <span class="card-plays">${game.plays} plays</span>
+                    </div>
+                </div>
+                <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
+                    <span class="heart-outline">♡</span>
+                    <span class="heart-filled">♥</span>
+                </button>
+            </div>
+        `;
+        
+        return article;
+    }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.category) {
+            switchCategory(event.state.category);
+        }
+    });
+    
+    // Make switchCategory available globally
+    window.switchCategory = switchCategory;
+    
+    // ===== INITIALIZATION =====
+    
+    function initialize() {
+        // Fix the stubborn padding issue with !important override
+        const gamingHubLayout = document.querySelector('.gaming-hub-layout');
+        if (gamingHubLayout) {
+            gamingHubLayout.style.setProperty('padding-top', '0px', 'important');
+        }
+        
+        // Adjust featured section to not be covered by search bar
+        const featuredSection = document.querySelector('.featured-section');
+        if (featuredSection) {
+            featuredSection.style.setProperty('padding-top', '70px', 'important');
+        }
+        
+        initializeSidebar();
+        updateDynamicSpacing(); // Set initial spacing
+        initializeSearch();
+        initializeResponsive();
+        initializeCardInteractions();
+        initializeNavigation();
+        initializeAccessibility();
+        initializePerformance();
+        initializeScrollBoundaries();
+        
+        // Restore last visited category if no URL parameter and not first visit
+        const urlParams = new URLSearchParams(window.location.search);
+        const lastVisited = localStorage.getItem('lastVisitedCategory');
+        if (!urlParams.get('category') && lastVisited && lastVisited !== 'Home') {
+            // Small delay to ensure all data is loaded
+            setTimeout(() => {
+                switchCategory(lastVisited);
+            }, 100);
+        }
+        
+        // Mark as ready
+        document.body.classList.add('hub-ready');
+        console.log('Gaming Hub Layout initialized successfully');
+    }
+    
+    // Start initialization
+    initialize();
+    
+    // ===== DEBUGGING HELPERS =====
+    
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.hubDebug = {
+            toggleSidebar,
+            collapseSidebar,
+            handleSearch,
+            sidebarOpen: () => sidebarOpen,
+            sidebarCollapsed: () => sidebarCollapsed,
+            version: '1.1.0'
+        };
+        console.log('Debug helpers available: window.hubDebug');
+    }
+});
+</script>
+{% endblock %}
