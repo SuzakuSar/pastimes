@@ -1,5 +1,5 @@
 {
-  "name": "summerlockIn",
+  "name": "summerlockin",
   "version": "2.0.0",
   "description": "SummerLockIn - Game Platform with Enhanced Development Tools",
   "scripts": {
@@ -23,6 +23,7 @@
     "eslint": "^8.50.0",
     "nodemon": "^3.0.0",
     "prettier": "^3.0.0",
+    "puppeteer": "^24.16.1",
     "sass": "^1.69.0",
     "vite": "^4.4.0",
     "webpack": "^5.88.0",
@@ -51,5 +52,18 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "main": "debug_page.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuzakuSar/pastimes.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SuzakuSar/pastimes/issues"
+  },
+  "homepage": "https://github.com/SuzakuSar/pastimes#readme"
 }

@@ -1,0 +1,349 @@
+{
+  "timestamp": "2025-08-12T22:39:32.340Z",
+  "testResults": [
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:17.183Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:17.641Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:18.117Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:18.539Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:24.939Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:25.323Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:39:32.336Z",
+      "centralizedState": {
+        "totalGames": 6,
+        "games": {
+          "likedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "favoritedGames": {
+            "liked": false,
+            "favorited": false
+          },
+          "gameStats": {
+            "liked": false,
+            "favorited": false
+          },
+          "activeRequests": {
+            "liked": false,
+            "favorited": false
+          },
+          "stateChangeListeners": {
+            "liked": false,
+            "favorited": false
+          },
+          "initialized": {
+            "liked": false,
+            "favorited": false
+          }
+        }
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 0,
+        "totalFavoriteButtons": 0
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    }
+  ],
+  "issues": [],
+  "solved": true,
+  "summary": {
+    "beforeRefresh": {
+      "likedButtons": 0,
+      "favoritedButtons": 0,
+      "sidebarLikes": 0,
+      "sidebarFavorites": 0,
+      "totalLikeButtons": 0,
+      "totalFavoriteButtons": 0
+    },
+    "afterRefresh": {
+      "likedButtons": 0,
+      "favoritedButtons": 0,
+      "sidebarLikes": 0,
+      "sidebarFavorites": 0,
+      "totalLikeButtons": 0,
+      "totalFavoriteButtons": 0
+    },
+    "finalCounts": {
+      "likedButtons": 0,
+      "favoritedButtons": 0,
+      "sidebarLikes": 0,
+      "sidebarFavorites": 0,
+      "totalLikeButtons": 0,
+      "totalFavoriteButtons": 0
+    },
+    "consistencyAchieved": true
+  }
+}

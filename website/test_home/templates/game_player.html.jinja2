@@ -1,0 +1,916 @@
+{% extends "base.html" %}
+
+{% block title %}{{ current_game.name }} - Gaming Hub{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('test_home.static', filename='css/test_layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('test_home.static', filename='css/game_player.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block body %}
+<div class="gaming-hub-layout">
+    <!-- Persistent Sidebar Navigation -->
+    <aside class="hub-sidebar" id="hubSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🎮</span>
+                <span class="logo-text">Gaming Hub</span>
+            </div>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+                <span class="collapse-icon">←</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav" role="navigation">
+            <!-- Primary Navigation Sections -->
+            <div class="nav-section">
+                <ul class="nav-list">
+                    {% for section in navigation_sections %}
+                    <li class="nav-item">
+                        <a href="/test-home?category={{ section.name }}" 
+                           class="nav-link"
+                           data-category="{{ section.name }}">
+                            <span class="nav-icon">{{ section.icon }}</span>
+                            <span class="nav-text">{{ section.name }}</span>
+                            <span class="nav-count">{{ section.count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Divider -->
+        <div class="sidebar-divider"></div>
+
+        <!-- Game Categories -->
+        <nav class="sidebar-categories" role="navigation">
+            <div class="nav-section">
+                <ul class="nav-list">
+                    {% for category in game_categories %}
+                    <li class="nav-item">
+                        <a href="/test-home?category={{ category.name }}" 
+                           class="nav-link"
+                           data-category="{{ category.name }}">
+                            <span class="nav-icon">{{ category.icon }}</span>
+                            <span class="nav-text">{{ category.name }}</span>
+                            <span class="nav-count">{{ category.count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Sidebar Tab (visible when collapsed) -->
+    <div class="sidebar-tab" id="sidebarTab">
+        <span class="tab-icon">🎮</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="hub-main" id="hubMain">
+        <div class="game-player-container">
+            <!-- Main Content Area -->
+            <div class="player-main-content">
+                <!-- Game Player Area -->
+                <div class="game-player-area">
+                    <div class="game-player-wrapper">
+                        <div class="game-player-placeholder">
+                            <div class="player-icon">{{ current_game.icon }}</div>
+                            <h2 class="player-title">{{ current_game.name }}</h2>
+                            <p class="player-subtitle">Game will load here</p>
+                            <div class="play-button">
+                                <span class="play-icon">▶</span>
+                                <span>Play Game</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Information Area -->
+                <div class="game-info-area">
+                    <div class="game-header">
+                        <h1 class="game-title">{{ current_game.name }}</h1>
+                        <div class="game-stats">
+                            <div class="stat-item stat-likes-container">
+                                <button class="btn-like-stat" aria-label="Like this game" data-liked="false" data-game-name="{{ current_game.name }}">
+                                    <span class="thumb-outline">👍</span>
+                                    <span class="thumb-filled">👍</span>
+                                </button>
+                                <span class="stat-value" id="currentGameLikes">{{ current_game.likes }} likes</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">🎮</span>
+                                <span class="stat-value">{{ current_game.plays }} plays</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">📁</span>
+                                <span class="stat-value">{{ current_game.category|title }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="game-actions">
+                        <button class="action-btn primary-btn" id="playGameBtn">
+                            <span class="btn-icon">▶</span>
+                            <span>Play Now</span>
+                        </button>
+                        <button class="action-btn favorite-btn" id="favoriteBtn" data-game-name="{{ current_game.name }}">
+                            <span class="btn-icon">♡</span>
+                            <span>Add to Favorites</span>
+                        </button>
+                        <button class="action-btn share-btn">
+                            <span class="btn-icon">🔗</span>
+                            <span>Share</span>
+                        </button>
+                    </div>
+
+                    <div class="game-description">
+                        <h3>About This Game</h3>
+                        <p>{{ current_game.description }}</p>
+                        
+                        <div class="game-details">
+                            <div class="detail-section">
+                                <h4>Game Controls</h4>
+                                <p>Use your keyboard and mouse to play this exciting game. Detailed controls will be shown when the game loads.</p>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>How to Play</h4>
+                                <p>This {{ current_game.category }} game offers an engaging experience that will test your skills. Master the gameplay mechanics to achieve high scores and compete with other players.</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>Game Features</h4>
+                                <ul>
+                                    <li>Engaging {{ current_game.category }} gameplay</li>
+                                    <li>Competitive scoring system</li>
+                                    <li>Responsive controls</li>
+                                    <li>Challenging difficulty progression</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Games Sidebar -->
+            <aside class="related-games-sidebar">
+                <div class="sidebar-header">
+                    <h3>Related Games</h3>
+                    <span class="category-tag">{{ current_game.category|title }}</span>
+                </div>
+                
+                <div class="related-games-list">
+                    {% for game in related_games %}
+                    <div class="related-game-item" data-game-name="{{ game.name }}" data-game-endpoint="{{ game.endpoint }}">
+                        <div class="related-game-thumbnail">
+                            <div class="thumbnail-placeholder" data-game-title="{{ game.name }}">
+                                <span class="thumbnail-title">{{ game.name }}</span>
+                            </div>
+                            {% if game.featured %}
+                            <div class="featured-badge">Featured</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="related-game-overlay">
+                            <div class="related-game-content">
+                                <div class="related-game-stats">
+                                    <span class="card-likes-container">
+                                        <button class="related-game-like" aria-label="Like this game" data-liked="false" data-game-name="{{ game.name }}">
+                                            <span class="thumb-outline">👍</span>
+                                            <span class="thumb-filled">👍</span>
+                                        </button>
+                                        <span class="likes-count">{{ game.likes }}</span>
+                                    </span>
+                                    <span class="card-plays">{{ game.plays }} plays</span>
+                                </div>
+                            </div>
+                            <button class="related-game-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="{{ game.name }}">
+                                <span class="heart-outline">♡</span>
+                                <span class="heart-filled">♥</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sidebar functionality (reuse from main layout)
+    const sidebar = document.getElementById('hubSidebar');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarTab = document.getElementById('sidebarTab');
+    const main = document.getElementById('hubMain');
+    
+    let sidebarCollapsed = false;
+    
+    // Professional-grade centralized state management system (same as main page)
+    class GameStateManager {
+        constructor() {
+            this.likedGames = new Set();
+            this.favoritedGames = new Set();
+            this.gameStats = new Map();
+            this.activeRequests = new Map();
+            this.stateChangeListeners = [];
+            this.initialized = false;
+        }
+        
+        onStateChange(callback) {
+            this.stateChangeListeners.push(callback);
+        }
+        
+        notifyStateChange(type, gameName, newState) {
+            this.stateChangeListeners.forEach(callback => {
+                callback({ type, gameName, newState, manager: this });
+            });
+        }
+        
+        async initialize() {
+            if (this.initialized) return;
+            
+            try {
+                const [likesResponse, favoritesResponse] = await Promise.all([
+                    fetch('/test-home/api/user/likes'),
+                    fetch('/test-home/api/user/favorites')
+                ]);
+                
+                const likesData = await likesResponse.json();
+                const favoritesData = await favoritesResponse.json();
+                
+                if (likesData.success) {
+                    this.likedGames = new Set(likesData.likes || []);
+                }
+                if (favoritesData.success) {
+                    this.favoritedGames = new Set(favoritesData.favorites || []);
+                }
+                
+                this.updateGameStatsFromDOM();
+                this.initialized = true;
+                this.syncAllUIElements();
+                this.updateSidebarCounts();
+                
+                console.log('Game Player GameStateManager initialized:', {
+                    likes: this.likedGames.size,
+                    favorites: this.favoritedGames.size
+                });
+                
+            } catch (error) {
+                console.error('Failed to initialize GameStateManager:', error);
+                this.initialized = true;
+            }
+        }
+        
+        updateGameStatsFromDOM() {
+            const gameElements = document.querySelectorAll('[data-game-name]');
+            gameElements.forEach(element => {
+                const gameName = element.dataset.gameName;
+                if (!this.gameStats.has(gameName)) {
+                    const likesElement = element.querySelector('.likes-count, #currentGameLikes');
+                    let likes = 0;
+                    if (likesElement) {
+                        const text = likesElement.textContent;
+                        likes = parseInt(text.match(/\d+/)?.[0]) || 0;
+                    }
+                    this.gameStats.set(gameName, { likes });
+                }
+            });
+        }
+        
+        isLiked(gameName) {
+            return this.likedGames.has(gameName);
+        }
+        
+        isFavorited(gameName) {
+            return this.favoritedGames.has(gameName);
+        }
+        
+        getGameLikes(gameName) {
+            return this.gameStats.get(gameName)?.likes || 0;
+        }
+        
+        async toggleLike(gameName) {
+            const requestKey = `like_${gameName}`;
+            if (this.activeRequests.has(requestKey)) {
+                console.log('Like request already in progress for:', gameName);
+                return null;
+            }
+            
+            const isCurrentlyLiked = this.isLiked(gameName);
+            
+            // Optimistic update
+            if (isCurrentlyLiked) {
+                this.likedGames.delete(gameName);
+            } else {
+                this.likedGames.add(gameName);
+            }
+            
+            this.notifyStateChange('like', gameName, !isCurrentlyLiked);
+            this.updateSidebarCounts();
+            
+            const requestPromise = fetch('/test-home/api/likes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, action: 'toggle' })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const currentStats = this.gameStats.get(gameName) || { likes: 0 };
+                    currentStats.likes = data.game_likes;
+                    this.gameStats.set(gameName, currentStats);
+                    
+                    const serverLiked = data.is_liked;
+                    const clientLiked = this.isLiked(gameName);
+                    
+                    if (serverLiked !== clientLiked) {
+                        console.warn('State mismatch detected, correcting:', { gameName, serverLiked, clientLiked });
+                        if (serverLiked) {
+                            this.likedGames.add(gameName);
+                        } else {
+                            this.likedGames.delete(gameName);
+                        }
+                        this.notifyStateChange('like', gameName, serverLiked);
+                    }
+                    
+                    this.syncGameElements(gameName);
+                    this.updateSidebarCounts();
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Server error');
+                }
+            })
+            .catch(error => {
+                console.error('Like request failed, reverting:', error);
+                if (isCurrentlyLiked) {
+                    this.likedGames.add(gameName);
+                } else {
+                    this.likedGames.delete(gameName);
+                }
+                this.notifyStateChange('like', gameName, isCurrentlyLiked);
+                this.updateSidebarCounts();
+                throw error;
+            })
+            .finally(() => {
+                this.activeRequests.delete(requestKey);
+            });
+            
+            this.activeRequests.set(requestKey, requestPromise);
+            return requestPromise;
+        }
+        
+        async toggleFavorite(gameName) {
+            const requestKey = `favorite_${gameName}`;
+            if (this.activeRequests.has(requestKey)) {
+                console.log('Favorite request already in progress for:', gameName);
+                return null;
+            }
+            
+            const isCurrentlyFavorited = this.isFavorited(gameName);
+            
+            // Optimistic update
+            if (isCurrentlyFavorited) {
+                this.favoritedGames.delete(gameName);
+            } else {
+                this.favoritedGames.add(gameName);
+            }
+            
+            this.notifyStateChange('favorite', gameName, !isCurrentlyFavorited);
+            this.updateSidebarCounts();
+            
+            const requestPromise = fetch('/test-home/api/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, action: 'toggle' })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const serverFavorited = data.is_favorited;
+                    const clientFavorited = this.isFavorited(gameName);
+                    
+                    if (serverFavorited !== clientFavorited) {
+                        console.warn('Favorite state mismatch, correcting:', { gameName, serverFavorited, clientFavorited });
+                        if (serverFavorited) {
+                            this.favoritedGames.add(gameName);
+                        } else {
+                            this.favoritedGames.delete(gameName);
+                        }
+                        this.notifyStateChange('favorite', gameName, serverFavorited);
+                    }
+                    
+                    this.syncGameElements(gameName);
+                    this.updateSidebarCounts();
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Server error');
+                }
+            })
+            .catch(error => {
+                console.error('Favorite request failed, reverting:', error);
+                if (isCurrentlyFavorited) {
+                    this.favoritedGames.add(gameName);
+                } else {
+                    this.favoritedGames.delete(gameName);
+                }
+                this.notifyStateChange('favorite', gameName, isCurrentlyFavorited);
+                this.updateSidebarCounts();
+                throw error;
+            })
+            .finally(() => {
+                this.activeRequests.delete(requestKey);
+            });
+            
+            this.activeRequests.set(requestKey, requestPromise);
+            return requestPromise;
+        }
+        
+        syncGameElements(gameName) {
+            const isLiked = this.isLiked(gameName);
+            const isFavorited = this.isFavorited(gameName);
+            const gameStats = this.gameStats.get(gameName) || { likes: 0 };
+            
+            // Update like buttons
+            const likeButtons = document.querySelectorAll(`[data-game-name="${gameName}"] .btn-like-stat, .btn-like-stat[data-game-name="${gameName}"], [data-game-name="${gameName}"] .related-game-like, .related-game-like[data-game-name="${gameName}"]`);
+            likeButtons.forEach(button => {
+                button.setAttribute('data-liked', isLiked.toString());
+                button.dataset.locked = 'false';
+                button.style.pointerEvents = '';
+                button.style.opacity = '';
+            });
+            
+            // Update favorite buttons  
+            const favoriteButtons = document.querySelectorAll(`#favoriteBtn[data-game-name="${gameName}"], [data-game-name="${gameName}"] .related-game-favorite, .related-game-favorite[data-game-name="${gameName}"]`);
+            favoriteButtons.forEach(button => {
+                button.setAttribute('data-favorited', isFavorited.toString());
+                button.dataset.locked = 'false';
+                button.style.pointerEvents = '';
+                button.style.opacity = '';
+                
+                // Update main favorite button text and icon
+                if (button.id === 'favoriteBtn') {
+                    const icon = button.querySelector('.btn-icon');
+                    const text = button.querySelector('span:last-child');
+                    if (icon && text) {
+                        if (isFavorited) {
+                            icon.textContent = '♥';
+                            text.textContent = 'Remove from Favorites';
+                            button.classList.add('favorited');
+                        } else {
+                            icon.textContent = '♡';
+                            text.textContent = 'Add to Favorites';
+                            button.classList.remove('favorited');
+                        }
+                    }
+                }
+            });
+            
+            // Update game card and related game item data-favorited attribute for CSS styling
+            const gameCards = document.querySelectorAll(`[data-game-name="${gameName}"]`);
+            gameCards.forEach(card => {
+                card.setAttribute('data-favorited', isFavorited.toString());
+            });
+            
+            // Update like counts
+            const likesDisplay = document.getElementById('currentGameLikes');
+            if (likesDisplay && gameStats.likes !== undefined) {
+                likesDisplay.textContent = `${gameStats.likes} likes`;
+            }
+            
+            // Update related game like counts
+            const relatedLikeCounts = document.querySelectorAll(`[data-game-name="${gameName}"] .likes-count`);
+            relatedLikeCounts.forEach(element => {
+                element.textContent = gameStats.likes;
+            });
+        }
+        
+        syncAllUIElements() {
+            const gameNames = new Set();
+            document.querySelectorAll('[data-game-name]').forEach(element => {
+                gameNames.add(element.dataset.gameName);
+            });
+            
+            gameNames.forEach(gameName => {
+                this.syncGameElements(gameName);
+            });
+        }
+        
+        updateSidebarCounts() {
+            const likedCount = document.querySelector('[data-category="Liked"] .nav-count');
+            const favoritedCount = document.querySelector('[data-category="Favorited"] .nav-count');
+            
+            if (likedCount) likedCount.textContent = this.likedGames.size;
+            if (favoritedCount) favoritedCount.textContent = this.favoritedGames.size;
+        }
+        
+        validateConsistency() {
+            const sidebarLikes = parseInt(document.querySelector('[data-category="Liked"] .nav-count')?.textContent || '0');
+            const sidebarFavorites = parseInt(document.querySelector('[data-category="Favorited"] .nav-count')?.textContent || '0');
+            
+            if (sidebarLikes !== this.likedGames.size || sidebarFavorites !== this.favoritedGames.size) {
+                console.error('Game Player state inconsistency detected!', {
+                    sidebar: { likes: sidebarLikes, favorites: sidebarFavorites },
+                    actual: { likes: this.likedGames.size, favorites: this.favoritedGames.size }
+                });
+                this.updateSidebarCounts();
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    // Create global state manager instance for game player
+    const gameState = new GameStateManager();
+    
+    // Legacy compatibility
+    let memoryLikesCount = 0;
+    let memoryFavoritesCount = 0;
+    
+    // Request tracking to prevent race conditions (kept for compatibility)
+    const activeRequests = new Map();
+    
+    function isRequestActive(gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        return activeRequests.has(key);
+    }
+    
+    function setRequestActive(gameName, requestType, promise) {
+        const key = `${gameName}_${requestType}`;
+        activeRequests.set(key, promise);
+        promise.finally(() => {
+            activeRequests.delete(key);
+        });
+        return promise;
+    }
+    
+    function isButtonLocked(buttonElement) {
+        return buttonElement.dataset.locked === 'true';
+    }
+    
+    function lockButton(buttonElement, gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        buttonElement.dataset.locked = 'true';
+        buttonElement.style.pointerEvents = 'none';
+        buttonElement.style.opacity = '0.6';
+    }
+    
+    function unlockButton(buttonElement, gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        buttonElement.dataset.locked = 'false';
+        buttonElement.style.pointerEvents = '';
+        buttonElement.style.opacity = '';
+    }
+    
+    // Initialize sidebar counts from database (game player version)
+    function initializeSidebarCounts() {
+        // Get likes count from database
+        fetch('/test-home/api/user/likes')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    memoryLikesCount = data.count;
+                    updateSidebarFromMemory();
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user likes count:', error);
+                memoryLikesCount = 0;
+                updateSidebarFromMemory();
+            });
+        
+        // Get favorites count from database
+        fetch('/test-home/api/user/favorites')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    memoryFavoritesCount = data.count;
+                    updateSidebarFromMemory();
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user favorites count:', error);
+                memoryFavoritesCount = 0;
+                updateSidebarFromMemory();
+            });
+    }
+    
+    // Update sidebar counts using memory tracking
+    function updateSidebarFromMemory() {
+        const favoritedCount = document.querySelector('[data-category="Favorited"] .nav-count');
+        const likedCount = document.querySelector('[data-category="Liked"] .nav-count');
+        
+        if (favoritedCount) favoritedCount.textContent = memoryFavoritesCount;
+        if (likedCount) likedCount.textContent = memoryLikesCount;
+    }
+    
+    // Update sidebar counts with provided data (used for fresh API response data)
+    function updateSidebarCountsWithData(userLikes, userFavorites) {
+        const favoritedCount = document.querySelector('[data-category="Favorited"] .nav-count');
+        const likedCount = document.querySelector('[data-category="Liked"] .nav-count');
+        
+        if (favoritedCount) favoritedCount.textContent = userFavorites.length;
+        if (likedCount) likedCount.textContent = userLikes.length;
+    }
+    
+    // Database-only validation - removed cookie dependency
+    function validateStateConsistency() {
+        // Reset memory counts if they seem corrupted 
+        if (memoryLikesCount < 0) {
+            console.warn('Detected corrupted likes count, resetting to 0');
+            memoryLikesCount = 0;
+        }
+        
+        if (memoryFavoritesCount < 0) {
+            console.warn('Detected corrupted favorites count, resetting to 0');
+            memoryFavoritesCount = 0;
+        }
+        
+        // Update sidebar with validated counts
+        updateSidebarFromMemory();
+    }
+
+    // Initialize like and favorite button states from database (game player version)
+    function initializeLikeStates() {
+        // Get likes from database
+        fetch('/test-home/api/user/likes')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const userLikes = data.likes || [];
+                    memoryLikesCount = data.count;
+                    
+                    // Initialize stat like button
+                    const statLikeBtn = document.querySelector('.btn-like-stat');
+                    if (statLikeBtn) {
+                        const gameName = statLikeBtn.getAttribute('data-game-name');
+                        const isLiked = userLikes.includes(gameName);
+                        statLikeBtn.setAttribute('data-liked', isLiked.toString());
+                    }
+                    
+                    // Initialize related game like buttons
+                    const relatedLikeButtons = document.querySelectorAll('.related-game-like');
+                    relatedLikeButtons.forEach(button => {
+                        const gameName = button.getAttribute('data-game-name');
+                        const isLiked = userLikes.includes(gameName);
+                        button.setAttribute('data-liked', isLiked.toString());
+                    });
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user likes:', error);
+                memoryLikesCount = 0;
+            });
+    }
+    
+    function initializeFavoriteStates() {
+        // Get favorites from database
+        fetch('/test-home/api/user/favorites')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const userFavorites = data.favorites || [];
+                    memoryFavoritesCount = data.count;
+                    
+                    // Initialize favorite button
+                    const favoriteBtn = document.getElementById('favoriteBtn');
+                    if (favoriteBtn) {
+                        const gameName = favoriteBtn.getAttribute('data-game-name');
+                        const isFavorited = userFavorites.includes(gameName);
+                        
+                        if (isFavorited) {
+                            const icon = favoriteBtn.querySelector('.btn-icon');
+                            const text = favoriteBtn.querySelector('span:last-child');
+                            if (icon) icon.textContent = '♥';
+                            if (text) text.textContent = 'Remove from Favorites';
+                            favoriteBtn.classList.add('favorited');
+                        }
+                    }
+                    
+                    // Initialize related game favorite buttons
+                    const relatedFavoriteButtons = document.querySelectorAll('.related-game-favorite');
+                    relatedFavoriteButtons.forEach(button => {
+                        const gameName = button.getAttribute('data-game-name');
+                        const isFavorited = userFavorites.includes(gameName);
+                        button.setAttribute('data-favorited', isFavorited.toString());
+                    });
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user favorites:', error);
+                memoryFavoritesCount = 0;
+            });
+    }
+    
+    function updateSidebarState() {
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            main.classList.add('sidebar-collapsed');
+            if (sidebarTab) {
+                sidebarTab.classList.add('visible');
+            }
+            if (sidebarCollapseBtn) {
+                sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '→';
+            }
+        } else {
+            sidebar.classList.remove('collapsed');
+            main.classList.remove('sidebar-collapsed');
+            if (sidebarTab) {
+                sidebarTab.classList.remove('visible');
+            }
+            if (sidebarCollapseBtn) {
+                sidebarCollapseBtn.querySelector('.collapse-icon').textContent = '←';
+            }
+        }
+    }
+    
+    if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.addEventListener('click', function() {
+            sidebarCollapsed = !sidebarCollapsed;
+            updateSidebarState();
+        });
+    }
+    
+    if (sidebarTab) {
+        sidebarTab.addEventListener('click', function() {
+            if (sidebarCollapsed) {
+                sidebarCollapsed = false;
+                updateSidebarState();
+            }
+        });
+    }
+    
+    // Handle related game clicks
+    const relatedGameItems = document.querySelectorAll('.related-game-item');
+    relatedGameItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const gameName = this.dataset.gameName;
+            const gameUrl = gameName.toLowerCase().replace(/\s+/g, '-');
+            window.location.href = `/test-home/game/${gameUrl}`;
+        });
+    });
+    
+    // Handle favorite button with centralized state management
+    const favoriteBtn = document.getElementById('favoriteBtn');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const gameName = this.dataset.gameName;
+            
+            // Use centralized state manager
+            try {
+                await gameState.toggleFavorite(gameName);
+                
+                // Animation feedback
+                this.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+                
+            } catch (error) {
+                console.error('Favorite toggle failed:', error);
+            }
+            
+            return false;
+        });
+    }
+    
+    // Handle stat like button with centralized state management
+    const statLikeBtn = document.querySelector('.btn-like-stat');
+    if (statLikeBtn) {
+        statLikeBtn.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const gameName = this.dataset.gameName;
+            
+            // Use centralized state manager
+            try {
+                await gameState.toggleLike(gameName);
+                
+                // Animation feedback
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+                
+            } catch (error) {
+                console.error('Like toggle failed:', error);
+            }
+            
+            return false;
+        });
+    }
+    
+    // Handle related game like buttons with centralized state management
+    const relatedLikeButtons = document.querySelectorAll('.related-game-like');
+    relatedLikeButtons.forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            
+            const gameName = this.getAttribute('data-game-name');
+            
+            // Use centralized state manager
+            try {
+                await gameState.toggleLike(gameName);
+                
+                // Animation feedback
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+                
+            } catch (error) {
+                console.error('Related game like toggle failed:', error);
+            }
+            
+            return false;
+        });
+    });
+    
+    // Handle related game favorite buttons with centralized state management
+    const relatedFavoriteButtons = document.querySelectorAll('.related-game-favorite');
+    relatedFavoriteButtons.forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.stopPropagation(); // Prevent navigation to game
+            const gameName = this.getAttribute('data-game-name');
+            
+            // Use centralized state manager
+            try {
+                await gameState.toggleFavorite(gameName);
+                
+                // Animation feedback
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+                
+            } catch (error) {
+                console.error('Related game favorite toggle failed:', error);
+            }
+        });
+    });
+    
+    // Handle play button clicks
+    const playButtons = document.querySelectorAll('.play-button, #playGameBtn');
+    playButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert('Game integration coming soon! This will load the actual game.');
+        });
+    });
+    
+    // Enhanced state validation using centralized system
+    function validateStateConsistency() {
+        if (gameState.initialized) {
+            return gameState.validateConsistency();
+        }
+        
+        // Fallback for legacy compatibility
+        if (memoryLikesCount < 0) {
+            console.warn('Detected corrupted likes count, resetting to 0');
+            memoryLikesCount = 0;
+        }
+        
+        if (memoryFavoritesCount < 0) {
+            console.warn('Detected corrupted favorites count, resetting to 0');
+            memoryFavoritesCount = 0;
+        }
+        
+        updateSidebarFromMemory();
+        return true;
+    }
+    
+    // Periodic state validation to prevent drift during long sessions
+    setInterval(() => {
+        validateStateConsistency();
+    }, 10000); // Check every 10 seconds
+    
+    // Debug tools for development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.gamePlayerDebug = {
+            gameState,
+            validateConsistency: validateStateConsistency,
+            version: '2.0.0'
+        };
+        console.log('Game Player debug helpers available: window.gamePlayerDebug');
+    }
+    
+    // Initialize the centralized state management system
+    gameState.initialize();
+});
+</script>
+{% endblock %}

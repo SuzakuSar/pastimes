@@ -1,0 +1,48 @@
+{
+  "step1": {
+    "status": "passed",
+    "details": {
+      "gameCards": 10,
+      "heartButtons": 0,
+      "favoritedBtnExists": false,
+      "likedBtnExists": false,
+      "categoryFilters": 0
+    }
+  },
+  "step2": {
+    "status": "passed",
+    "details": {
+      "heartButtonsFound": 10,
+      "buttonsClicked": 3,
+      "favoritedGames": [
+        "game-0",
+        "game-1",
+        "game-0"
+      ]
+    }
+  },
+  "step3": {
+    "status": "failed",
+    "error": "Favorited category button not found"
+  },
+  "step4": {
+    "status": "failed",
+    "error": "Assignment to constant variable."
+  },
+  "step5": {
+    "status": "failed",
+    "error": "Assignment to constant variable."
+  },
+  "step6": {
+    "status": "skipped",
+    "details": {
+      "reason": "No like buttons found"
+    }
+  },
+  "step7": {
+    "status": "skipped",
+    "details": {
+      "reason": "Category buttons not found for switching test"
+    }
+  }
+}

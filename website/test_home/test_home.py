@@ -14,6 +14,94 @@ from flask import Blueprint, render_template, jsonify, request, session, make_re
 import datetime
 import json
 from collections import defaultdict
+import urllib.parse
+from website.leaderboard.leaderboard import (
+    get_user_identifier, toggle_like, toggle_favorite, 
+    get_user_likes, get_user_favorites, get_game_stats
+)
+
+class GameCard:
+    """Reusable game card component class"""
+    def __init__(self, game_data, card_options=None):
+        self.game_data = game_data
+        self.card_options = card_options or {
+            'show_likes': True,
+            'show_plays': True,
+            'show_rating': False,
+            'show_featured_badge': True,
+            'show_category': False,
+            'card_size': 'standard',  # 'standard', 'large', 'compact'
+            'clickable': True,
+            'show_overlay': True,
+            'css_classes': []  # Additional CSS classes
+        }
+    
+    def render_html(self):
+        """Generate HTML string for the card"""
+        css_classes = ['game-card'] + self.card_options.get('css_classes', [])
+        
+        # Build card meta content
+        meta_items = []
+        if self.card_options.get('show_likes', True):
+            meta_items.append(f'''
+                <span class="card-likes-container">
+                    <button class="btn-like" aria-label="Like this game" data-liked="false" data-game-name="{self.game_data['name']}">
+                        <span class="thumb-outline">👍</span>
+                        <span class="thumb-filled">👍</span>
+                    </button>
+                    <span class="likes-count">{self.game_data['likes']}</span>
+                </span>
+            ''')
+        
+        if self.card_options.get('show_plays', True):
+            meta_items.append(f'<span class="card-plays">{self.game_data["plays"]} plays</span>')
+        
+        if self.card_options.get('show_rating', False):
+            meta_items.append(f'<span class="card-rating">⭐ {self.game_data.get("rating", "N/A")}</span>')
+        
+        if self.card_options.get('show_category', False):
+            meta_items.append(f'<span class="card-category">{self.game_data["category"].title()}</span>')
+        
+        meta_html = ''.join(meta_items)
+        
+        # Build featured badge
+        featured_badge = ''
+        if self.card_options.get('show_featured_badge', True) and self.game_data.get('featured', False):
+            featured_badge = '<div class="featured-badge">Featured</div>'
+        
+        # Build overlay
+        overlay_html = ''
+        if self.card_options.get('show_overlay', True):
+            overlay_html = f'''
+                <div class="card-overlay">
+                    <div class="card-content">
+                        <div class="card-meta">
+                            {meta_html}
+                        </div>
+                    </div>
+                    <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="{self.game_data['name']}">
+                        <span class="heart-outline">♡</span>
+                        <span class="heart-filled">♥</span>
+                    </button>
+                </div>
+            '''
+        
+        return f'''
+            <article class="{' '.join(css_classes)}" 
+                     data-category="{self.game_data['category']}" 
+                     data-featured="{str(self.game_data.get('featured', False)).lower()}" 
+                     data-game-name="{self.game_data['name']}" 
+                     data-game-description="{self.game_data.get('description', '')}" 
+                     data-game-endpoint="{self.game_data.get('endpoint', '')}">
+                <div class="card-thumbnail">
+                    <div class="thumbnail-placeholder" data-game-title="{self.game_data['name']}">
+                        <span class="thumbnail-title">{self.game_data['name']}</span>
+                    </div>
+                    {featured_badge}
+                </div>
+                {overlay_html}
+            </article>
+        '''
 
 class CategoryRow:
     """Blueprint class for category rows in the gaming hub"""
@@ -72,23 +160,41 @@ def get_real_games_data():
             'endpoint': game['endpoint'],
             'icon': game['icon'],
             'thumbnail': None,  # Will be added when you have actual images
-            'rating': get_game_rating(game['name']),
+            'likes': get_game_likes(game['name']),
             'plays': get_game_play_count(game['name']),
             'featured': is_game_featured(game['name']),
             'difficulty': game.get('difficulty', 3),
-            'tags': game.get('tags', [])
+            'tags': game.get('tags', []),
+            'rating': get_game_rating(game['name'])
         })
     return games
 
-def get_game_rating(game_name):
-    """Get game rating (mock for now, could be from database later)"""
-    ratings = {
-        'Time Predict Challenge': 4.6,
-        'React Time Challenge': 4.7,
-        'Cosmic Dino Runner': 4.8,
-        'Space Invaders': 4.9
-    }
-    return ratings.get(game_name, 4.5)
+def get_game_likes(game_name):
+    """Get game like count from database"""
+    try:
+        stats = get_game_stats(game_name)
+        likes = stats.get('likes', 0)
+        
+        # If no likes in database, return default counts for existing games
+        if likes == 0:
+            default_likes = {
+                'Time Predict Challenge': 142,
+                'React Time Challenge': 298,
+                'Cosmic Dino Runner': 387,
+                'Space Invaders': 521
+            }
+            return default_likes.get(game_name, 45)
+        return likes
+    except Exception as e:
+        print(f"Error getting game likes from database: {e}")
+        # Fallback to default counts
+        default_likes = {
+            'Time Predict Challenge': 142,
+            'React Time Challenge': 298,
+            'Cosmic Dino Runner': 387,
+            'Space Invaders': 521
+        }
+        return default_likes.get(game_name, 45)
 
 def get_game_play_count(game_name):
     """Get game play count (mock for now, could be from database later)"""
@@ -100,52 +206,55 @@ def get_game_play_count(game_name):
     }
     return plays.get(game_name, 5000)
 
+def get_game_rating(game_name):
+    """Get game rating (mock for now, could be from database later)"""
+    ratings = {
+        'Time Predict Challenge': 4.2,
+        'React Time Challenge': 4.5,
+        'Cosmic Dino Runner': 4.7,
+        'Space Invaders': 4.8
+    }
+    return ratings.get(game_name, 4.0)
+
 def is_game_featured(game_name):
     """Determine if game is featured"""
     featured_games = ['Cosmic Dino Runner', 'Space Invaders']
     return game_name in featured_games
 
-# Cookie management functions
-def get_user_favorites():
-    """Get user's favorite games from cookies"""
-    favorites_cookie = request.cookies.get('user_favorites')
-    if favorites_cookie:
-        try:
-            return json.loads(favorites_cookie)
-        except json.JSONDecodeError:
-            return []
-    return []
+# User interaction management functions
+def get_user_likes_test():
+    """Get user's liked games from database"""
+    try:
+        user_id = get_user_identifier(request)
+        return get_user_likes(user_id)
+    except Exception as e:
+        print(f"Error getting user likes: {e}")
+        return []
+
+def get_user_favorites_test():
+    """Get user's favorite games from database"""
+    try:
+        user_id = get_user_identifier(request)
+        return get_user_favorites(user_id)
+    except Exception as e:
+        print(f"Error getting user favorites: {e}")
+        return []
 
 def get_recently_played():
-    """Get recently played games from cookies"""
-    recent_cookie = request.cookies.get('recently_played')
-    if recent_cookie:
-        try:
-            return json.loads(recent_cookie)
-        except json.JSONDecodeError:
-            return []
+    """Get recently played games - placeholder for future database implementation"""
+    # TODO: Implement database-backed recently played tracking
     return []
 
 def add_to_recently_played(game_name):
-    """Add game to recently played list"""
-    recent_games = get_recently_played()
-    
-    # Remove if already exists to avoid duplicates
-    if game_name in recent_games:
-        recent_games.remove(game_name)
-    
-    # Add to front of list
-    recent_games.insert(0, game_name)
-    
-    # Keep only last 10 games
-    recent_games = recent_games[:10]
-    
-    return recent_games
+    """Add game to recently played list - placeholder for future database implementation"""
+    # TODO: Implement database-backed recently played tracking
+    return []
 
 def get_navigation_sections():
     """Get navigation sections with real counts"""
     games_data = get_real_games_data()
-    favorites = get_user_favorites()
+    favorites = get_user_favorites_test()
+    likes = get_user_likes_test()
     recent_games = get_recently_played()
     featured_count = len([g for g in games_data if g['featured']])
     
@@ -153,6 +262,7 @@ def get_navigation_sections():
         {'name': 'Home', 'icon': '🏠', 'count': len(games_data)},
         {'name': 'Featured', 'icon': '⭐', 'count': featured_count},
         {'name': 'Favorited', 'icon': '❤️', 'count': len(favorites)},
+        {'name': 'Liked', 'icon': '👍', 'count': len(likes)},
         {'name': 'Recently Played', 'icon': '🕒', 'count': len(recent_games)}
     ]
 
@@ -181,6 +291,19 @@ def get_game_categories():
         })
     
     return sorted(categories, key=lambda x: x['count'], reverse=True)
+
+# Helper functions for GameCard class
+def create_game_card(game_data, card_options=None):
+    """Factory function to create a GameCard instance"""
+    return GameCard(game_data, card_options)
+
+def render_game_cards(games_list, card_options=None):
+    """Render multiple game cards as HTML"""
+    cards_html = []
+    for game in games_list:
+        card = GameCard(game, card_options)
+        cards_html.append(card.render_html())
+    return '\n'.join(cards_html)
 
 def get_home_category_rows():
     """Get category rows based on real game data"""
@@ -248,8 +371,11 @@ def index():
         if selected_category == 'Featured':
             games = [g for g in games if g.get('featured', False)]
         elif selected_category == 'Favorited':
-            favorites = get_user_favorites()
+            favorites = get_user_favorites_test()
             games = [g for g in games if g['name'] in favorites]
+        elif selected_category == 'Liked':
+            likes = get_user_likes_test()
+            games = [g for g in games if g['name'] in likes]
         elif selected_category == 'Recently Played':
             recent = get_recently_played()
             games = [g for g in games if g['name'] in recent]
@@ -268,7 +394,11 @@ def index():
                          selected_category=selected_category,
                          search_query=search_query,
                          hero_game=hero_game,
-                         total_games=len(games_data))
+                         total_games=len(games_data),
+                         # Make GameCard utilities available in templates
+                         GameCard=GameCard,
+                         create_game_card=create_game_card,
+                         render_game_cards=render_game_cards)
 
 @test_home.route('/api/search')
 def api_search():
@@ -316,7 +446,7 @@ def api_categories():
 @test_home.route('/api/favorites', methods=['POST'])
 def api_add_favorite():
     """
-    API endpoint to add/remove game from favorites
+    API endpoint to add/remove game from favorites using database
     """
     data = request.get_json()
     game_name = data.get('game_name')
@@ -325,32 +455,95 @@ def api_add_favorite():
     if not game_name:
         return jsonify({'success': False, 'error': 'Game name required'}), 400
     
-    favorites = get_user_favorites()
-    
-    if action == 'add' and game_name not in favorites:
-        favorites.append(game_name)
-    elif action == 'remove' and game_name in favorites:
-        favorites.remove(game_name)
-    elif action == 'toggle':
-        if game_name in favorites:
-            favorites.remove(game_name)
+    try:
+        user_id = get_user_identifier(request)
+        ip_address = request.remote_addr
+        
+        # Use the database function to toggle favorite
+        result = toggle_favorite(game_name, user_id, ip_address)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'is_favorited': result['is_favorited'],
+                'count': result['user_favorite_count'],
+                'action': result['action']
+            })
         else:
-            favorites.append(game_name)
+            return jsonify({'success': False, 'error': result.get('error', 'Unknown error')}), 500
+            
+    except Exception as e:
+        print(f"Error in favorites API: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@test_home.route('/api/likes', methods=['POST'])
+def api_handle_likes():
+    """
+    API endpoint to handle game likes using database
+    """
+    data = request.get_json()
+    game_name = data.get('game_name')
+    action = data.get('action', 'toggle')  # 'like', 'unlike', 'toggle'
     
-    response = make_response(jsonify({
-        'success': True,
-        'favorites': favorites,
-        'count': len(favorites)
-    }))
+    if not game_name:
+        return jsonify({'success': False, 'error': 'Game name required'}), 400
     
-    # Set cookie for 1 year
-    response.set_cookie('user_favorites', json.dumps(favorites), max_age=365*24*60*60)
-    return response
+    try:
+        user_id = get_user_identifier(request)
+        ip_address = request.remote_addr
+        
+        # Use the database function to toggle like
+        result = toggle_like(game_name, user_id, ip_address)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'is_liked': result['is_liked'],
+                'game_likes': result['like_count'],
+                'count': result['user_like_count'],
+                'action': result['action']
+            })
+        else:
+            return jsonify({'success': False, 'error': result.get('error', 'Unknown error')}), 500
+            
+    except Exception as e:
+        print(f"Error in likes API: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@test_home.route('/api/user/likes', methods=['GET'])
+def api_get_user_likes():
+    """Get user's liked games"""
+    try:
+        user_id = get_user_identifier(request)
+        likes = get_user_likes(user_id)
+        return jsonify({
+            'success': True,
+            'likes': likes,
+            'count': len(likes)
+        })
+    except Exception as e:
+        print(f"Error getting user likes: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@test_home.route('/api/user/favorites', methods=['GET'])
+def api_get_user_favorites():
+    """Get user's favorite games"""
+    try:
+        user_id = get_user_identifier(request)
+        favorites = get_user_favorites(user_id)
+        return jsonify({
+            'success': True,
+            'favorites': favorites,
+            'count': len(favorites)
+        })
+    except Exception as e:
+        print(f"Error getting user favorites: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @test_home.route('/api/recently-played', methods=['POST'])
 def api_add_recently_played():
     """
-    API endpoint to add game to recently played
+    API endpoint to add game to recently played - placeholder for future database implementation
     """
     data = request.get_json()
     game_name = data.get('game_name')
@@ -358,14 +551,55 @@ def api_add_recently_played():
     if not game_name:
         return jsonify({'success': False, 'error': 'Game name required'}), 400
     
-    recent_games = add_to_recently_played(game_name)
+    # TODO: Implement database-backed recently played tracking
+    recent_games = []
     
-    response = make_response(jsonify({
+    return jsonify({
         'success': True,
         'recently_played': recent_games,
         'count': len(recent_games)
-    }))
+    })
+
+@test_home.route('/game/<game_name>')
+def game_player(game_name):
+    """
+    YouTube-style game player interface
+    """
+    games_data = get_real_games_data()
     
-    # Set cookie for 30 days
-    response.set_cookie('recently_played', json.dumps(recent_games), max_age=30*24*60*60)
-    return response
+    # Find the requested game
+    current_game = None
+    for game in games_data:
+        if game['name'].lower().replace(' ', '-') == game_name.lower() or game['name'] == game_name:
+            current_game = game
+            break
+    
+    if not current_game:
+        # Game not found, redirect to home
+        return render_template('test_home.html.jinja2',
+                             games=games_data,
+                             category_rows=[],
+                             navigation_sections=get_navigation_sections(),
+                             game_categories=get_game_categories(),
+                             selected_category='Home',
+                             search_query='',
+                             hero_game=games_data[0] if games_data else None,
+                             total_games=len(games_data))
+    
+    # Get related games (same category, excluding current game)
+    related_games = [g for g in games_data if g['category'] == current_game['category'] and g['name'] != current_game['name']]
+    
+    # If not enough related games, add games from other categories
+    if len(related_games) < 6:
+        other_games = [g for g in games_data if g['name'] != current_game['name'] and g not in related_games]
+        related_games.extend(other_games[:6-len(related_games)])
+    
+    return render_template('game_player.html.jinja2',
+                         current_game=current_game,
+                         related_games=related_games,
+                         navigation_sections=get_navigation_sections(),
+                         game_categories=get_game_categories(),
+                         # Make GameCard utilities available in templates
+                         GameCard=GameCard,
+                         create_game_card=create_game_card,
+                         render_game_cards=render_game_cards)

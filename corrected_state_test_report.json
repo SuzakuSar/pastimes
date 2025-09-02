@@ -1,0 +1,356 @@
+{
+  "timestamp": "2025-08-12T22:41:58.553Z",
+  "testResults": [
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:10.891Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 0,
+        "favoritedGames": 0,
+        "initialized": true,
+        "likedGamesList": [],
+        "favoritedGamesList": []
+      },
+      "visualCounts": {
+        "likedButtons": 0,
+        "favoritedButtons": 0,
+        "sidebarLikes": 0,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": true,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:14.105Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 0,
+        "initialized": true,
+        "likedGamesList": [
+          "Cosmic Dino Runner"
+        ],
+        "favoritedGamesList": []
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 0,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:17.195Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 2,
+        "favoritedGames": 0,
+        "initialized": true,
+        "likedGamesList": [
+          "Cosmic Dino Runner",
+          "Space Invaders"
+        ],
+        "favoritedGamesList": []
+      },
+      "visualCounts": {
+        "likedButtons": 6,
+        "favoritedButtons": 0,
+        "sidebarLikes": 2,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:20.370Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 0,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": []
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 0,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 0,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": true
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:23.548Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 1,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "Space Invaders"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 3,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 1,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:26.660Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 2,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "Space Invaders",
+          "Time Predict Challenge"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 5,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 2,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:29.772Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 3,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "Space Invaders",
+          "Time Predict Challenge",
+          "React Time Challenge"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 7,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 3,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:30.180Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 3,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "Space Invaders",
+          "Time Predict Challenge",
+          "React Time Challenge"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 7,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 3,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:36.692Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 3,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "React Time Challenge",
+          "Time Predict Challenge",
+          "Space Invaders"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 7,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 3,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:51.581Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 3,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "React Time Challenge",
+          "Time Predict Challenge",
+          "Space Invaders"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 7,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 3,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    },
+    {
+      "url": "http://localhost:5000/test-home/",
+      "timestamp": "2025-08-12T22:41:58.546Z",
+      "centralizedState": {
+        "totalGames": 4,
+        "likedGames": 1,
+        "favoritedGames": 3,
+        "initialized": true,
+        "likedGamesList": [
+          "Space Invaders"
+        ],
+        "favoritedGamesList": [
+          "React Time Challenge",
+          "Time Predict Challenge",
+          "Space Invaders"
+        ]
+      },
+      "visualCounts": {
+        "likedButtons": 3,
+        "favoritedButtons": 7,
+        "sidebarLikes": 1,
+        "sidebarFavorites": 3,
+        "totalLikeButtons": 10,
+        "totalFavoriteButtons": 10
+      },
+      "consistency": {
+        "likesMatch": false,
+        "favoritesMatch": false
+      }
+    }
+  ],
+  "issues": [
+    "MAJOR ISSUE: Sidebar likes (1) != visual liked buttons (3) - THIS WAS THE ORIGINAL PROBLEM!",
+    "MAJOR ISSUE: Sidebar favorites (3) != visual favorited buttons (7) - THIS WAS THE ORIGINAL PROBLEM!",
+    "Final state inconsistency: Likes don't match (sidebar: 1, visual: 3)",
+    "Final state inconsistency: Favorites don't match (sidebar: 3, visual: 7)"
+  ],
+  "centralizedComparison": [],
+  "solved": false,
+  "summary": {
+    "beforeRefresh": {
+      "likedButtons": 3,
+      "favoritedButtons": 7,
+      "sidebarLikes": 1,
+      "sidebarFavorites": 3,
+      "totalLikeButtons": 10,
+      "totalFavoriteButtons": 10
+    },
+    "afterRefresh": {
+      "likedButtons": 3,
+      "favoritedButtons": 7,
+      "sidebarLikes": 1,
+      "sidebarFavorites": 3,
+      "totalLikeButtons": 10,
+      "totalFavoriteButtons": 10
+    },
+    "finalCounts": {
+      "likedButtons": 3,
+      "favoritedButtons": 7,
+      "sidebarLikes": 1,
+      "sidebarFavorites": 3,
+      "totalLikeButtons": 10,
+      "totalFavoriteButtons": 10
+    },
+    "consistencyAchieved": false,
+    "successfulLikes": 3,
+    "successfulFavorites": 3
+  },
+  "previousProblems": {
+    "description": "Before: Sidebar showed 1 like but 3 games showed as liked after page refresh. Sidebar showed 2 favorites but 6 games showed as favorited after page refresh.",
+    "fixed": false
+  }
+}

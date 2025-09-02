@@ -1,0 +1,89 @@
+{
+  "timestamp": "2025-08-13T07:05:03.291Z",
+  "testResults": [
+    {
+      "step": 1,
+      "action": "Navigate to test home",
+      "status": "PASS"
+    },
+    {
+      "step": 2,
+      "action": "Favorite game card",
+      "status": "PASS"
+    },
+    {
+      "step": 3,
+      "action": "White heart visible when not hovering",
+      "status": "PASS",
+      "details": {
+        "exists": true,
+        "visible": true,
+        "content": "\"♥\"",
+        "opacity": "1",
+        "cardDataFavorited": "true",
+        "isHovering": false
+      }
+    },
+    {
+      "step": 4,
+      "action": "White heart hidden on hover, overlay visible",
+      "status": "PASS",
+      "details": {
+        "heart": {
+          "exists": true,
+          "visible": false,
+          "content": "none",
+          "opacity": "1",
+          "isHovering": true,
+          "cardDataFavorited": "true"
+        },
+        "overlay": {
+          "exists": true,
+          "visible": true,
+          "display": "flex",
+          "opacity": "1"
+        }
+      }
+    },
+    {
+      "step": 5,
+      "action": "White heart reappears after hover ends",
+      "status": "PASS",
+      "details": {
+        "exists": true,
+        "visible": true,
+        "content": "\"♥\"",
+        "opacity": "1",
+        "cardDataFavorited": "true",
+        "isHovering": false
+      }
+    },
+    {
+      "step": 6,
+      "action": "Navigate to game player interface",
+      "status": "PASS"
+    },
+    {
+      "step": 7,
+      "action": "Related game heart visible when not hovering",
+      "status": "PASS"
+    },
+    {
+      "step": 7,
+      "action": "Related game heart hidden on hover",
+      "status": "PASS"
+    }
+  ],
+  "screenshots": [
+    "step1_initial_test_home.png",
+    "step3_heart_visible_no_hover.png",
+    "step4_heart_hidden_on_hover.png",
+    "step5_heart_reappears.png",
+    "step6_game_player_interface.png",
+    "step7_related_heart_visible.png",
+    "step7_related_heart_on_hover.png",
+    "step8_final_state.png"
+  ],
+  "issues": [],
+  "summary": "Heart Visibility Test Results: 8/8 tests passed. All critical heart visibility behaviors working correctly!"
+}

@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-08-12T22:27:11.832Z",
+  "totalIssues": 2,
+  "issuesByType": {
+    "sidebar_likes_mismatch": 1,
+    "test_error": 1
+  },
+  "detailedIssues": [
+    {
+      "phase": "After Like Main",
+      "type": "sidebar_likes_mismatch",
+      "expected": 0,
+      "actual": 1,
+      "description": "Sidebar shows 1 likes but user has liked 0 games"
+    },
+    {
+      "phase": "ERROR",
+      "type": "test_error",
+      "error": "Waiting for selector `.game-player-container` failed: Waiting failed: 10000ms exceeded",
+      "description": "Test failed with error: Waiting for selector `.game-player-container` failed: Waiting failed: 10000ms exceeded"
+    }
+  ],
+  "apiCalls": [
+    {
+      "url": "http://localhost:5000/test-home/api/games",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:26:39.713Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/likes",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:26:39.731Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/favorites",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:26:39.745Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/likes",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:26:39.747Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/favorites",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:26:39.748Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/likes",
+      "method": "POST",
+      "timestamp": "2025-08-12T22:26:55.349Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/games",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:27:00.009Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/likes",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:27:00.024Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/favorites",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:27:00.027Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/likes",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:27:00.030Z"
+    },
+    {
+      "url": "http://localhost:5000/test-home/api/user/favorites",
+      "method": "GET",
+      "timestamp": "2025-08-12T22:27:00.032Z"
+    }
+  ],
+  "testSteps": 3
+}

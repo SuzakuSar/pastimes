@@ -149,6 +149,60 @@ def init_database():
             ON leaderboard_entries(game_name, timestamp DESC)
         ''')
         
+        # User interactions tables for likes and favorites
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_identifier TEXT NOT NULL,
+                game_name TEXT NOT NULL,
+                liked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                ip_address TEXT,
+                UNIQUE(user_identifier, game_name)
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_favorites (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_identifier TEXT NOT NULL,
+                game_name TEXT NOT NULL,
+                favorited_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                ip_address TEXT,
+                UNIQUE(user_identifier, game_name)
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS game_stats (
+                game_name TEXT PRIMARY KEY,
+                total_likes INTEGER DEFAULT 0,
+                total_favorites INTEGER DEFAULT 0,
+                total_plays INTEGER DEFAULT 0,
+                last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Indexes for user interactions
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_likes_identifier 
+            ON user_likes(user_identifier)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_likes_game 
+            ON user_likes(game_name)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_favorites_identifier 
+            ON user_favorites(user_identifier)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_favorites_game 
+            ON user_favorites(game_name)
+        ''')
+        
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_leaderboard_username 
             ON leaderboard_entries(username)
@@ -340,6 +394,212 @@ def save_score_to_session(game_name, score, score_type="points", ranking_method=
         'timestamp': datetime.now().isoformat()
     }
     return True
+
+# ===== USER INTERACTION FUNCTIONS (LIKES AND FAVORITES) =====
+
+def get_user_identifier(request):
+    """Get a unique identifier for the user (session-based with IP fallback)"""
+    if 'user_id' not in session:
+        import uuid
+        session['user_id'] = str(uuid.uuid4())
+        session.permanent = True
+    return session['user_id']
+
+def toggle_like(game_name, user_identifier=None, ip_address=None):
+    """Toggle like status for a game by a user"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Check if already liked
+            cursor.execute('''
+                SELECT id FROM user_likes 
+                WHERE user_identifier = ? AND game_name = ?
+            ''', (user_identifier, game_name))
+            
+            existing_like = cursor.fetchone()
+            
+            if existing_like:
+                # Remove like
+                cursor.execute('''
+                    DELETE FROM user_likes 
+                    WHERE user_identifier = ? AND game_name = ?
+                ''', (user_identifier, game_name))
+                action = 'unliked'
+                is_liked = False
+            else:
+                # Add like
+                cursor.execute('''
+                    INSERT INTO user_likes (user_identifier, game_name, ip_address)
+                    VALUES (?, ?, ?)
+                ''', (user_identifier, game_name, ip_address))
+                action = 'liked'
+                is_liked = True
+            
+            # Update game stats
+            update_game_stats(game_name, cursor)
+            
+            # Get updated like count
+            cursor.execute('''
+                SELECT COUNT(*) FROM user_likes WHERE game_name = ?
+            ''', (game_name,))
+            like_count = cursor.fetchone()[0]
+            
+            # Get user's like count
+            cursor.execute('''
+                SELECT COUNT(*) FROM user_likes WHERE user_identifier = ?
+            ''', (user_identifier,))
+            user_like_count = cursor.fetchone()[0]
+            
+            conn.commit()
+            
+            return {
+                'success': True,
+                'action': action,
+                'is_liked': is_liked,
+                'like_count': like_count,
+                'user_like_count': user_like_count
+            }
+            
+    except Exception as e:
+        print(f"Error toggling like: {e}")
+        return {'success': False, 'error': str(e)}
+
+def toggle_favorite(game_name, user_identifier=None, ip_address=None):
+    """Toggle favorite status for a game by a user"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Check if already favorited
+            cursor.execute('''
+                SELECT id FROM user_favorites 
+                WHERE user_identifier = ? AND game_name = ?
+            ''', (user_identifier, game_name))
+            
+            existing_favorite = cursor.fetchone()
+            
+            if existing_favorite:
+                # Remove favorite
+                cursor.execute('''
+                    DELETE FROM user_favorites 
+                    WHERE user_identifier = ? AND game_name = ?
+                ''', (user_identifier, game_name))
+                action = 'unfavorited'
+                is_favorited = False
+            else:
+                # Add favorite
+                cursor.execute('''
+                    INSERT INTO user_favorites (user_identifier, game_name, ip_address)
+                    VALUES (?, ?, ?)
+                ''', (user_identifier, game_name, ip_address))
+                action = 'favorited'
+                is_favorited = True
+            
+            # Update game stats
+            update_game_stats(game_name, cursor)
+            
+            # Get updated favorite count
+            cursor.execute('''
+                SELECT COUNT(*) FROM user_favorites WHERE game_name = ?
+            ''', (game_name,))
+            favorite_count = cursor.fetchone()[0]
+            
+            # Get user's favorite count
+            cursor.execute('''
+                SELECT COUNT(*) FROM user_favorites WHERE user_identifier = ?
+            ''', (user_identifier,))
+            user_favorite_count = cursor.fetchone()[0]
+            
+            conn.commit()
+            
+            return {
+                'success': True,
+                'action': action,
+                'is_favorited': is_favorited,
+                'favorite_count': favorite_count,
+                'user_favorite_count': user_favorite_count
+            }
+            
+    except Exception as e:
+        print(f"Error toggling favorite: {e}")
+        return {'success': False, 'error': str(e)}
+
+def get_user_likes(user_identifier):
+    """Get list of games liked by a user"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT game_name, liked_at FROM user_likes 
+                WHERE user_identifier = ?
+                ORDER BY liked_at DESC
+            ''', (user_identifier,))
+            return [row[0] for row in cursor.fetchall()]
+    except Exception as e:
+        print(f"Error getting user likes: {e}")
+        return []
+
+def get_user_favorites(user_identifier):
+    """Get list of games favorited by a user"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT game_name, favorited_at FROM user_favorites 
+                WHERE user_identifier = ?
+                ORDER BY favorited_at DESC
+            ''', (user_identifier,))
+            return [row[0] for row in cursor.fetchall()]
+    except Exception as e:
+        print(f"Error getting user favorites: {e}")
+        return []
+
+def get_game_stats(game_name):
+    """Get like/favorite counts for a game"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Get likes count
+            cursor.execute('SELECT COUNT(*) FROM user_likes WHERE game_name = ?', (game_name,))
+            likes = cursor.fetchone()[0]
+            
+            # Get favorites count  
+            cursor.execute('SELECT COUNT(*) FROM user_favorites WHERE game_name = ?', (game_name,))
+            favorites = cursor.fetchone()[0]
+            
+            return {
+                'likes': likes,
+                'favorites': favorites
+            }
+    except Exception as e:
+        print(f"Error getting game stats: {e}")
+        return {'likes': 0, 'favorites': 0}
+
+def update_game_stats(game_name, cursor=None):
+    """Update the game_stats table with current counts"""
+    if cursor is None:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            _update_game_stats_internal(game_name, cursor)
+            conn.commit()
+    else:
+        _update_game_stats_internal(game_name, cursor)
+
+def _update_game_stats_internal(game_name, cursor):
+    """Internal function to update game stats"""
+    cursor.execute('SELECT COUNT(*) FROM user_likes WHERE game_name = ?', (game_name,))
+    likes = cursor.fetchone()[0]
+    
+    cursor.execute('SELECT COUNT(*) FROM user_favorites WHERE game_name = ?', (game_name,))
+    favorites = cursor.fetchone()[0]
+    
+    cursor.execute('''
+        INSERT OR REPLACE INTO game_stats 
+        (game_name, total_likes, total_favorites, last_updated)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    ''', (game_name, likes, favorites))
 
 def get_leaderboard(game_name, limit=50, offset=0):
     """Enhanced get leaderboard function"""

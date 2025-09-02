@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-08-12T22:30:11.655Z",
+  "totalIssues": 2,
+  "issuesByType": {
+    "likes_count_mismatch": 1,
+    "favorites_count_mismatch": 1
+  },
+  "detailedIssues": [
+    {
+      "phase": "After Page Refresh",
+      "type": "likes_count_mismatch",
+      "sidebar": 1,
+      "buttons": 3,
+      "description": "Sidebar shows 1 likes but 3 games are actually liked"
+    },
+    {
+      "phase": "After Page Refresh",
+      "type": "favorites_count_mismatch",
+      "sidebar": 2,
+      "buttons": 6,
+      "description": "Sidebar shows 2 favorites but 6 games are actually favorited"
+    }
+  ],
+  "testSteps": 7,
+  "conclusion": "NUMERICAL_INCONSISTENCY_CONFIRMED"
+}

@@ -2,6 +2,64 @@
 
 {% block title %}Test Layout - Gaming Hub{% endblock %}
 
+{# Reusable GameCard Macro #}
+{% macro game_card(game, options={}) %}
+    {% set card_options = {
+        'show_likes': options.get('show_likes', true),
+        'show_plays': options.get('show_plays', true), 
+        'show_rating': options.get('show_rating', false),
+        'show_featured_badge': options.get('show_featured_badge', true),
+        'show_category': options.get('show_category', false),
+        'show_overlay': options.get('show_overlay', true),
+        'css_classes': options.get('css_classes', [])
+    } %}
+    <article class="game-card {{ ' '.join(card_options.css_classes) }}" 
+             data-category="{{ game.category }}" 
+             data-featured="{{ game.get('featured', false)|lower }}" 
+             data-game-name="{{ game.name }}" 
+             data-game-description="{{ game.get('description', '') }}" 
+             data-game-endpoint="{{ game.get('endpoint', '') }}">
+        <div class="card-thumbnail">
+            <div class="thumbnail-placeholder" data-game-title="{{ game.name }}">
+                <span class="thumbnail-title">{{ game.name }}</span>
+            </div>
+            {% if card_options.show_featured_badge and game.get('featured', false) %}
+            <div class="featured-badge">Featured</div>
+            {% endif %}
+        </div>
+        {% if card_options.show_overlay %}
+        <div class="card-overlay">
+            <div class="card-content">
+                <div class="card-meta">
+                    {% if card_options.show_likes %}
+                    <span class="card-likes-container">
+                        <button class="btn-like" aria-label="Like this game" data-liked="false" data-game-name="{{ game.name }}">
+                            <span class="thumb-outline">👍</span>
+                            <span class="thumb-filled">👍</span>
+                        </button>
+                        <span class="likes-count">{{ game.likes }}</span>
+                    </span>
+                    {% endif %}
+                    {% if card_options.show_plays %}
+                    <span class="card-plays">{{ game.plays }} plays</span>
+                    {% endif %}
+                    {% if card_options.show_rating %}
+                    <span class="card-rating">⭐ {{ game.get('rating', 'N/A') }}</span>
+                    {% endif %}
+                    {% if card_options.show_category %}
+                    <span class="card-category">{{ game.category.title() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="{{ game.name }}">
+                <span class="heart-outline">♡</span>
+                <span class="heart-filled">♥</span>
+            </button>
+        </div>
+        {% endif %}
+    </article>
+{% endmacro %}
+
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('test_home.static', filename='css/test_layout.css') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -121,11 +179,17 @@
                             <div class="card-overlay">
                                 <div class="card-content">
                                     <div class="card-meta">
-                                        <span class="card-rating">⭐ {{ game.rating }}</span>
+                                        <span class="card-likes-container">
+                                            <button class="btn-like" aria-label="Like this game" data-liked="false" data-game-name="{{ game.name }}">
+                                                <span class="thumb-outline">👍</span>
+                                                <span class="thumb-filled">👍</span>
+                                            </button>
+                                            <span class="likes-count">{{ game.likes }}</span>
+                                        </span>
                                         <span class="card-plays">{{ game.plays }} plays</span>
                                     </div>
                                 </div>
-                                <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
+                                <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="{{ game.name }}">
                                     <span class="heart-outline">♡</span>
                                     <span class="heart-filled">♥</span>
                                 </button>
@@ -164,11 +228,17 @@
                         <div class="card-overlay">
                             <div class="card-content">
                                 <div class="card-meta">
-                                    <span class="card-rating">⭐ {{ game.rating }}</span>
+                                    <span class="card-likes-container">
+                                        <button class="btn-like" aria-label="Like this game" data-liked="false" data-game-name="{{ game.name }}">
+                                            <span class="thumb-outline">👍</span>
+                                            <span class="thumb-filled">👍</span>
+                                        </button>
+                                        <span class="likes-count">{{ game.likes }}</span>
+                                    </span>
                                     <span class="card-plays">{{ game.plays }} plays</span>
                                 </div>
                             </div>
-                            <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
+                            <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="{{ game.name }}">
                                 <span class="heart-outline">♡</span>
                                 <span class="heart-filled">♥</span>
                             </button>
@@ -204,6 +274,373 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const gamesGrid = document.getElementById('gamesGrid');
     const main = document.getElementById('hubMain');
+    
+    // Professional-grade centralized state management system
+    class GameStateManager {
+        constructor() {
+            this.likedGames = new Set();
+            this.favoritedGames = new Set();
+            this.gameStats = new Map(); // Store like counts per game
+            this.activeRequests = new Map();
+            this.stateChangeListeners = [];
+            this.initialized = false;
+        }
+        
+        // Subscribe to state changes (like YouTube's real-time updates)
+        onStateChange(callback) {
+            this.stateChangeListeners.push(callback);
+        }
+        
+        // Notify all subscribers of state changes
+        notifyStateChange(type, gameName, newState) {
+            this.stateChangeListeners.forEach(callback => {
+                callback({ type, gameName, newState, manager: this });
+            });
+        }
+        
+        // Initialize state from database (single source of truth)
+        async initialize() {
+            if (this.initialized) return;
+            
+            try {
+                // Load user's liked games
+                const likesResponse = await fetch('/test-home/api/user/likes');
+                const likesData = await likesResponse.json();
+                if (likesData.success) {
+                    this.likedGames = new Set(likesData.likes || []);
+                }
+                
+                // Load user's favorited games  
+                const favoritesResponse = await fetch('/test-home/api/user/favorites');
+                const favoritesData = await favoritesResponse.json();
+                if (favoritesData.success) {
+                    this.favoritedGames = new Set(favoritesData.favorites || []);
+                }
+                
+                // Initialize game stats from current page data
+                this.updateGameStatsFromDOM();
+                
+                this.initialized = true;
+                this.syncAllUIElements();
+                this.updateSidebarCounts();
+                
+                console.log('GameStateManager initialized:', {
+                    likes: this.likedGames.size,
+                    favorites: this.favoritedGames.size
+                });
+                
+            } catch (error) {
+                console.error('Failed to initialize GameStateManager:', error);
+                this.initialized = true; // Prevent infinite retry
+            }
+        }
+        
+        // Update game stats from DOM elements
+        updateGameStatsFromDOM() {
+            const gameCards = document.querySelectorAll('[data-game-name]');
+            gameCards.forEach(card => {
+                const gameName = card.dataset.gameName;
+                if (!this.gameStats.has(gameName)) {
+                    const likesElement = card.querySelector('.likes-count');
+                    const likes = likesElement ? parseInt(likesElement.textContent) || 0 : 0;
+                    this.gameStats.set(gameName, { likes });
+                }
+            });
+        }
+        
+        // Check if game is liked
+        isLiked(gameName) {
+            return this.likedGames.has(gameName);
+        }
+        
+        // Check if game is favorited
+        isFavorited(gameName) {
+            return this.favoritedGames.has(gameName);
+        }
+        
+        // Get game like count
+        getGameLikes(gameName) {
+            return this.gameStats.get(gameName)?.likes || 0;
+        }
+        
+        // Toggle like state with database sync
+        async toggleLike(gameName) {
+            // Prevent multiple simultaneous requests for same game
+            const requestKey = `like_${gameName}`;
+            if (this.activeRequests.has(requestKey)) {
+                console.log('Like request already in progress for:', gameName);
+                return null;
+            }
+            
+            const isCurrentlyLiked = this.isLiked(gameName);
+            
+            // Optimistic update for immediate UI feedback
+            if (isCurrentlyLiked) {
+                this.likedGames.delete(gameName);
+            } else {
+                this.likedGames.add(gameName);
+            }
+            
+            // Notify UI immediately
+            this.notifyStateChange('like', gameName, !isCurrentlyLiked);
+            this.updateSidebarCounts();
+            
+            // Create database request
+            const requestPromise = fetch('/test-home/api/likes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, action: 'toggle' })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update game stats with server response
+                    const currentStats = this.gameStats.get(gameName) || { likes: 0 };
+                    currentStats.likes = data.game_likes;
+                    this.gameStats.set(gameName, currentStats);
+                    
+                    // Verify our optimistic update was correct
+                    const serverLiked = data.is_liked;
+                    const clientLiked = this.isLiked(gameName);
+                    
+                    if (serverLiked !== clientLiked) {
+                        console.warn('State mismatch detected, correcting:', { gameName, serverLiked, clientLiked });
+                        if (serverLiked) {
+                            this.likedGames.add(gameName);
+                        } else {
+                            this.likedGames.delete(gameName);
+                        }
+                        this.notifyStateChange('like', gameName, serverLiked);
+                    }
+                    
+                    // Final UI sync with server data
+                    this.syncGameElements(gameName);
+                    this.updateSidebarCounts();
+                    
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Server error');
+                }
+            })
+            .catch(error => {
+                console.error('Like request failed, reverting optimistic update:', error);
+                // Revert optimistic update
+                if (isCurrentlyLiked) {
+                    this.likedGames.add(gameName);
+                } else {
+                    this.likedGames.delete(gameName);
+                }
+                this.notifyStateChange('like', gameName, isCurrentlyLiked);
+                this.updateSidebarCounts();
+                throw error;
+            })
+            .finally(() => {
+                this.activeRequests.delete(requestKey);
+            });
+            
+            this.activeRequests.set(requestKey, requestPromise);
+            return requestPromise;
+        }
+        
+        // Toggle favorite state with database sync
+        async toggleFavorite(gameName) {
+            const requestKey = `favorite_${gameName}`;
+            if (this.activeRequests.has(requestKey)) {
+                console.log('Favorite request already in progress for:', gameName);
+                return null;
+            }
+            
+            const isCurrentlyFavorited = this.isFavorited(gameName);
+            
+            // Optimistic update
+            if (isCurrentlyFavorited) {
+                this.favoritedGames.delete(gameName);
+            } else {
+                this.favoritedGames.add(gameName);
+            }
+            
+            this.notifyStateChange('favorite', gameName, !isCurrentlyFavorited);
+            this.updateSidebarCounts();
+            
+            const requestPromise = fetch('/test-home/api/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, action: 'toggle' })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Verify optimistic update
+                    const serverFavorited = data.is_favorited;
+                    const clientFavorited = this.isFavorited(gameName);
+                    
+                    if (serverFavorited !== clientFavorited) {
+                        console.warn('Favorite state mismatch, correcting:', { gameName, serverFavorited, clientFavorited });
+                        if (serverFavorited) {
+                            this.favoritedGames.add(gameName);
+                        } else {
+                            this.favoritedGames.delete(gameName);
+                        }
+                        this.notifyStateChange('favorite', gameName, serverFavorited);
+                    }
+                    
+                    this.syncGameElements(gameName);
+                    this.updateSidebarCounts();
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Server error');
+                }
+            })
+            .catch(error => {
+                console.error('Favorite request failed, reverting:', error);
+                // Revert optimistic update
+                if (isCurrentlyFavorited) {
+                    this.favoritedGames.add(gameName);
+                } else {
+                    this.favoritedGames.delete(gameName);
+                }
+                this.notifyStateChange('favorite', gameName, isCurrentlyFavorited);
+                this.updateSidebarCounts();
+                throw error;
+            })
+            .finally(() => {
+                this.activeRequests.delete(requestKey);
+            });
+            
+            this.activeRequests.set(requestKey, requestPromise);
+            return requestPromise;
+        }
+        
+        // Sync all UI elements for a specific game
+        syncGameElements(gameName) {
+            const isLiked = this.isLiked(gameName);
+            const isFavorited = this.isFavorited(gameName);
+            const gameStats = this.gameStats.get(gameName) || { likes: 0 };
+            
+            // Update all like buttons for this game
+            const likeButtons = document.querySelectorAll(`[data-game-name="${gameName}"] .btn-like, .btn-like[data-game-name="${gameName}"]`);
+            likeButtons.forEach(button => {
+                button.setAttribute('data-liked', isLiked.toString());
+                button.dataset.locked = 'false';
+                button.style.pointerEvents = '';
+                button.style.opacity = '';
+            });
+            
+            // Update all favorite buttons for this game
+            const favoriteButtons = document.querySelectorAll(`[data-game-name="${gameName}"] .btn-favorite, .btn-favorite[data-game-name="${gameName}"]`);
+            favoriteButtons.forEach(button => {
+                button.setAttribute('data-favorited', isFavorited.toString());
+                button.dataset.locked = 'false';
+                button.style.pointerEvents = '';
+                button.style.opacity = '';
+            });
+            
+            // Update game card data-favorited attribute for CSS styling
+            const gameCards = document.querySelectorAll(`[data-game-name="${gameName}"]`);
+            gameCards.forEach(card => {
+                card.setAttribute('data-favorited', isFavorited.toString());
+            });
+            
+            // Update all like counts for this game
+            const likeCountElements = document.querySelectorAll(`[data-game-name="${gameName}"] .likes-count`);
+            likeCountElements.forEach(element => {
+                element.textContent = gameStats.likes;
+            });
+        }
+        
+        // Sync all UI elements on page
+        syncAllUIElements() {
+            // Get unique game names
+            const gameNames = new Set();
+            document.querySelectorAll('[data-game-name]').forEach(element => {
+                gameNames.add(element.dataset.gameName);
+            });
+            
+            // Sync each game's elements
+            gameNames.forEach(gameName => {
+                this.syncGameElements(gameName);
+            });
+        }
+        
+        // Update sidebar counts
+        updateSidebarCounts() {
+            const likedCount = document.querySelector('[data-category="Liked"] .nav-count');
+            const favoritedCount = document.querySelector('[data-category="Favorited"] .nav-count');
+            
+            if (likedCount) likedCount.textContent = this.likedGames.size;
+            if (favoritedCount) favoritedCount.textContent = this.favoritedGames.size;
+        }
+        
+        // Validate state consistency (debugging tool)
+        validateConsistency() {
+            const sidebarLikes = parseInt(document.querySelector('[data-category="Liked"] .nav-count')?.textContent || '0');
+            const sidebarFavorites = parseInt(document.querySelector('[data-category="Favorited"] .nav-count')?.textContent || '0');
+            
+            const actualLikes = this.likedGames.size;
+            const actualFavorites = this.favoritedGames.size;
+            
+            if (sidebarLikes !== actualLikes || sidebarFavorites !== actualFavorites) {
+                console.error('State inconsistency detected!', {
+                    sidebar: { likes: sidebarLikes, favorites: sidebarFavorites },
+                    actual: { likes: actualLikes, favorites: actualFavorites }
+                });
+                this.updateSidebarCounts();
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    // Create global state manager instance
+    const gameState = new GameStateManager();
+    
+    // Legacy compatibility
+    let memoryLikesCount = 0;
+    let memoryFavoritesCount = 0;
+    
+    // Enhanced request tracking to prevent race conditions (kept for compatibility)
+    const activeRequests = new Map();
+    const buttonStates = new Map();
+    
+    function isRequestActive(gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        return activeRequests.has(key);
+    }
+    
+    function setRequestActive(gameName, requestType, promise) {
+        const key = `${gameName}_${requestType}`;
+        activeRequests.set(key, promise);
+        promise.finally(() => {
+            activeRequests.delete(key);
+        });
+        return promise;
+    }
+    
+    function isButtonLocked(buttonElement) {
+        return buttonElement.dataset.locked === 'true';
+    }
+    
+    function lockButton(buttonElement, gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        buttonElement.dataset.locked = 'true';
+        buttonElement.style.pointerEvents = 'none';
+        buttonElement.style.opacity = '0.6';
+        buttonStates.set(key, buttonElement);
+    }
+    
+    function unlockButton(buttonElement, gameName, requestType) {
+        const key = `${gameName}_${requestType}`;
+        buttonElement.dataset.locked = 'false';
+        buttonElement.style.pointerEvents = '';
+        buttonElement.style.opacity = '';
+        buttonStates.delete(key);
+    }
     
     // State management
     let sidebarOpen = window.innerWidth >= 640; // Open by default on desktop
@@ -675,70 +1112,206 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Error updating recently played:', error);
                 });
                 
-                // Navigate to the actual game using endpoint from card data
-                const endpoint = this.dataset.gameEndpoint;
-                if (endpoint) {
-                    // Convert endpoint format: 'time_predict.index' -> '/timepredict'
-                    const path = endpoint.replace('.index', '').replace('_', '');
-                    window.location.href = `/${path}`;
-                } else {
-                    console.log(`Clicked on game: ${title} (no endpoint found)`);
-                }
+                // Navigate to the game player interface
+                const gameUrl = title.toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .trim();
+                
+                window.location.href = `/test-home/game/${gameUrl}`;
             });
         });
         
-        // Handle favorite button clicks with cookie storage
+        // Handle favorite button clicks with centralized state management
         const favoriteButtons = document.querySelectorAll('.btn-favorite');
         favoriteButtons.forEach(button => {
-            button.addEventListener('click', function(event) {
+            button.addEventListener('click', async function(event) {
                 event.stopPropagation();
+                event.preventDefault();
+                
                 const card = this.closest('.game-card, .featured-game-card');
-                const title = card.dataset.gameName || card.querySelector('.thumbnail-title')?.textContent || 'Unknown Game';
+                const gameName = card.dataset.gameName || card.querySelector('.thumbnail-title')?.textContent || 'Unknown Game';
                 
-                // Toggle favorited state
-                const isFavorited = this.getAttribute('data-favorited') === 'true';
-                const newState = !isFavorited;
+                // Use centralized state manager
+                try {
+                    await gameState.toggleFavorite(gameName);
+                    
+                    // Animation feedback
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                    
+                } catch (error) {
+                    console.error('Favorite toggle failed:', error);
+                    // Could show user-friendly error message
+                }
                 
-                // Update UI immediately
-                this.setAttribute('data-favorited', newState.toString());
-                
-                // Save to server with cookies
-                fetch('/test-home/api/favorites', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        game_name: title,
-                        action: 'toggle'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update navigation count
-                        const favoritedNav = document.querySelector('[data-category="Favorited"] .nav-count');
-                        if (favoritedNav) {
-                            favoritedNav.textContent = data.count;
-                        }
-                        
-                        // Show feedback animation
-                        if (newState) {
-                            this.style.transform = 'scale(1.2)';
-                            setTimeout(() => {
-                                this.style.transform = '';
-                            }, 200);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating favorites:', error);
-                    // Revert UI state on error
-                    this.setAttribute('data-favorited', isFavorited.toString());
-                });
+                return false;
             });
         });
+        
+        // Handle like button clicks with centralized state management
+        const likeButtons = document.querySelectorAll('.btn-like');
+        likeButtons.forEach(button => {
+            button.addEventListener('click', async function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                
+                const card = this.closest('.game-card, .featured-game-card');
+                const gameName = this.getAttribute('data-game-name') || card.dataset.gameName;
+                
+                // Use centralized state manager
+                try {
+                    await gameState.toggleLike(gameName);
+                    
+                    // Animation feedback
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                    
+                } catch (error) {
+                    console.error('Like toggle failed:', error);
+                    // Could show user-friendly error message
+                }
+                
+                return false;
+            });
+        });
+        
+        // Initialize the centralized state management system
+        gameState.initialize();
+        
+        // Add listener to automatically refresh category when state changes
+        gameState.onStateChange((change) => {
+            // If we're currently viewing Favorited/Liked category, refresh it when state changes
+            if (currentCategory === 'Favorited' || currentCategory === 'Liked') {
+                setTimeout(() => {
+                    filterGamesForCategory(currentCategory);
+                }, 100); // Small delay to ensure state is fully updated
+            }
+        });
     }
+    
+    // Initialize like button states from database
+    function initializeLikeStates() {
+        // Make API call to get user's likes
+        fetch('/test-home/api/user/likes')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const userLikes = data.likes || [];
+                    const likeButtons = document.querySelectorAll('.btn-like');
+                    
+                    likeButtons.forEach(button => {
+                        const gameName = button.getAttribute('data-game-name');
+                        const isLiked = userLikes.includes(gameName);
+                        button.setAttribute('data-liked', isLiked.toString());
+                    });
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user likes:', error);
+                // Fallback to empty state
+                const likeButtons = document.querySelectorAll('.btn-like');
+                likeButtons.forEach(button => {
+                    button.setAttribute('data-liked', 'false');
+                });
+            });
+    }
+    
+    // Initialize favorite button states from database
+    function initializeFavoriteStates() {
+        // Make API call to get user's favorites
+        fetch('/test-home/api/user/favorites')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const userFavorites = data.favorites || [];
+                    const favoriteButtons = document.querySelectorAll('.btn-favorite');
+                    
+                    favoriteButtons.forEach(button => {
+                        const gameName = button.getAttribute('data-game-name');
+                        const isFavorited = userFavorites.includes(gameName);
+                        button.setAttribute('data-favorited', isFavorited.toString());
+                    });
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user favorites:', error);
+                // Fallback to empty state
+                const favoriteButtons = document.querySelectorAll('.btn-favorite');
+                favoriteButtons.forEach(button => {
+                    button.setAttribute('data-favorited', 'false');
+                });
+            });
+    }
+    
+    // Update sidebar counts using memory tracking (consistent with game page)
+    function updateSidebarFromMemory() {
+        const likedNav = document.querySelector('[data-category="Liked"] .nav-count');
+        const favoritedNav = document.querySelector('[data-category="Favorited"] .nav-count');
+        
+        if (likedNav) likedNav.textContent = memoryLikesCount;
+        if (favoritedNav) favoritedNav.textContent = memoryFavoritesCount;
+    }
+    
+    // Enhanced state validation using centralized system
+    function validateStateConsistency() {
+        if (gameState.initialized) {
+            return gameState.validateConsistency();
+        }
+        
+        // Fallback for legacy compatibility
+        if (memoryLikesCount < 0) {
+            console.warn('Detected corrupted likes count, resetting to 0');
+            memoryLikesCount = 0;
+        }
+        
+        if (memoryFavoritesCount < 0) {
+            console.warn('Detected corrupted favorites count, resetting to 0');
+            memoryFavoritesCount = 0;
+        }
+        
+        updateSidebarFromMemory();
+        return true;
+    }
+
+    // Initialize sidebar counts from database
+    function initializeSidebarCounts() {
+        // Get likes count
+        fetch('/test-home/api/user/likes')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    memoryLikesCount = data.count;
+                    updateSidebarFromMemory();
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user likes count:', error);
+                memoryLikesCount = 0;
+                updateSidebarFromMemory();
+            });
+        
+        // Get favorites count
+        fetch('/test-home/api/user/favorites')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    memoryFavoritesCount = data.count;
+                    updateSidebarFromMemory();
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load user favorites count:', error);
+                memoryFavoritesCount = 0;
+                updateSidebarFromMemory();
+            });
+    }
+    
+    // Cookie functions removed - now using database-only system
     
     // ===== NAVIGATION HIGHLIGHTING =====
     
@@ -991,8 +1564,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (categoryName === 'Featured') {
             filteredGames = filteredGames.filter(game => game.featured);
         } else if (categoryName === 'Favorited') {
-            // TODO: Implement favorited games logic
-            filteredGames = filteredGames.filter(game => game.featured); // Placeholder
+            // Filter by actually favorited games using the state manager
+            filteredGames = filteredGames.filter(game => gameState.isFavorited(game.name));
+        } else if (categoryName === 'Liked') {
+            // Filter by actually liked games using the state manager
+            filteredGames = filteredGames.filter(game => gameState.isLiked(game.name));
         } else if (categoryName === 'Recently Played') {
             // TODO: Implement recently played logic
             filteredGames = filteredGames.slice(0, 5); // Placeholder
@@ -1038,6 +1614,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Reinitialize card interactions for new cards
                 initializeCardInteractions();
+                
+                // CRITICAL: Sync state to newly created cards
+                gameState.syncAllUIElements();
             }
             
             // Remove loading state
@@ -1045,37 +1624,108 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }
     
-    function createGameCard(game) {
-        const article = document.createElement('article');
-        article.className = 'game-card';
-        article.setAttribute('data-category', game.category);
-        article.setAttribute('data-featured', game.featured.toString());
-        article.setAttribute('data-game-name', game.name);
-        article.setAttribute('data-game-description', game.description);
-        article.setAttribute('data-game-endpoint', game.endpoint || '');
+    // ===== REUSABLE GAMECARD CLASS =====
+    class GameCard {
+        constructor(gameData, options = {}) {
+            this.gameData = gameData;
+            this.options = {
+                showLikes: options.showLikes ?? true,
+                showPlays: options.showPlays ?? true,
+                showRating: options.showRating ?? false,
+                showFeaturedBadge: options.showFeaturedBadge ?? true,
+                showCategory: options.showCategory ?? false,
+                showOverlay: options.showOverlay ?? true,
+                clickable: options.clickable ?? true,
+                cssClasses: options.cssClasses || [],
+                container: options.container || null // Optional container element
+            };
+        }
         
-        article.innerHTML = `
-            <div class="card-thumbnail">
-                <div class="thumbnail-placeholder" data-game-title="${game.name}">
-                    <span class="thumbnail-title">${game.name}</span>
-                </div>
-                ${game.featured ? '<div class="featured-badge">Featured</div>' : ''}
-            </div>
-            <div class="card-overlay">
-                <div class="card-content">
-                    <div class="card-meta">
-                        <span class="card-rating">⭐ ${game.rating}</span>
-                        <span class="card-plays">${game.plays} plays</span>
+        render() {
+            const article = document.createElement('article');
+            article.className = `game-card ${this.options.cssClasses.join(' ')}`.trim();
+            article.setAttribute('data-category', this.gameData.category);
+            article.setAttribute('data-featured', this.gameData.featured.toString());
+            article.setAttribute('data-game-name', this.gameData.name);
+            article.setAttribute('data-game-description', this.gameData.description || '');
+            article.setAttribute('data-game-endpoint', this.gameData.endpoint || '');
+            
+            // Build meta items
+            const metaItems = [];
+            if (this.options.showLikes) {
+                metaItems.push(`
+                    <span class="card-likes-container">
+                        <button class="btn-like" aria-label="Like this game" data-liked="false" data-game-name="${this.gameData.name}">
+                            <span class="thumb-outline">👍</span>
+                            <span class="thumb-filled">👍</span>
+                        </button>
+                        <span class="likes-count">${this.gameData.likes}</span>
+                    </span>
+                `);
+            }
+            
+            if (this.options.showPlays) {
+                metaItems.push(`<span class="card-plays">${this.gameData.plays} plays</span>`);
+            }
+            
+            if (this.options.showRating) {
+                metaItems.push(`<span class="card-rating">⭐ ${this.gameData.rating || 'N/A'}</span>`);
+            }
+            
+            if (this.options.showCategory) {
+                metaItems.push(`<span class="card-category">${this.gameData.category.charAt(0).toUpperCase() + this.gameData.category.slice(1)}</span>`);
+            }
+            
+            const metaHtml = metaItems.join('');
+            const featuredBadge = (this.options.showFeaturedBadge && this.gameData.featured) ? 
+                '<div class="featured-badge">Featured</div>' : '';
+            
+            const overlayHtml = this.options.showOverlay ? `
+                <div class="card-overlay">
+                    <div class="card-content">
+                        <div class="card-meta">
+                            ${metaHtml}
+                        </div>
                     </div>
+                    <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false" data-game-name="${this.gameData.name}">
+                        <span class="heart-outline">♡</span>
+                        <span class="heart-filled">♥</span>
+                    </button>
                 </div>
-                <button class="btn-favorite" aria-label="Add to favorites" data-favorited="false">
-                    <span class="heart-outline">♡</span>
-                    <span class="heart-filled">♥</span>
-                </button>
-            </div>
-        `;
+            ` : '';
+            
+            article.innerHTML = `
+                <div class="card-thumbnail">
+                    <div class="thumbnail-placeholder" data-game-title="${this.gameData.name}">
+                        <span class="thumbnail-title">${this.gameData.name}</span>
+                    </div>
+                    ${featuredBadge}
+                </div>
+                ${overlayHtml}
+            `;
+            
+            // Auto-append to container if provided
+            if (this.options.container) {
+                this.options.container.appendChild(article);
+            }
+            
+            return article;
+        }
         
-        return article;
+        // Static method to create and render multiple cards
+        static renderMultiple(gamesArray, options = {}) {
+            return gamesArray.map(game => new GameCard(game, options).render());
+        }
+        
+        // Helper method for backward compatibility
+        static create(game, options = {}) {
+            return new GameCard(game, options).render();
+        }
+    }
+    
+    // Backward compatibility function
+    function createGameCard(game, options = {}) {
+        return GameCard.create(game, options);
     }
     
     // Handle browser back/forward buttons
@@ -1133,14 +1783,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== DEBUGGING HELPERS =====
     
+    // Database-only system - cookie functions removed
+    
+    // Periodic state validation to prevent drift during long sessions
+    setInterval(() => {
+        validateStateConsistency();
+    }, 10000); // Check every 10 seconds
+
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.hubDebug = {
+            gameState,
             toggleSidebar,
             collapseSidebar,
             handleSearch,
             sidebarOpen: () => sidebarOpen,
             sidebarCollapsed: () => sidebarCollapsed,
-            version: '1.1.0'
+            validateStateConsistency,
+            version: '2.0.0'
         };
         console.log('Debug helpers available: window.hubDebug');
     }

@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-08-13T06:16:00.113Z",
+  "testName": "Corrected Favorite Icon Behavior - Focused Test",
+  "results": [
+    {
+      "step": 1,
+      "description": "Navigate to test-home page",
+      "screenshot": "focused_step1_test_home_page.png",
+      "pageTitle": "Test Layout - Gaming Hub",
+      "isCorrectPage": true,
+      "status": "PASS"
+    },
+    {
+      "step": 2,
+      "description": "Analyze card structure",
+      "usedSelector": ".game-card",
+      "cardCount": 10,
+      "structure": {
+        "hasOverlay": true,
+        "hasFavoriteIcon": false,
+        "hasLikeBtn": false,
+        "hasPlayCount": false,
+        "cardHTML": "<article class=\"game-card\" data-category=\"arcade\" data-game-name=\"Cosmic Dino Runner\" data-game-endpoint=\"dino_runner.index\" style=\"scroll-snap-align: start;\" data-favorited=\"false\">\n                            <div class=\"card-thumbnail\">\n                                <div class=\"thumbnail-placeholder\" data-game-title=\"Cosmic Dino Runner\" style=\"background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));\">\n                                    <span class=\"thumbnail"
+      },
+      "status": "analyzed"
+    },
+    {
+      "step": 3,
+      "description": "Non-favorited card without hover (should be clean)",
+      "screenshot": "focused_step3_no_hover_state.png",
+      "state": {
+        "hasOverlay": true,
+        "overlayOpacity": "0",
+        "overlayDisplay": "flex",
+        "overlayVisibility": "visible",
+        "favoriteOpacity": "N/A",
+        "favoriteDisplay": "N/A"
+      },
+      "status": "captured"
+    },
+    {
+      "step": 4,
+      "description": "Card with hover (should show all elements)",
+      "screenshot": "focused_step4_hover_state.png",
+      "state": {
+        "hasOverlay": true,
+        "overlayOpacity": "1",
+        "overlayDisplay": "flex",
+        "overlayVisibility": "visible",
+        "hasAllElements": false,
+        "elementsVisible": {
+          "favorite": "N/A",
+          "like": "N/A",
+          "plays": "N/A"
+        }
+      },
+      "status": "captured"
+    },
+    {
+      "step": 5,
+      "description": "Could not find favorite icon to click",
+      "status": "skipped"
+    },
+    {
+      "step": 6,
+      "description": "Favorited card without hover (should show only red heart)",
+      "screenshot": "focused_step6_favorited_no_hover.png",
+      "state": {
+        "hasElements": false,
+        "message": "Missing overlay or favorite icon"
+      },
+      "status": "captured"
+    },
+    {
+      "step": 7,
+      "description": "Favorited card with hover (should show all elements)",
+      "screenshot": "focused_step7_favorited_with_hover.png",
+      "state": {
+        "hasOverlay": true,
+        "overlayOpacity": "1",
+        "hasAllElements": false,
+        "favoriteStillMarked": null
+      },
+      "status": "captured"
+    }
+  ],
+  "summary": {
+    "totalSteps": 7,
+    "completedSteps": 7,
+    "overallStatus": "completed"
+  }
+}
